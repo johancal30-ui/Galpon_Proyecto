@@ -1,0 +1,26 @@
+<div class="container mt-4">
+    <h2>Registro Diario de Alimento</h2>
+
+    <!-- Mensajes de éxito y alertas de anomalía -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_bultos_consumidos" class="form-label">Bultos de alimento consumidos hoy:</label>
+            {{ form.bultos_consumidos }}
+            {% if form.bultos_consumidos.errors %}
+                <div class="text-danger">
+                    {{ form.bultos_consumidos.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Confirmar Registro</button>
+    </form>
+</div>
