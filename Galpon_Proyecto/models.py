@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from .models import RegistroConsumoForm
 
 class RegistroConsumo(models.Model):
     fecha = models.DateField(auto_now_add=True)
