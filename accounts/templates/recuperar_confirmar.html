@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Contraseña</title>
+    <style>
+        body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px; }
+        h1 { text-align: center; color: #333; }
+        p { color: #555; font-size: 14px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 14px; }
+        .link { text-align: center; margin-top: 20px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Nueva Contraseña</h1>
+        {% if validlink %}
+            <p>Ingresa tu nueva contraseña dos veces.</p>
+            {% if form.errors %}
+                <div class="error">Las contraseñas no coinciden o no cumplen los requisitos mínimos.</div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="password" name="new_password1" placeholder="Nueva contraseña" required>
+                <input type="password" name="new_password2" placeholder="Confirmar contraseña" required>
+                <button type="submit">Cambiar contraseña</button>
+            </form>
+        {% else %}
+            <div class="error">El enlace es inválido o ya fue usado. Solicita uno nuevo.</div>
+            <div class="link">
+                <a href="{% url 'accounts:recuperar' %}">Solicitar nuevo enlace</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
