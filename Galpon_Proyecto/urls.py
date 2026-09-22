@@ -7,6 +7,5 @@ urlpatterns = [
     
     # Rutas de Producción (tu Historia de Usuario)
     path('produccion/', views.registrar_produccion, name='registrar_produccion'),
-    path('produccion/editar/<int:pk>/', views.editar_produccion, name='editar_produccion'),
-    path('produccion/eliminar/<int:pk>/', views.eliminar_produccion, name='eliminar_produccion'),
-]
+ path('produccion/editar/<int:id>/', views.editar_produccion, name='editar_produccion'),
+path('produccion/eliminar/<int:id>/', views.eliminar_produccion, name='eliminar_produccion'),]

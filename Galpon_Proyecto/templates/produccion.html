@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Producción - Galpón Proyecto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 { color: #28a745; text-align: center; }
+        .mensaje-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .mensaje-exito {
+            background: #e8f5e9;
+            color: #1e7e34;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        form { margin: 20px 0; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f8f9fa; }
+        a.accion { color: #28a745; text-decoration: none; margin-right: 10px; }
+        a.accion.eliminar { color: #dc3545; }
+        .volver { display: inline-block; margin-top: 20px; color: #555; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 Registro de Producción Diaria</h1>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="{% if message.tags == 'error' %}mensaje-error{% else %}mensaje-exito{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="cantidad_huevos">Cantidad de huevos recolectados:</label>
+            <input type="text" id="cantidad_huevos" name="cantidad_huevos">
+
+            <label for="cantidad_cubetas">Número de cubetas armadas:</label>
+            <input type="text" id="cantidad_cubetas" name="cantidad_cubetas">
+
+            <button type="submit">Guardar registro</button>
+        </form>
+
+        <h3>Registros existentes</h3>
+        <table>
+            <tr>
+                <th>Fecha</th>
+                <th>Huevos</th>
+                <th>Cubetas</th>
+                <th>Acciones</th>
+            </tr>
+            {% for registro in registros %}
+            <tr>
+                <td>{{ registro.fecha }}</td>
+                <td>{{ registro.cantidad_huevos }}</td>
+                <td>{{ registro.cantidad_cubetas }}</td>
+                <td>
+                    <a class="accion" href="{% url 'editar_produccion' registro.id %}">Editar</a>
+                    <a class="accion eliminar" href="{% url 'eliminar_produccion' registro.id %}">Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No hay registros todavía.</td></tr>
+            {% endfor %}
+        </table>
+
+        <a class="volver" href="{% url 'home' %}">← Volver al inicio</a>
+    </div>
+</body>
+</html>
