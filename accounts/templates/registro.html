@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión - Galpón Proyecto</title>
+    <title>Registro de Usuario - Galpón Proyecto</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -10,15 +10,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
-        .login-container {
+        .registro-container {
             background: white;
             padding: 40px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            width: 350px;
+            width: 400px;
         }
         h1 {
             text-align: center;
@@ -39,10 +39,17 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+        .helptext {
+            display: block;
+            color: #888;
+            font-size: 12px;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
         button {
             width: 100%;
             padding: 12px;
-            background-color: #28a745;
+            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
@@ -50,7 +57,7 @@
             cursor: pointer;
         }
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
         .error {
             background-color: #f8d7da;
@@ -58,41 +65,48 @@
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .link-login {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    {% if messages %}
-    {% for message in messages %}
-        <div class="error" style="background-color: #d4edda; color: #155724;">
-            {{ message }}
-        </div>
-    {% endfor %}
-    {% endif %}
+    <div class="registro-container">
+        <h1>📝 Crear Cuenta</h1>
 
-    <div class="login-container">
-        <h1>🐔 Iniciar Sesión</h1>
-
-        {% if error %}
+        {% if form.errors %}
             <div class="error">
-                {{ error }}
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
             </div>
         {% endif %}
 
         <form method="post">
             {% csrf_token %}
             <label for="id_username">Usuario:</label>
-            <input type="text" name="username" id="id_username" required>
+            {{ form.username }}
+            <span class="helptext">{{ form.username.help_text }}</span>
 
-            <label for="id_password">Contraseña:</label>
-            <input type="password" name="password" id="id_password" required>
+            <label for="id_password1">Contraseña:</label>
+            {{ form.password1 }}
+            <span class="helptext">{{ form.password1.help_text }}</span>
 
-            <button type="submit">Iniciar Sesión</button>
+            <label for="id_password2">Confirmar contraseña:</label>
+            {{ form.password2 }}
 
-            <div style="text-align: center; margin-top: 20px; font-size: 14px;">
-                ¿No tienes cuenta? <a href="{% url 'accounts:registro' %}">Regístrate aquí</a>
-            </div>
+            <button type="submit">Registrarse</button>
         </form>
+
+        <div class="link-login">
+            ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión aquí</a>
+        </div>
     </div>
 </body>
 </html>
