@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de mortalidad — Galpón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EFE8D8;
+    --paper-raised: #F6F1E4;
+    --ink: #2B2620;
+    --ink-soft: #6b6255;
+    --rule: #d9cfb8;
+    --barn: #8C3B2E;
+    --barn-dark: #6e2e24;
+    --straw: #C9A227;
+    --sage: #6B7B5E;
+    --rust: #B65C38;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+  }
+
+  h1, h2, .num {
+    font-family: 'Zilla Slab', serif;
+  }
+
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* NUEVO: link de volver al inicio */
+  .volver {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .volver:hover { text-decoration: underline; }
+
+  .masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .masthead .title-block h1 {
+    margin: 0;
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .masthead .title-block p {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  .btn-registrar {
+    background: var(--barn);
+    color: #fdf9ef;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px 22px;
+    border-radius: 3px;
+    border: 1px solid var(--barn-dark);
+    white-space: nowrap;
+    transition: background 0.15s ease;
+  }
+
+  .btn-registrar:hover {
+    background: var(--barn-dark);
+  }
+
+  .messages {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+  }
+
+  .messages li {
+    background: var(--paper-raised);
+    border-left: 4px solid var(--sage);
+    padding: 12px 16px;
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+  }
+
+  .stub {
+    display: flex;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 40px;
+  }
+
+  .stub .stat {
+    flex: 1;
+    padding: 18px 22px;
+    border-right: 1px solid var(--rule);
+  }
+
+  .stub .stat:last-child {
+    border-right: none;
+  }
+
+  .stub .stat .label {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .stub .stat .num {
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .stub .stat .num.alert { color: var(--rust); }
+  .stub .stat .num.ok { color: var(--sage); }
+
+  .ledger-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+
+  .ledger-heading h2 {
+    font-size: 1.3rem;
+    margin: 0;
+  }
+
+  .ledger-heading .count {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  table.ledger {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+  }
+
+  table.ledger thead th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    padding: 0 12px 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  table.ledger tbody td {
+    padding: 13px 12px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+
+  table.ledger tbody tr:hover {
+    background: var(--paper-raised);
+  }
+
+  .causa-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    padding: 3px 9px;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+  }
+
+  .causa-enfermedad { color: var(--rust); }
+  .causa-calor { color: var(--straw); }
+  .causa-depredador { color: var(--barn); }
+  .causa-accidente { color: var(--ink-soft); }
+  .causa-desconocida, .causa-otra { color: var(--sage); }
+
+  .cantidad {
+    font-family: 'Zilla Slab', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .acciones a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-right: 12px;
+  }
+
+  .acciones a.eliminar {
+    color: var(--rust);
+  }
+
+  .acciones a:hover {
+    text-decoration: underline;
+  }
+
+  /* NUEVO: estilo del botón eliminar (antes era un <a>, ahora un <button>) */
+  .acciones form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+  }
+
+  .btn-eliminar {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: var(--rust);
+    cursor: pointer;
+  }
+
+  .btn-eliminar:hover {
+    text-decoration: underline;
+  }
+
+  .vacio {
+    border: 1px dashed var(--rule);
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+
+  .vacio p {
+    margin: 0 0 16px;
+  }
+
+  @media (max-width: 640px) {
+    .stub { flex-direction: column; }
+    .stub .stat { border-right: none; border-bottom: 1px solid var(--rule); }
+    .stub .stat:last-child { border-bottom: none; }
+    table.ledger thead { display: none; }
+    table.ledger, table.ledger tbody, table.ledger tr, table.ledger td {
+      display: block;
+      width: 100%;
+    }
+    table.ledger tr {
+      border-bottom: 1px solid var(--rule);
+      padding: 10px 0;
+    }
+    table.ledger td {
+      border-bottom: none;
+      padding: 4px 12px;
+    }
+    table.ledger td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      margin-bottom: 2px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- NUEVO: link para volver al inicio -->
+  <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
+
+  <div class="masthead">
+    <div class="title-block">
+      <h1>Registro de mortalidad</h1>
+      <p>Control de bajas por lote — galpón avícola</p>
+    </div>
+    <a class="btn-registrar" href="{% url 'accounts:mortalidad_registrar' %}">Registrar mortalidad</a>
+  </div>
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <div class="stub">
+    <div class="stat">
+      <div class="label">Registros totales</div>
+      <div class="num">{{ total_registros|default:0 }}</div>
+    </div>
+    <div class="stat">
+      <div class="label">Aves perdidas (total)</div>
+      <div class="num alert">{{ total_cantidad|default:0 }}</div>
+    </div>
+    <div class="stat">
+      <div class="label">Lotes afectados</div>
+      <div class="num ok">{{ lotes_afectados|default:0 }}</div>
+    </div>
+  </div>
+
+  <div class="ledger-heading">
+    <h2>Historial de registros</h2>
+    <span class="count">Más reciente primero</span>
+  </div>
+
+  {% if registros %}
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th scope="col">Fecha</th>
+        <th scope="col">Lote</th>
+        <th scope="col">Cantidad</th>
+        <th scope="col">Causa</th>
+        <th scope="col">Registrado por</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for registro in registros %}
+      <tr>
+        <td data-label="Fecha">{{ registro.fecha|date:"d M Y" }}</td>
+        <td data-label="Lote">{{ registro.lote }}</td>
+        <td data-label="Cantidad" class="cantidad">{{ registro.cantidad }}</td>
+        <td data-label="Causa">
+          <span class="causa-tag causa-{{ registro.causa }}">{{ registro.get_causa_display }}</span>
+        </td>
+        <td data-label="Registrado por">{{ registro.registrado_por|default:"—" }}</td>
+        <td data-label="Acciones" class="acciones">
+          <!-- ANTES ERA UN <a href> — AHORA ES UN FORM POST (más seguro) -->
+          <form method="post"
+                action="{% url 'accounts:mortalidad_eliminar' registro.pk %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="btn-eliminar"
+                    onclick="return confirm('¿Eliminar este registro?');">
+              Eliminar
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="vacio">
+    <p>Todavía no hay registros de mortalidad.</p>
+    <a class="btn-registrar" href="{% url 'accounts:mortalidad_registrar' %}">Registrar el primero</a>
+  </div>
+  {% endif %}
+
+</div>
+</body>
+</html>

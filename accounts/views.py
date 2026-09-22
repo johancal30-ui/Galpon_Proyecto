@@ -3,6 +3,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from .models import RegistroMortalidad
+from .forms import RegistroMortalidadForm
+
 
 
 def login_view(request):
@@ -48,3 +53,40 @@ def cierre(request):
 @login_required
 def home_view(request):
     return render(request, 'home.html')
+
+
+@login_required
+def mortalidad_lista(request):
+    registros = RegistroMortalidad.objects.select_related('lote').all()
+    total_cantidad = registros.aggregate(Sum('cantidad'))['cantidad__sum'] or 0
+    lotes_afectados = registros.values('lote').distinct().count()
+
+    return render(request, 'mortalidad.html', {
+        'registros': registros,
+        'total_cantidad': total_cantidad,
+        'lotes_afectados': lotes_afectados,
+    })
+
+
+@login_required
+def mortalidad_registrar(request):
+    if request.method == 'POST':
+        form = RegistroMortalidadForm(request.POST)
+        if form.is_valid():
+            registro = form.save(commit=False)
+            registro.registrado_por = request.user
+            registro.save()
+            messages.success(request, 'Registro de mortalidad guardado correctamente.')
+            return redirect('accounts:mortalidad_lista')
+    else:
+        form = RegistroMortalidadForm()
+
+    return render(request, 'registrar.html', {'form': form})
+
+
+@login_required
+def mortalidad_eliminar(request, pk):
+    registro = get_object_or_404(RegistroMortalidad, pk=pk)
+    registro.delete()
+    messages.success(request, 'Registro eliminado.')
+    return redirect('accounts:mortalidad_lista')

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registrar mortalidad — Galpón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EFE8D8;
+    --paper-raised: #F6F1E4;
+    --ink: #2B2620;
+    --ink-soft: #6b6255;
+    --rule: #d9cfb8;
+    --barn: #8C3B2E;
+    --barn-dark: #6e2e24;
+    --rust: #B65C38;
+    --rust-bg: #f7e9e2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+  }
+
+  h1 { font-family: 'Zilla Slab', serif; }
+
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .masthead {
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 20px;
+    margin-bottom: 12px;
+  }
+
+  .masthead a.volver {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+
+  .masthead a.volver:hover { text-decoration: underline; }
+
+  .masthead h1 {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+  }
+
+  .masthead p {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  .errores-generales {
+    background: var(--rust-bg);
+    border-left: 4px solid var(--rust);
+    padding: 12px 16px;
+    margin: 24px 0;
+    font-size: 0.9rem;
+    color: var(--rust);
+  }
+
+  form {
+    margin-top: 28px;
+  }
+
+  .campo {
+    margin-bottom: 22px;
+  }
+
+  .campo label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .campo .ayuda {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-top: 5px;
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    width: 100%;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .campo input:focus,
+  .campo select:focus,
+  .campo textarea:focus {
+    outline: none;
+    border-color: var(--barn);
+  }
+
+  .campo.con-error input,
+  .campo.con-error select,
+  .campo.con-error textarea {
+    border-color: var(--rust);
+  }
+
+  .campo .error {
+    color: var(--rust);
+    font-size: 0.82rem;
+    margin-top: 5px;
+  }
+
+  .acciones {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+  }
+
+  .btn-guardar {
+    background: var(--barn);
+    color: #fdf9ef;
+    border: 1px solid var(--barn-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px 26px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .btn-guardar:hover { background: var(--barn-dark); }
+
+  .btn-cancelar {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 12px 10px;
+  }
+
+  .btn-cancelar:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <a class="volver" href="{% url 'accounts:mortalidad_lista' %}">← Volver al registro</a>
+    <h1>Registrar mortalidad</h1>
+    <p>Ingresa la baja de aves de la jornada</p>
+  </div>
+
+  {% if form.non_field_errors %}
+    <div class="errores-generales">
+      {% for error in form.non_field_errors %}
+        <div>{{ error }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="campo {% if form.lote.errors %}con-error{% endif %}">
+      <label for="{{ form.lote.id_for_label }}">Lote</label>
+      {{ form.lote }}
+      {% for error in form.lote.errors %}
+        <div class="error">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="campo {% if form.fecha.errors %}con-error{% endif %}">
+      <label for="{{ form.fecha.id_for_label }}">Fecha</label>
+      {{ form.fecha }}
+      {% for error in form.fecha.errors %}
+        <div class="error">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="campo {% if form.cantidad.errors %}con-error{% endif %}">
+      <label for="{{ form.cantidad.id_for_label }}">Cantidad de aves muertas</label>
+      {{ form.cantidad }}
+      <div class="ayuda">Número entero, mayor a cero, y no mayor al total de aves vivas del lote</div>
+      {% for error in form.cantidad.errors %}
+        <div class="error">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="campo {% if form.causa.errors %}con-error{% endif %}">
+      <label for="{{ form.causa.id_for_label }}">Causa</label>
+      {{ form.causa }}
+      {% for error in form.causa.errors %}
+        <div class="error">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="campo {% if form.observaciones.errors %}con-error{% endif %}">
+      <label for="{{ form.observaciones.id_for_label }}">Observaciones (opcional)</label>
+      {{ form.observaciones }}
+      {% for error in form.observaciones.errors %}
+        <div class="error">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="acciones">
+      <button type="submit" class="btn-guardar">Guardar</button>
+      <a class="btn-cancelar" href="{% url 'accounts:mortalidad_lista' %}">Cancelar</a>
+    </div>
+  </form>
+
+</div>
+</body>
+</html>
