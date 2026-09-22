@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Registro - Galpón Proyecto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 40px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #28a745; text-align: center; }
+        .mensaje-error { background: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #218838; }
+        .cancelar { display: inline-block; margin-top: 15px; margin-left: 10px; color: #555; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✏️ Editar Registro de Producción</h1>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="mensaje-error">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="cantidad_huevos">Cantidad de huevos recolectados:</label>
+            <input type="text" id="cantidad_huevos" name="cantidad_huevos" value="{{ registro.cantidad_huevos }}">
+
+            <label for="cantidad_cubetas">Número de cubetas armadas:</label>
+            <input type="text" id="cantidad_cubetas" name="cantidad_cubetas" value="{{ registro.cantidad_cubetas }}">
+
+            <button type="submit">Guardar cambios</button>
+            <a class="cancelar" href="{% url 'registrar_produccion' %}">Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,16 +1,23 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
+from django.utils import timezone
+# JOHAN
 class RegistroProduccion(models.Model):
-    fecha = models.DateField(auto_now_add=True)  # Guarda la fecha automáticamente
-    huevos_recolectados = models.IntegerField()
-    cubetas_armadas = models.IntegerField()
+    fecha = models.DateField(default=timezone.now)
+    cantidad_huevos = models.PositiveIntegerField()
+    cantidad_cubetas = models.PositiveIntegerField()
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-fecha']
 
     def __str__(self):
-        return f"{self.fecha} - {self.huevos_recolectados} huevos"
+        return f"Registro {self.fecha} - {self.cantidad_huevos} huevos / {self.cantidad_cubetas} cubetas"
     
+    ## JHON
 class RegistroConsumo(models.Model):
-    fecha = models.DateField(auto_now_add=True)
+    fecha = models.DateField(default=timezone.now)
     poblacion_gallinas = models.PositiveIntegerField(default=1000)
     bultos_consumidos = models.DecimalField(max_digits=5, decimal_places=2)
     kilos_por_bulto = models.DecimalField(max_digits=5, decimal_places=2, default=40.0) # Peso por bulto en kg

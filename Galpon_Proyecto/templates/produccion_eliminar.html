@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Registro - Galpón Proyecto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 40px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: #dc3545; }
+        .datos { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: left; }
+        button { padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #c82333; }
+        .cancelar { display: inline-block; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; }
+        .cancelar:hover { background: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ ¿Eliminar este registro?</h1>
+
+        <div class="datos">
+            <p><strong>Fecha:</strong> {{ registro.fecha }}</p>
+            <p><strong>Huevos:</strong> {{ registro.cantidad_huevos }}</p>
+            <p><strong>Cubetas:</strong> {{ registro.cantidad_cubetas }}</p>
+        </div>
+        <p>Esta acción no se puede deshacer.</p>
+
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Sí, eliminar</button>
+        </form>
+        <a class="cancelar" href="{% url 'registrar_produccion' %}">Cancelar</a>
+    </div>
+</body>
+</html>
