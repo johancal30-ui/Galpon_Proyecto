@@ -12,4 +12,8 @@ urlpatterns = [
     path('recuperar/enviado/', views.password_reset_done_view.as_view(), name='recuperar_enviado'),
     path('recuperar/<uidb64>/<token>/', views.password_reset_confirm_view.as_view(), name='recuperar_confirmar'),
     path('recuperar/completado/', views.password_reset_complete_view.as_view(), name='recuperar_completado'),
+
+    path('mortalidad/', views.mortalidad_lista, name='mortalidad_lista'),
+    path('mortalidad/registrar/', views.mortalidad_registrar, name='mortalidad_registrar'),
+    path('mortalidad/eliminar/<int:pk>/', views.mortalidad_eliminar, name='mortalidad_eliminar'),
 ]
