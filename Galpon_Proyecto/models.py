@@ -103,3 +103,26 @@ class RegistroMortalidad(models.Model):
 
     def __str__(self):
         return f"{self.lote} - {self.fecha} ({self.cantidad})"
+
+
+# VENTA DE HUEVOS Y CUBETAS (ANDRÉS)
+class Venta(models.Model):
+    fecha = models.DateField(default=timezone.now)
+    cliente = models.CharField(max_length=150)
+    cantidad_huevos = models.PositiveIntegerField()
+    cantidad_cubetas = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, help_text="Precio por cubeta")
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.fecha} - {self.cliente} - ${self.total}"
+
+    def save(self, *args, **kwargs):
+        # Calcular el total automáticamente antes de guardar
+        self.total = self.cantidad_cubetas * self.precio_unitario
+        super().save(*args, **kwargs)

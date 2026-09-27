@@ -2,13 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-from .models import RegistroProduccion, RegistroConsumo, RegistroMortalidad
-from .forms import RegistroConsumoForm, RegistroMortalidadForm
+from .models import RegistroProduccion, RegistroConsumo, RegistroMortalidad, Venta
+from .forms import RegistroConsumoForm, RegistroMortalidadForm, VentaForm
 
 
-# ==========================================
 # PRODUCCIÓN (JOHAN)
-# ==========================================
 def registrar_produccion(request):
     if request.method == 'POST':
         huevos = request.POST.get('cantidad_huevos')
@@ -35,9 +33,7 @@ def registrar_produccion(request):
     return render(request, 'produccion.html', {'registros': registros})
 
 
-# ==========================================
 # CONSUMO (JHON)
-# ==========================================
 def registrar_consumo(request):
     if request.method == 'POST':
         form = RegistroConsumoForm(request.POST)
@@ -61,9 +57,8 @@ def registrar_consumo(request):
     return render(request, 'consumo_form.html', {'form': form})
 
 
-# ==========================================
+
 # MORTALIDAD (JEFFRY)
-# ==========================================
 @login_required
 def mortalidad_lista(request):
     registros = RegistroMortalidad.objects.select_related('lote').all()
@@ -99,3 +94,49 @@ def mortalidad_eliminar(request, pk):
     registro.delete()
     messages.success(request, 'Registro eliminado.')
     return redirect('mortalidad_lista')
+
+
+# VENTAS (ANDRÉS)
+
+@login_required
+def registrar_venta(request):
+    if request.method == 'POST':
+        form = VentaForm(request.POST)
+        if form.is_valid():
+            venta = form.save(commit=False)
+            venta.registrado_por = request.user
+            venta.cantidad_huevos = venta.cantidad_cubetas * 30  # <-- Calcular aquí
+            venta.save()
+            messages.success(request, f'Venta registrada. Total: ${venta.total}')
+            return redirect('registrar_venta')
+    else:
+        form = VentaForm()
+
+    ventas = Venta.objects.all()
+    return render(request, 'venta.html', {'form': form, 'ventas': ventas})
+
+
+@login_required
+def editar_venta(request, pk):
+    venta = get_object_or_404(Venta, pk=pk)
+    if request.method == 'POST':
+        form = VentaForm(request.POST, instance=venta)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Venta actualizada correctamente.')
+            return redirect('registrar_venta')
+    else:
+        form = VentaForm(instance=venta)
+
+    return render(request, 'venta_editar.html', {'form': form, 'venta': venta})
+
+
+@login_required
+def eliminar_venta(request, pk):
+    venta = get_object_or_404(Venta, pk=pk)
+    if request.method == 'POST':
+        venta.delete()
+        messages.success(request, 'Venta eliminada.')
+        return redirect('registrar_venta')
+
+    return render(request, 'venta_eliminar.html', {'venta': venta})
