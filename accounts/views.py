@@ -3,11 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView,)
-from django.db.models import Sum
-from django.shortcuts import get_object_or_404
-
 
 def login_view(request):
     # Si el usuario ya está logueado, lo mandamos a la home
@@ -64,3 +60,4 @@ class password_reset_confirm_view(PasswordResetConfirmView):
 
 class password_reset_complete_view(PasswordResetCompleteView):
     template_name = 'recuperar_completado.html'
+
