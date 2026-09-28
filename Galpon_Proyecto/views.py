@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Avg
-from .models import RegistroProduccion, RegistroConsumo, RegistroMortalidad, Venta, Alimento
-from .forms import RegistroConsumoForm, RegistroMortalidadForm, VentaForm, AlimentoForm
+from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Venta, Alimento, Inventario, AlertaStock)
+from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm)
 
 
 # PRODUCCIÓN (JOHAN)
@@ -462,3 +462,40 @@ def eliminar_alimento(request, pk):
         return redirect('registrar_alimento')
 
     return render(request, 'alimento_eliminar.html', {'alimento': alimento})
+# INVENTARIO Y ALERTAS DE STOCK (JHON)
+
+@login_required
+def inventario(request):
+    inventarios = Inventario.objects.all()
+
+    if request.method == 'POST':
+        form = InventarioForm(request.POST)
+
+        if form.is_valid():
+            inventario = form.save()
+            inventario.verificar_alerta()
+
+            if inventario.stock_bajo:
+                messages.warning(
+                    request,
+                    f'⚠️ Alerta: el stock de {inventario.get_tipo_display()} '
+                    f'está en {inventario.stock_actual}, '
+                    f'por debajo o igual al mínimo de {inventario.stock_minimo}.'
+                )
+            else:
+                messages.success(
+                    request,
+                    f'Inventario de {inventario.get_tipo_display()} actualizado correctamente.'
+                )
+
+            return redirect('inventario')
+    else:
+        form = InventarioForm()
+
+    alertas = AlertaStock.objects.filter(activa=True)
+
+    return render(request, 'inventario.html', {
+        'form': form,
+        'inventarios': inventarios,
+        'alertas': alertas,
+    })

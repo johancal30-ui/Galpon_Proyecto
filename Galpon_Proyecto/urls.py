@@ -24,4 +24,6 @@ urlpatterns = [
     path('alimento/', views.registrar_alimento, name='registrar_alimento'),
     path('alimento/editar/<int:pk>/', views.editar_alimento, name='editar_alimento'),
     path('alimento/eliminar/<int:pk>/', views.eliminar_alimento, name='eliminar_alimento'),
+    # Inventario y alertas de stock (Jhon)
+    path('inventario/', views.inventario, name='inventario'),
 ]
