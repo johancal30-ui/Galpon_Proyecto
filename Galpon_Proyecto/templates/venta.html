@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Ventas - Galpón Proyecto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .page { max-width: 1000px; margin: auto; }
+        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .masthead { background: #007bff; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .masthead h1 { margin: 0; }
+        .masthead p { margin: 5px 0 0; font-size: 14px; }
+        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .form-row { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { display: inline-block; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
+        .btn:hover { background: #218838; }
+        .messages { list-style: none; padding: 0; margin-bottom: 20px; }
+        .messages li { padding: 10px; border-radius: 5px; margin-bottom: 5px; }
+        .messages .success { background: #d4edda; color: #155724; }
+        .messages .error { background: #f8d7da; color: #721c24; }
+        .messages .warning { background: #fff3cd; color: #856404; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f4f4f4; }
+        .accion { text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; }
+        .editar { background: #007bff; }
+        .eliminar { background: #dc3545; }
+
+        .error-campo {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 8px;
+        border-radius: 4px;
+        margin-top: 5px;
+        font-size: 13px;
+        border-left: 3px solid #dc3545;
+}
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
+
+        <div class="masthead">
+            <h1>💰 Registro de Ventas</h1>
+            <p>Control de ventas de huevos y cubetas - Galpón Avícola</p>
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        <h3>Nueva venta</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if error_manual %}
+                <div class="error-campo" style="margin-bottom:15px;">
+                    {{ error_manual }}
+            </div>
+        {% endif %}
+        <div class="form-row">
+            <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
+            {{ form.cliente }}
+        </div>
+        <div class="form-row">
+            <label for="{{ form.cantidad_cubetas.id_for_label }}">Cantidad de cubetas:</label>
+            {{ form.cantidad_cubetas }}
+        </div>
+        <div class="form-row">
+            <label for="{{ form.precio_unitario.id_for_label }}">Precio por cubeta:</label>
+            {{ form.precio_unitario }}
+        </div>
+        <button class="btn" type="submit">Registrar venta</button>
+    </form>
+
+            <h3>Ventas registradas</h3>
+            <table>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Huevos</th>
+                    <th>Cubetas</th>
+                    <th>Precio unit.</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+                {% for venta in ventas %}
+                <tr>
+                    <td>{{ venta.fecha }}</td>
+                    <td>{{ venta.cliente }}</td>
+                    <td>{{ venta.cantidad_huevos }}</td>
+                    <td>{{ venta.cantidad_cubetas }}</td>
+                    <td>${{ venta.precio_unitario }}</td>
+                    <td>${{ venta.total }}</td>
+                    <td>
+                        <a class="accion editar" href="{% url 'editar_venta' venta.id %}">Editar</a>
+                        <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7">No hay ventas registradas todavía.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio - Galpón Proyecto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #28a745;
+            text-align: center;
+        }
+        .info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .logout-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐔 ¡Bienvenido al Galpón Proyecto!</h1>
+
+        <div class="info">
+            <p>Has iniciado sesión correctamente como: <strong>{{ user.username }}</strong></p>
+            <p>Aquí irá el panel principal con los módulos del sistema:</p>
+            <ul>
+                <li>📦 Registro de producción</li>
+                <li>🐣 Control de mortalidad</li>
+                <li>🌾 Inventario de alimento</li>
+                <li>💰 Registro de ventas</li>
+                <li>📊 Reportes y estadísticas</li>
+            </ul>
+        </div>
+
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">Cerrar Sesión</a>
+    </div>
+</body>
+</html>
