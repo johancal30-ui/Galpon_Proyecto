@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Avg
 from .models import RegistroProduccion, RegistroConsumo, RegistroMortalidad, Venta, Alimento
 from .forms import RegistroConsumoForm, RegistroMortalidadForm, VentaForm, AlimentoForm
 
@@ -343,20 +343,50 @@ def registrar_alimento(request):
             return redirect('registrar_alimento')
 
     # Calcular el stock por tipo (suma de todos los registros)
-    stock_por_tipo = Alimento.objects.values('tipo').annotate(
-        total_bultos=Sum('cantidad_bultos')
-    ).order_by('tipo')
+    stock_por_tipo = []
+    for codigo, nombre in Alimento.TIPOS:
+        registros = Alimento.objects.filter(tipo=codigo)
+        total_bultos = registros.aggregate(Sum('cantidad_bultos'))['cantidad_bultos__sum'] or 0
+        costo_total = registros.aggregate(Sum('costo_total'))['costo_total__sum'] or 0
+        ultimo = registros.order_by('-fecha').first()
+        proveedor_ultimo = ultimo.proveedor if ultimo else 'Sin registrar'
+
+        if total_bultos > 0:
+            stock_por_tipo.append({
+                'tipo': nombre,
+                'total_bultos': total_bultos,
+                'costo_total': costo_total,
+                'proveedor': proveedor_ultimo,
+            })
 
     # Historial completo
     historial = Alimento.objects.all()
 
+    # Cálculo del total invertido por período
+    total_invertido = None
+    fecha_desde = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta = request.GET.get('fecha_hasta', '').strip()
+
+    if fecha_desde and fecha_hasta:
+        try:
+            consulta = Alimento.objects.filter(
+                fecha__gte=fecha_desde,
+                fecha__lte=fecha_hasta
+            )
+            total_invertido = consulta.aggregate(Sum('costo_total'))['costo_total__sum'] or 0
+        except Exception:
+            total_invertido = None
+
+    # ESTE ES EL RETURN FINAL
     return render(request, 'alimento.html', {
         'form': form,
         'stock_por_tipo': stock_por_tipo,
         'historial': historial,
         'error_manual': error_manual,
+        'total_invertido': total_invertido,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
     })
-
 
 @login_required
 def editar_alimento(request, pk):
