@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-from .models import RegistroProduccion, RegistroConsumo, RegistroMortalidad, Venta
-from .forms import RegistroConsumoForm, RegistroMortalidadForm, VentaForm
+from .models import RegistroProduccion, RegistroConsumo, RegistroMortalidad, Venta, Alimento
+from .forms import RegistroConsumoForm, RegistroMortalidadForm, VentaForm, AlimentoForm
 
 
 # PRODUCCIÓN (JOHAN)
@@ -267,3 +267,168 @@ def eliminar_venta(request, pk):
         return redirect('registrar_venta')
 
     return render(request, 'venta_eliminar.html', {'venta': venta})
+
+
+#(ALIMENTO ANDRRES)
+
+@login_required
+def registrar_alimento(request):
+    form = AlimentoForm()
+    error_manual = None
+
+    if request.method == 'POST':
+        form = AlimentoForm(request.POST)
+
+        tipo = request.POST.get('tipo', '').strip()
+        cantidad = request.POST.get('cantidad_bultos', '')
+        kilos = request.POST.get('kilos_por_bulto', '')
+        costo = request.POST.get('costo_unitario', '')
+        proveedor = request.POST.get('proveedor', '').strip()
+
+        # Validar tipo
+        if not tipo:
+            error_manual = "Debes seleccionar un tipo de alimento."
+
+        # Validar cantidad
+        elif not cantidad:
+            error_manual = "La cantidad de bultos es obligatoria."
+        else:
+            try:
+                cantidad_int = int(cantidad)
+                if cantidad_int <= 0:
+                    error_manual = "La cantidad debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "La cantidad debe ser un número entero."
+
+        # Validar kilos por bulto
+        if error_manual is None:
+            if not kilos:
+                error_manual = "Los kilos por bulto son obligatorios."
+            else:
+                try:
+                    kilos_float = float(kilos)
+                    if kilos_float <= 0:
+                        error_manual = "Los kilos por bulto deben ser mayores a cero."
+                except (ValueError, TypeError):
+                    error_manual = "Los kilos deben ser un número válido."
+
+        # Validar costo unitario
+        if error_manual is None:
+            if not costo:
+                error_manual = "El costo unitario es obligatorio."
+            else:
+                try:
+                    costo_float = float(costo)
+                    if costo_float <= 0:
+                        error_manual = "El costo debe ser mayor a cero."
+                except (ValueError, TypeError):
+                    error_manual = "El costo debe ser un número válido."
+
+        # Validar proveedor
+        if error_manual is None and not proveedor:
+            error_manual = "El nombre del proveedor es obligatorio."
+
+        # Si todo está bien, guardar
+        if error_manual is None:
+            alimento = Alimento(
+                tipo=tipo,
+                cantidad_bultos=cantidad_int,
+                kilos_por_bulto=kilos_float,
+                costo_unitario=costo_float,
+                proveedor=proveedor,
+                registrado_por=request.user,
+            )
+            alimento.save()
+            messages.success(request, f'Ingreso registrado. Costo total: ${alimento.costo_total}')
+            return redirect('registrar_alimento')
+
+    # Calcular el stock por tipo (suma de todos los registros)
+    stock_por_tipo = Alimento.objects.values('tipo').annotate(
+        total_bultos=Sum('cantidad_bultos')
+    ).order_by('tipo')
+
+    # Historial completo
+    historial = Alimento.objects.all()
+
+    return render(request, 'alimento.html', {
+        'form': form,
+        'stock_por_tipo': stock_por_tipo,
+        'historial': historial,
+        'error_manual': error_manual,
+    })
+
+
+@login_required
+def editar_alimento(request, pk):
+    alimento = get_object_or_404(Alimento, pk=pk)
+    form = AlimentoForm(instance=alimento)
+    error_manual = None
+
+    if request.method == 'POST':
+        form = AlimentoForm(request.POST, instance=alimento)
+        # Reutilizamos la misma validación que en registrar_alimento.
+        # Para no duplicar código, hacemos la validación básica aquí.
+
+        tipo = request.POST.get('tipo', '').strip()
+        cantidad = request.POST.get('cantidad_bultos', '')
+        kilos = request.POST.get('kilos_por_bulto', '')
+        costo = request.POST.get('costo_unitario', '')
+        proveedor = request.POST.get('proveedor', '').strip()
+
+        if not tipo:
+            error_manual = "Debes seleccionar un tipo de alimento."
+        elif not cantidad:
+            error_manual = "La cantidad de bultos es obligatoria."
+        else:
+            try:
+                cantidad_int = int(cantidad)
+                if cantidad_int <= 0:
+                    error_manual = "La cantidad debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "La cantidad debe ser un número entero."
+
+        if error_manual is None:
+            try:
+                kilos_float = float(kilos)
+                if kilos_float <= 0:
+                    error_manual = "Los kilos por bulto deben ser mayores a cero."
+            except (ValueError, TypeError):
+                error_manual = "Los kilos deben ser un número válido."
+
+        if error_manual is None:
+            try:
+                costo_float = float(costo)
+                if costo_float <= 0:
+                    error_manual = "El costo debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "El costo debe ser un número válido."
+
+        if error_manual is None and not proveedor:
+            error_manual = "El nombre del proveedor es obligatorio."
+
+        if error_manual is None:
+            alimento.tipo = tipo
+            alimento.cantidad_bultos = cantidad_int
+            alimento.kilos_por_bulto = kilos_float
+            alimento.costo_unitario = costo_float
+            alimento.proveedor = proveedor
+            alimento.save()
+            messages.success(request, 'Ingreso actualizado correctamente.')
+            return redirect('registrar_alimento')
+
+    return render(request, 'alimento_editar.html', {
+        'form': form,
+        'alimento': alimento,
+        'error_manual': error_manual,
+    })
+
+
+@login_required
+def eliminar_alimento(request, pk):
+    alimento = get_object_or_404(Alimento, pk=pk)
+    if request.method == 'POST':
+        alimento.delete()
+        messages.success(request, 'Ingreso eliminado.')
+        return redirect('registrar_alimento')
+
+    return render(request, 'alimento_eliminar.html', {'alimento': alimento})

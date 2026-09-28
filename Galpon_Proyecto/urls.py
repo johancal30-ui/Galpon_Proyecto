@@ -19,4 +19,9 @@ urlpatterns = [
     path('ventas/', views.registrar_venta, name='registrar_venta'),
     path('ventas/editar/<int:pk>/', views.editar_venta, name='editar_venta'),
     path('ventas/eliminar/<int:pk>/', views.eliminar_venta, name='eliminar_venta'),
+
+    #alimento(andres)
+    path('alimento/', views.registrar_alimento, name='registrar_alimento'),
+    path('alimento/editar/<int:pk>/', views.editar_alimento, name='editar_alimento'),
+    path('alimento/eliminar/<int:pk>/', views.eliminar_alimento, name='eliminar_alimento'),
 ]

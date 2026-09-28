@@ -1,7 +1,7 @@
 from django import forms
 from .models import RegistroConsumo
 from .models import RegistroMortalidad
-from .models import Venta
+from .models import Venta, Alimento
 
 
 class RegistroConsumoForm(forms.ModelForm):
@@ -58,3 +58,22 @@ class VentaForm(forms.ModelForm):
         if precio is None or precio <= 0:
             raise forms.ValidationError('El precio debe ser mayor a cero.')
         return precio
+
+class AlimentoForm(forms.ModelForm):
+    class Meta:
+        model = Alimento
+        fields = ['tipo', 'cantidad_bultos', 'kilos_por_bulto', 'costo_unitario', 'proveedor']
+        widgets = {
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
+            'cantidad_bultos': forms.NumberInput(attrs={'class': 'form-control'}),
+            'kilos_por_bulto': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'costo_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'proveedor': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'tipo': 'Tipo de alimento',
+            'cantidad_bultos': 'Cantidad de bultos',
+            'kilos_por_bulto': 'Kilos por bulto',
+            'costo_unitario': 'Costo unitario por bulto',
+            'proveedor': 'Proveedor',
+        }
