@@ -19,4 +19,6 @@ urlpatterns = [
     path('ventas/', views.registrar_venta, name='registrar_venta'),
     path('ventas/editar/<int:pk>/', views.editar_venta, name='editar_venta'),
     path('ventas/eliminar/<int:pk>/', views.eliminar_venta, name='eliminar_venta'),
+    # Inventario y alertas de stock (Jhon)
+    path('inventario/', views.inventario, name='inventario'),
 ]

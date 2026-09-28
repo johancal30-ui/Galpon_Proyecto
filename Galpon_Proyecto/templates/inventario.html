@@ -1,0 +1,366 @@
+```html
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div class="text-center mb-4">
+        <div style="font-size: 60px;">
+            🐔🌱💊
+        </div>
+
+        <h1 class="fw-bold text-success">
+            Inventario Saludable
+        </h1>
+
+        <p class="text-muted fs-5">
+            Controla los alimentos y medicamentos de nuestro galpón
+            para mantener nuestras aves sanas y protegidas.
+        </p>
+    </div>
+
+
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm">
+                {{ message }}
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    <!-- Tarjetas informativas -->
+    <div class="row g-4 mb-4">
+
+        <!-- Alimento -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow h-100"
+                 style="background: linear-gradient(135deg, #e8f5e9, #ffffff);">
+
+                <div class="card-body text-center p-4">
+
+                    <div style="font-size: 65px;">
+                        🌾🐔
+                    </div>
+
+                    <h3 class="fw-bold text-success">
+                        Alimentación
+                    </h3>
+
+                    <p class="text-muted">
+                        Mantén suficiente alimento disponible para que
+                        nuestras gallinas reciban una nutrición adecuada.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Vacunas -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow h-100"
+                 style="background: linear-gradient(135deg, #e3f2fd, #ffffff);">
+
+                <div class="card-body text-center p-4">
+
+                    <div style="font-size: 65px;">
+                        💉💊🐔
+                    </div>
+
+                    <h3 class="fw-bold text-primary">
+                        Salud y vacunas
+                    </h3>
+
+                    <p class="text-muted">
+                        Controla las vacunas disponibles para proteger
+                        la salud de nuestras aves.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Formulario -->
+    <div class="card border-0 shadow-lg mb-4">
+
+        <div class="card-header bg-success text-white p-3">
+            <h4 class="mb-0">
+                📦 Configurar inventario
+            </h4>
+        </div>
+
+        <div class="card-body p-4">
+
+            <p class="text-muted">
+                Define la cantidad disponible y el límite mínimo.
+                El sistema generará automáticamente una alerta
+                cuando el inventario llegue al límite.
+            </p>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">
+                            💊 Tipo de insumo
+                        </label>
+
+                        {{ form.tipo }}
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">
+                            📦 Stock actual
+                        </label>
+
+                        {{ form.stock_actual }}
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">
+                            ⚠️ Stock mínimo
+                        </label>
+
+                        {{ form.stock_minimo }}
+                    </div>
+
+                </div>
+
+
+                <div class="text-center mt-3">
+
+                    <button type="submit"
+                            class="btn btn-success btn-lg px-5 shadow">
+
+                        💾 Guardar inventario
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- Alertas -->
+    <div class="card border-0 shadow-lg mb-4">
+
+        <div class="card-header bg-warning p-3">
+
+            <h4 class="mb-0">
+                🚨 Alertas de inventario
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if alertas %}
+
+                {% for alerta in alertas %}
+
+                    <div class="alert alert-danger d-flex align-items-center shadow-sm">
+
+                        <div style="font-size: 40px;" class="me-3">
+                            🚨
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                ¡Atención!
+                            </strong>
+
+                            <br>
+
+                            {{ alerta.mensaje }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="alert alert-success text-center">
+
+                    <div style="font-size: 45px;">
+                        🥳🐔🌱
+                    </div>
+
+                    <h5 class="fw-bold">
+                        ¡Todo está bajo control!
+                    </h5>
+
+                    <p class="mb-0">
+                        No existen alertas de inventario activas.
+                        Tenemos suficientes suministros.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Inventario actual -->
+    <div class="card border-0 shadow-lg">
+
+        <div class="card-header bg-dark text-white p-3">
+
+            <h4 class="mb-0">
+                📊 Estado del inventario
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if inventarios %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-success">
+
+                            <tr>
+
+                                <th>
+                                    🧰 Insumo
+                                </th>
+
+                                <th>
+                                    📦 Stock actual
+                                </th>
+
+                                <th>
+                                    ⚠️ Stock mínimo
+                                </th>
+
+                                <th>
+                                    ❤️ Estado
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for inventario in inventarios %}
+
+                                <tr>
+
+                                    <td class="fw-bold">
+
+                                        {% if inventario.tipo == 'alimento' %}
+                                            🌾 Alimento
+                                        {% else %}
+                                            💉 Vacuna
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ inventario.stock_actual }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ inventario.stock_minimo }}
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if inventario.stock_bajo %}
+
+                                            <span class="badge bg-danger fs-6">
+                                                🚨 Stock bajo
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-success fs-6">
+                                                ✅ Stock suficiente
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-4">
+
+                    <div style="font-size: 55px;">
+                        📦🌱
+                    </div>
+
+                    <h5>
+                        Aún no hay inventarios registrados
+                    </h5>
+
+                    <p class="text-muted">
+                        Utiliza el formulario de arriba para comenzar.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Pie visual -->
+    <div class="text-center mt-5 mb-3">
+
+        <div style="font-size: 35px;">
+            🐔 ❤️ 🌾 💉 🌱
+        </div>
+
+        <p class="text-muted">
+            Cuidamos la alimentación y salud de nuestras aves.
+        </p>
+
+    </div>
+
+</div>
+```

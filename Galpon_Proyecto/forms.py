@@ -2,7 +2,7 @@ from django import forms
 from .models import RegistroConsumo
 from .models import RegistroMortalidad
 from .models import Venta
-
+from .models import Inventario
 
 class RegistroConsumoForm(forms.ModelForm):
     class Meta:
@@ -58,3 +58,30 @@ class VentaForm(forms.ModelForm):
         if precio is None or precio <= 0:
             raise forms.ValidationError('El precio debe ser mayor a cero.')
         return precio
+
+class InventarioForm(forms.ModelForm):
+    class Meta:
+        model = Inventario
+        fields = ['tipo', 'stock_actual', 'stock_minimo']
+
+        widgets = {
+            'tipo': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'stock_actual': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0'
+            }),
+            'stock_minimo': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0'
+            }),
+        }
+
+        labels = {
+            'tipo': 'Tipo de insumo',
+            'stock_actual': 'Stock actual',
+            'stock_minimo': 'Límite mínimo',
+        }
