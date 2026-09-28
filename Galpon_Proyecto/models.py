@@ -127,3 +127,35 @@ class Venta(models.Model):
         # Calcular el total automáticamente antes de guardar
         self.total = self.cantidad_cubetas * self.precio_unitario
         super().save(*args, **kwargs)
+
+
+# INVENTARIO DE ALIMENTO (ANDRÉS)
+
+class Alimento(models.Model):
+    TIPOS = [
+        ('iniciador', 'Iniciador'),
+        ('engorde', 'Engorde'),
+        ('finalizador', 'Finalizador'),
+        ('medicado', 'Medicado'),
+    ]
+
+    fecha = models.DateField(auto_now_add=True)
+    tipo = models.CharField(max_length=20, choices=TIPOS)
+    cantidad_bultos = models.PositiveIntegerField()
+    kilos_por_bulto = models.DecimalField(max_digits=5, decimal_places=2, default=40.0)
+    costo_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    costo_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    proveedor = models.CharField(max_length=150)
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.fecha} - {self.get_tipo_display()} - {self.cantidad_bultos} bultos"
+
+    def save(self, *args, **kwargs):
+        # Calcular costo total automáticamente
+        self.costo_total = self.cantidad_bultos * self.costo_unitario
+        super().save(*args, **kwargs)
