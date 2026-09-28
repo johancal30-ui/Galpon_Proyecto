@@ -2,63 +2,206 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Inicio - Galpón Proyecto</title>
     <style>
+        :root {
+            --verde-galpon: #17402B;
+            --verde-claro: #2E7D4F;
+            --yema: #F4B41A;
+            --cresta: #C0392B;
+            --fondo: #F1F5F0;
+            --tinta: #1D2B22;
+            --suave: #5B6B61;
+        }
+        * { box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
             margin: 0;
-            padding: 40px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--fondo);
+            color: var(--tinta);
+            line-height: 1.5;
         }
-        .container {
-            max-width: 900px;
+
+        /* Portada */
+        .portada {
+            background: var(--verde-galpon);
+            color: #FBF7EF;
+            padding: 32px 24px 56px;
+        }
+        .portada-interior {
+            max-width: 1000px;
             margin: auto;
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #28a745;
-            text-align: center;
+        .barra {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
         }
-        .info {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .logout-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #dc3545;
-            color: white;
+        .barra strong { color: var(--yema); }
+        .salir {
+            color: #FBF7EF;
             text-decoration: none;
-            border-radius: 5px;
+            border: 1px solid rgba(251, 247, 239, 0.5);
+            padding: 8px 16px;
+            border-radius: 6px;
         }
-        .logout-btn:hover {
-            background: #c82333;
+        .salir:hover { background: var(--cresta); border-color: var(--cresta); }
+
+        .saludo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+        .saludo-texto { flex: 1 1 340px; max-width: 520px; }
+        .saludo h1 {
+            font-family: Rockwell, "Roboto Slab", "Courier New", Georgia, serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            line-height: 1.1;
+            margin: 0 0 12px;
+            font-weight: 700;
+        }
+        .saludo p { margin: 0; font-size: 1.1rem; color: #D6E4DA; }
+        .gallina { flex: 0 1 300px; width: 100%; max-width: 300px; height: auto; }
+
+        /* Módulos */
+        main {
+            max-width: 1000px;
+            margin: -32px auto 0;
+            padding: 0 24px 48px;
+        }
+        .modulos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .modulo {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #fff;
+            color: inherit;
+            text-decoration: none;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(23, 64, 43, 0.12);
+            border-top: 6px solid var(--acento);
+        }
+        .modulo:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(23, 64, 43, 0.2); }
+        .modulo-produccion { --acento: var(--yema); }
+        .modulo-mortalidad { --acento: var(--cresta); }
+        .modulo-ventas { --acento: var(--verde-claro); }
+        .modulo-consumo {   --acento: var(--tinta);; 
+}
+        .icono { font-size: 2.4rem; line-height: 1; }
+        .modulo h2 {
+            margin: 4px 0 0;
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            font-size: 1.4rem;
+        }
+        .modulo p { margin: 0; color: var(--suave); flex: 1; }
+        .abrir { font-weight: 700; color: var(--verde-galpon); margin-top: 8px; }
+
+        .proximamente {
+            margin-top: 28px;
+            padding: 16px 20px;
+            border: 2px dashed #B7C7BC;
+            border-radius: 10px;
+            color: var(--suave);
+        }
+
+        a:focus-visible {
+            outline: 3px solid var(--yema);
+            outline-offset: 3px;
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            .modulo { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        }
+        @media (max-width: 480px) {
+            .portada { padding: 24px 16px 48px; }
+            main { padding: 0 16px 40px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🐔 ¡Bienvenido al Galpón Proyecto!</h1>
+    <header class="portada">
+        <div class="portada-interior">
+            <div class="barra">
+                <span>Sesión iniciada como <strong>{{ user.username }}</strong></span>
+                <a class="salir" href="{% url 'accounts:logout' %}">Cerrar sesión</a>
+            </div>
 
-        <div class="info">
-            <p>Has iniciado sesión correctamente como: <strong>{{ user.username }}</strong></p>
-            <p>Aquí irá el panel principal con los módulos del sistema:</p>
-            <ul>
-                <li>📦 Registro de producción</li>
-                <li>🐣 Control de mortalidad</li>
-                <li>🌾 Inventario de alimento</li>
-                <li>💰 Registro de ventas</li>
-                <li>📊 Reportes y estadísticas</li>
-            </ul>
+            <div class="saludo">
+                <div class="saludo-texto">
+                    <h1>Buen día en el galpón Castillo</h1>
+                    <p>Elige el módulo con el que vas a trabajar hoy.</p>
+                </div>
+
+                <svg class="gallina" viewBox="0 0 320 260" role="img" aria-label="Una gallina junto a dos huevos">
+                    <ellipse cx="160" cy="240" rx="140" ry="10" fill="#0D2519"/>
+                    <path d="M140 205 v30 M180 205 v30 M126 237 h26 M166 237 h26" stroke="#F4B41A" stroke-width="7" stroke-linecap="round" fill="none"/>
+                    <path d="M78 130 C46 110 40 70 58 52 C72 78 90 92 112 98 Z" fill="#E8DFCC"/>
+                    <path d="M70 130 C70 80 120 70 170 85 C215 98 245 130 235 170 C225 205 180 214 140 212 C95 210 70 180 70 130 Z" fill="#FBF7EF"/>
+                    <path d="M105 140 C125 120 170 125 185 150 C165 175 125 175 105 140 Z" fill="#E8DFCC"/>
+                    <circle cx="222" cy="98" r="30" fill="#FBF7EF"/>
+                    <circle cx="210" cy="72" r="7" fill="#C0392B"/>
+                    <circle cx="222" cy="66" r="8" fill="#C0392B"/>
+                    <circle cx="235" cy="72" r="7" fill="#C0392B"/>
+                    <path d="M250 96 l22 8 l-22 8 z" fill="#F4B41A"/>
+                    <ellipse cx="248" cy="122" rx="6" ry="9" fill="#C0392B"/>
+                    <circle cx="234" cy="94" r="4" fill="#17402B"/>
+                    <ellipse cx="46" cy="214" rx="18" ry="24" fill="#E7C9A0"/>
+                    <ellipse cx="84" cy="224" rx="15" ry="20" fill="#DDB88A"/>
+                </svg>
+            </div>
         </div>
+    </header>
 
-        <a href="{% url 'accounts:logout' %}" class="logout-btn">Cerrar Sesión</a>
-    </div>
+    <main>
+    <nav class="modulos" aria-label="Módulos del sistema">
+        <!-- Producción -->
+        <a class="modulo modulo-produccion" href="{% url 'registrar_produccion' %}">
+            <span class="icono">📦</span>
+            <h2>Producción</h2>
+            <p>Registra los huevos recolectados, los rotos y las cubetas armadas de cada día.</p>
+            <span class="abrir">Abrir producción</span>
+        </a>
+
+        <!-- Mortalidad -->
+        <a class="modulo modulo-mortalidad" href="{% url 'mortalidad_lista' %}">
+            <span class="icono">🐥</span>
+            <h2>Mortalidad</h2>
+            <p>Anota las aves que se pierden en cada lote y la causa.</p>
+            <span class="abrir">Abrir mortalidad</span>
+        </a>
+
+        <!-- Ventas -->
+        <a class="modulo modulo-ventas" href="{% url 'registrar_venta' %}">
+            <span class="icono">💰</span>
+            <h2>Ventas</h2>
+            <p>Registra las ventas del galpón y edita o elimina las que se cargaron mal.</p>
+            <span class="abrir">Abrir ventas</span>
+        </a>
+
+        <!-- Consumo -->
+        <a class="modulo modulo-consumo" href="{% url 'registrar_consumo' %}">
+            <span class="icono">📝</span>
+            <h2>Consumo</h2>
+            <p>Registra la cantidad de bultos consumidos al día.</p>
+            <span class="abrir">Abrir consumo</span>
+        </a>
+    </nav>
+
+    <p class="proximamente">
+        En camino: inventario de alimento y reportes con estadísticas.
+    </p>
+</main>
+    </main>
 </body>
 </html>
