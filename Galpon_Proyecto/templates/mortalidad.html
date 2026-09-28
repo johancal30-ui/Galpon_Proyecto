@@ -285,7 +285,7 @@
       <h1>Registro de mortalidad</h1>
       <p>Control de bajas por lote — galpón avícola</p>
     </div>
-    <a class="btn-registrar" href="{% url 'accounts:mortalidad_registrar' %}">Registrar mortalidad</a>
+    <a class="btn-registrar" href="{% url 'mortalidad_registrar' %}">Registrar mortalidad</a>
   </div>
 
   {% if messages %}
@@ -357,7 +357,7 @@
   {% else %}
   <div class="vacio">
     <p>Todavía no hay registros de mortalidad.</p>
-    <a class="btn-registrar" href="{% url 'accounts:mortalidad_registrar' %}">Registrar el primero</a>
+    <a class="btn-registrar" href="{% url 'mortalidad_registrar' %}">Registrar el primero</a>
   </div>
   {% endif %}
 
