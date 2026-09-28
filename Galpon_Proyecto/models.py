@@ -9,6 +9,7 @@ class RegistroProduccion(models.Model):
     fecha = models.DateField(default=timezone.now)
     cantidad_huevos = models.PositiveIntegerField()
     cantidad_cubetas = models.PositiveIntegerField()
+    cantidad_huevos_rotos = models.PositiveIntegerField(default=0)
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
 

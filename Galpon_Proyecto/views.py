@@ -11,20 +11,27 @@ def registrar_produccion(request):
     if request.method == 'POST':
         huevos = request.POST.get('cantidad_huevos')
         cubetas = request.POST.get('cantidad_cubetas')
+        rotos = request.POST.get('cantidad_huevos_rotos') or '0'
         if not huevos or not cubetas:
             messages.error(request, "Por favor, complete todos los campos.")
         else:
             try:
                 huevos = int(huevos)
                 cubetas = int(cubetas)
+                rotos = int(rotos)
                 if huevos <= 0 or cubetas <= 0:
                     messages.error(request, "La cantidad debe ser un número entero mayor a cero")
+                elif rotos < 0:
+                    messages.error(request, "Los huevos rotos deben ser un número entero mayor o igual a cero")
+                elif rotos > huevos:
+                    messages.error(request, "Los huevos rotos no pueden superar el total recolectado")
                 else:
                     RegistroProduccion.objects.create(
                         cantidad_huevos=huevos,
+                        cantidad_huevos_rotos=rotos,
                         cantidad_cubetas=cubetas
                     )
-                    messages.success(request, "Registro actualizado exitosamente")
+                    messages.success(request, "Registro guardado exitosamente")
                     return redirect('registrar_produccion')
             except (ValueError, TypeError):
                 messages.error(request, "La cantidad debe ser un número entero mayor a cero")
@@ -33,6 +40,43 @@ def registrar_produccion(request):
     return render(request, 'produccion.html', {'registros': registros})
 
 
+def editar_produccion(request, pk):
+    registro = get_object_or_404(RegistroProduccion, pk=pk)
+    if request.method == 'POST':
+        huevos = request.POST.get('cantidad_huevos')
+        cubetas = request.POST.get('cantidad_cubetas')
+        rotos = request.POST.get('cantidad_huevos_rotos') or '0'
+        try:
+            huevos = int(huevos)
+            cubetas = int(cubetas)
+            rotos = int(rotos)
+            if huevos <= 0 or cubetas <= 0:
+                messages.error(request, "La cantidad debe ser un número entero mayor a cero")
+            elif rotos < 0:
+                messages.error(request, "Los huevos rotos deben ser un número entero mayor o igual a cero")
+            elif rotos > huevos:
+                messages.error(request, "Los huevos rotos no pueden superar el total recolectado")
+            else:
+                registro.cantidad_huevos = huevos
+                registro.cantidad_huevos_rotos = rotos
+                registro.cantidad_cubetas = cubetas
+                registro.save()
+                messages.success(request, "Registro actualizado exitosamente")
+                return redirect('registrar_produccion')
+        except (ValueError, TypeError):
+            messages.error(request, "La cantidad debe ser un número entero mayor a cero")
+
+    return render(request, 'produccion_editar.html', {'registro': registro})
+
+def eliminar_produccion(request, pk):
+    registro = get_object_or_404(RegistroProduccion, pk=pk)
+
+    if request.method == 'POST':
+        registro.delete()
+        messages.success(request, "Registro eliminado exitosamente")
+        return redirect('registrar_produccion')
+
+    return render(request, 'produccion_eliminar.html', {'registro': registro})
 # CONSUMO (JHON)
 def registrar_consumo(request):
     if request.method == 'POST':
