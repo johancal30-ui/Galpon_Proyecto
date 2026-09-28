@@ -97,8 +97,9 @@
         .modulo-produccion { --acento: var(--yema); }
         .modulo-mortalidad { --acento: var(--cresta); }
         .modulo-ventas { --acento: var(--verde-claro); }
-        .modulo-consumo {   --acento: var(--tinta);; 
-}
+        .modulo-consumo {   --acento: var(--tinta);} 
+        .modulo-alimento { --acento: var(--yema); }
+
         .icono { font-size: 2.4rem; line-height: 1; }
         .modulo h2 {
             margin: 4px 0 0;
@@ -195,6 +196,13 @@
             <h2>Consumo</h2>
             <p>Registra la cantidad de bultos consumidos al día.</p>
             <span class="abrir">Abrir consumo</span>
+        </a>
+         <!-- Alimento -->
+        <a class="modulo modulo-alimento" href="{% url 'registrar_alimento' %}">
+            <span class="icono">🌽 </span>
+            <h2>Alimento</h2>
+            <p>Revisa el inventario del alimento.</p>
+            <span class="abrir">Abrir alimento</span>
         </a>
     </nav>
 
