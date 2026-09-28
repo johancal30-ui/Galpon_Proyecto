@@ -1,26 +1,310 @@
-<div class="container mt-4">
-    <h2>Registro Diario de Alimento</h2>
+```html
+<style>
+    .registro-alimento {
+        min-height: 100vh;
+        padding: 40px 15px;
+        background: linear-gradient(135deg, #f4f8ed, #fffaf0);
+    }
 
-    <!-- Mensajes de éxito y alertas de anomalía -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
-                {{ message }}
+    .registro-card {
+        max-width: 850px;
+        margin: auto;
+        background: #ffffff;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 12px 35px rgba(55, 80, 45, 0.15);
+        border: 1px solid #e6eddc;
+    }
+
+    /* Encabezado */
+    .registro-header {
+        position: relative;
+        padding: 45px 30px 55px;
+        text-align: center;
+        background: linear-gradient(135deg, #dff1d4, #f8f3d9);
+        overflow: hidden;
+    }
+
+    .registro-header::before {
+        content: "🌿";
+        position: absolute;
+        font-size: 80px;
+        left: 20px;
+        top: 15px;
+        opacity: 0.25;
+        transform: rotate(-15deg);
+    }
+
+    .registro-header::after {
+        content: "🌾";
+        position: absolute;
+        font-size: 90px;
+        right: 20px;
+        bottom: -15px;
+        opacity: 0.25;
+        transform: rotate(10deg);
+    }
+
+    .granja-icono {
+        font-size: 70px;
+        display: inline-block;
+        animation: flotar 3s ease-in-out infinite;
+    }
+
+    .registro-header h1 {
+        margin: 10px 0 8px;
+        color: #245c38;
+        font-weight: 800;
+        font-size: 2.2rem;
+    }
+
+    .registro-header p {
+        margin: 0;
+        color: #5f735d;
+        font-size: 1.05rem;
+    }
+
+    /* Contenido */
+    .registro-body {
+        padding: 35px;
+    }
+
+    .mensaje {
+        border-radius: 15px;
+        padding: 15px 18px;
+        margin-bottom: 20px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .campo-alimento {
+        background: #fbfdf9;
+        border: 2px solid #e3ecd9;
+        border-radius: 20px;
+        padding: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .campo-alimento:hover {
+        border-color: #8fba75;
+        box-shadow: 0 8px 20px rgba(70, 110, 60, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .campo-icono {
+        font-size: 38px;
+        margin-bottom: 10px;
+    }
+
+    .campo-alimento label {
+        color: #315a3a;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 10px;
+    }
+
+    .campo-alimento input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #dce7d4;
+        border-radius: 12px;
+        outline: none;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .campo-alimento input:focus {
+        border-color: #68a357;
+        box-shadow: 0 0 0 4px rgba(104, 163, 87, 0.12);
+    }
+
+    .ayuda {
+        margin-top: 10px;
+        color: #7b8877;
+        font-size: 0.9rem;
+    }
+
+    .error-campo {
+        color: #c0392b;
+        margin-top: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    /* Botón */
+    .btn-confirmar {
+        width: 100%;
+        border: none;
+        border-radius: 14px;
+        padding: 15px 20px;
+        margin-top: 25px;
+        background: linear-gradient(135deg, #388e5b, #276c43);
+        color: white;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 7px 18px rgba(39, 108, 67, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .btn-confirmar:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(39, 108, 67, 0.35);
+        background: linear-gradient(135deg, #2f7f50, #205b39);
+    }
+
+    .btn-confirmar:active {
+        transform: translateY(0);
+    }
+
+    /* Decoración inferior */
+    .decoracion-granja {
+        text-align: center;
+        margin-top: 28px;
+        padding: 20px;
+        background: #f1f7eb;
+        border-radius: 15px;
+        color: #54704e;
+        font-size: 0.95rem;
+    }
+
+    .animales {
+        font-size: 28px;
+        letter-spacing: 8px;
+        margin-bottom: 8px;
+    }
+
+    @keyframes flotar {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    /* Celulares */
+    @media (max-width: 576px) {
+        .registro-alimento {
+            padding: 20px 10px;
+        }
+
+        .registro-header {
+            padding: 35px 20px 45px;
+        }
+
+        .registro-header h1 {
+            font-size: 1.7rem;
+        }
+
+        .granja-icono {
+            font-size: 55px;
+        }
+
+        .registro-body {
+            padding: 20px;
+        }
+
+        .campo-alimento {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="registro-alimento">
+
+    <div class="registro-card">
+
+        <!-- ENCABEZADO -->
+        <div class="registro-header">
+
+            <div class="granja-icono">
+                🐔
             </div>
-        {% endfor %}
-    {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="id_bultos_consumidos" class="form-label">Bultos de alimento consumidos hoy:</label>
-            {{ form.bultos_consumidos }}
-            {% if form.bultos_consumidos.errors %}
-                <div class="text-danger">
-                    {{ form.bultos_consumidos.errors.0 }}
-                </div>
-            {% endif %}
+            <h1>Registro Diario de Alimento</h1>
+
+            <p>
+                Lleva el control de la alimentación de tu granja 🌱
+            </p>
+
         </div>
-        <button type="submit" class="btn btn-primary">Confirmar Registro</button>
-    </form>
+
+
+        <!-- CONTENIDO -->
+        <div class="registro-body">
+
+            <!-- Mensajes de Django -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} mensaje">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+
+            <form method="post">
+
+                {% csrf_token %}
+
+
+                <!-- CAMPO DE BULTOS -->
+                <div class="campo-alimento">
+
+                    <div class="campo-icono">
+                        🌾
+                    </div>
+
+                    <label for="id_bultos_consumidos">
+                        Bultos de alimento consumidos hoy
+                    </label>
+
+                    {{ form.bultos_consumidos }}
+
+                    <div class="ayuda">
+                        🥚 Registra la cantidad de alimento utilizada durante el día.
+                    </div>
+
+                    {% if form.bultos_consumidos.errors %}
+                        <div class="error-campo">
+                            ⚠️ {{ form.bultos_consumidos.errors.0 }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+
+                <!-- BOTÓN -->
+                <button type="submit" class="btn-confirmar">
+                    ✅ Confirmar Registro
+                </button>
+
+            </form>
+
+
+            <!-- DECORACIÓN -->
+            <div class="decoracion-granja">
+
+                <div class="animales">
+                    🐔 🥚 🌾 🐓 🥚
+                </div>
+
+                <strong>
+                    "Una buena alimentación es el comienzo de una gran producción"
+                </strong>
+
+                <div>
+                    🌱 Cuidando cada detalle de nuestra granja 🌱
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
+```

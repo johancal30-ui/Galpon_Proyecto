@@ -144,35 +144,118 @@ def mortalidad_eliminar(request, pk):
 
 @login_required
 def registrar_venta(request):
+    form = VentaForm()
+    error_manual = None  # <-- Para guardar errores que detectemos
+
     if request.method == 'POST':
         form = VentaForm(request.POST)
-        if form.is_valid():
-            venta = form.save(commit=False)
-            venta.registrado_por = request.user
-            venta.cantidad_huevos = venta.cantidad_cubetas * 30  # <-- Calcular aquí
+
+        # Validación manual (sin form.is_valid())
+        cliente = request.POST.get('cliente', '').strip()
+        cantidad = request.POST.get('cantidad_cubetas', '')
+        precio = request.POST.get('precio_unitario', '')
+
+        # Validar cliente
+        if not cliente:
+            error_manual = "El nombre del cliente es obligatorio."
+
+        # Validar cantidad
+        elif not cantidad:
+            error_manual = "La cantidad de cubetas es obligatoria."
+        else:
+            try:
+                cantidad_int = int(cantidad)
+                if cantidad_int <= 0:
+                    error_manual = "La cantidad debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "La cantidad debe ser un número entero."
+
+        # Validar precio
+        if error_manual is None:
+            if not precio:
+                error_manual = "El precio por cubeta es obligatorio."
+            else:
+                try:
+                    precio_float = float(precio)
+                    if precio_float <= 0:
+                        error_manual = "El precio debe ser mayor a cero."
+                except (ValueError, TypeError):
+                    error_manual = "El precio debe ser un número válido."
+
+        # Si todo está bien, guardar
+        if error_manual is None:
+            venta = Venta(
+                cliente=cliente,
+                cantidad_cubetas=cantidad_int,
+                precio_unitario=precio_float,
+                cantidad_huevos=cantidad_int * 30,
+                total=cantidad_int * precio_float,
+                registrado_por=request.user,
+            )
             venta.save()
             messages.success(request, f'Venta registrada. Total: ${venta.total}')
             return redirect('registrar_venta')
-    else:
-        form = VentaForm()
 
     ventas = Venta.objects.all()
-    return render(request, 'venta.html', {'form': form, 'ventas': ventas})
-
+    return render(request, 'venta.html', {
+        'form': form,
+        'ventas': ventas,
+        'error_manual': error_manual,
+    })
 
 @login_required
 def editar_venta(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
+    error_manual = None
+
     if request.method == 'POST':
-        form = VentaForm(request.POST, instance=venta)
-        if form.is_valid():
-            form.save()
+        cliente = request.POST.get('cliente', '').strip()
+        cantidad = request.POST.get('cantidad_cubetas', '')
+        precio = request.POST.get('precio_unitario', '')
+
+        if not cliente:
+            error_manual = "El nombre del cliente es obligatorio."
+        elif not cantidad:
+            error_manual = "La cantidad de cubetas es obligatoria."
+        else:
+            try:
+                cantidad_int = int(cantidad)
+                if cantidad_int <= 0:
+                    error_manual = "La cantidad debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "La cantidad debe ser un número entero."
+
+        if error_manual is None:
+            if not precio:
+                error_manual = "El precio por cubeta es obligatorio."
+            else:
+                try:
+                    precio_float = float(precio)
+                    if precio_float <= 0:
+                        error_manual = "El precio debe ser mayor a cero."
+                except (ValueError, TypeError):
+                    error_manual = "El precio debe ser un número válido."
+
+        if error_manual is None:
+            venta.cliente = cliente
+            venta.cantidad_cubetas = cantidad_int
+            venta.precio_unitario = precio_float
+            venta.cantidad_huevos = cantidad_int * 30
+            venta.total = cantidad_int * precio_float
+            venta.save()
             messages.success(request, 'Venta actualizada correctamente.')
             return redirect('registrar_venta')
+        else:
+            # Si hay error, volvemos a mostrar el form con los datos actuales
+            form = VentaForm(request.POST, instance=venta)
     else:
         form = VentaForm(instance=venta)
 
-    return render(request, 'venta_editar.html', {'form': form, 'venta': venta})
+    return render(request, 'venta_editar.html', {
+        'form': form,
+        'venta': venta,
+        'error_manual': error_manual,
+    })
 
 
 @login_required

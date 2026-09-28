@@ -27,6 +27,16 @@
         .accion { text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; }
         .editar { background: #007bff; }
         .eliminar { background: #dc3545; }
+
+        .error-campo {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 8px;
+        border-radius: 4px;
+        margin-top: 5px;
+        font-size: 13px;
+        border-left: 3px solid #dc3545;
+}
     </style>
 </head>
 <body>
@@ -46,34 +56,29 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-
-            <h3>Nueva venta</h3>
-            <form method="post">
-                {% csrf_token %}
-
-                {% if form.errors %}
-                    <ul style="background:#f8d7da;color:#721c24;padding:15px;border-radius:5px;list-style:none;">
-                        {% for field, errors in form.errors.items %}
-                            {% for error in errors %}
-                                <li><strong>{{ field }}:</strong> {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                <div class="form-row">
-                    <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
-                    {{ form.cliente }}
-                </div>
-                <div class="form-row">
-                    <label for="{{ form.cantidad_cubetas.id_for_label }}">Cantidad de cubetas:</label>
-                    {{ form.cantidad_cubetas }}
-                </div>
-                <div class="form-row">
-                    <label for="{{ form.precio_unitario.id_for_label }}">Precio por cubeta:</label>
-                    {{ form.precio_unitario }}
-                </div>
-                <button class="btn" type="submit">Registrar venta</button>
-            </form>
+        <h3>Nueva venta</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if error_manual %}
+                <div class="error-campo" style="margin-bottom:15px;">
+                    {{ error_manual }}
+            </div>
+        {% endif %}
+        <div class="form-row">
+            <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
+            {{ form.cliente }}
+        </div>
+        <div class="form-row">
+            <label for="{{ form.cantidad_cubetas.id_for_label }}">Cantidad de cubetas:</label>
+            {{ form.cantidad_cubetas }}
+        </div>
+        <div class="form-row">
+            <label for="{{ form.precio_unitario.id_for_label }}">Precio por cubeta:</label>
+            {{ form.precio_unitario }}
+        </div>
+        <button class="btn" type="submit">Registrar venta</button>
+    </form>
 
             <h3>Ventas registradas</h3>
             <table>

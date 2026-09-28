@@ -17,6 +17,8 @@
         .btn:hover { background: #0056b3; }
         .btn-cancelar { background: #6c757d; }
         .btn-cancelar:hover { background: #5a6268; }
+        .error-campo {background: #f8d7da; color: #721c24; padding: 8px; border-radius: 4px; margin-top: 5px; font-size: 13px;border-left: 3px solid #dc3545;
+}
     </style>
 </head>
 <body>
@@ -28,20 +30,30 @@
         </div>
 
         <div class="content">
-            <form method="post">
+           <form method="post">
                 {% csrf_token %}
+
+                {% if error_manual %}
+                    <div class="error-campo" style="margin-bottom:15px;">
+                        {{ error_manual }}
+                    </div>
+                {% endif %}
+
                 <div class="form-row">
                     <label>Cliente:</label>
                     {{ form.cliente }}
                 </div>
+
                 <div class="form-row">
                     <label>Cantidad de cubetas:</label>
                     {{ form.cantidad_cubetas }}
                 </div>
+
                 <div class="form-row">
                     <label>Precio por cubeta:</label>
                     {{ form.precio_unitario }}
                 </div>
+
                 <button class="btn" type="submit">Guardar cambios</button>
                 <a class="btn btn-cancelar" href="{% url 'registrar_venta' %}">Cancelar</a>
             </form>
