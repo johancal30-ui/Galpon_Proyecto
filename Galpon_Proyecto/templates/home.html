@@ -97,6 +97,8 @@
         .modulo-produccion { --acento: var(--yema); }
         .modulo-mortalidad { --acento: var(--cresta); }
         .modulo-ventas { --acento: var(--verde-claro); }
+        .modulo-consumo {   --acento: var(--tinta);; 
+}
         .icono { font-size: 2.4rem; line-height: 1; }
         .modulo h2 {
             margin: 4px 0 0;
@@ -162,32 +164,44 @@
     </header>
 
     <main>
-        <nav class="modulos" aria-label="Módulos del sistema">
-            <a class="modulo modulo-produccion" href="{% url 'registrar_produccion' %}">
-                <span class="icono">📦</span>
-                <h2>Producción</h2>
-                <p>Registra los huevos recolectados, los rotos y las cubetas armadas de cada día.</p>
-                <span class="abrir">Abrir producción</span>
-            </a>
+    <nav class="modulos" aria-label="Módulos del sistema">
+        <!-- Producción -->
+        <a class="modulo modulo-produccion" href="{% url 'registrar_produccion' %}">
+            <span class="icono">📦</span>
+            <h2>Producción</h2>
+            <p>Registra los huevos recolectados, los rotos y las cubetas armadas de cada día.</p>
+            <span class="abrir">Abrir producción</span>
+        </a>
 
-            <a class="modulo modulo-mortalidad" href="{% url 'mortalidad_lista' %}">
-                <span class="icono">🐣</span>
-                <h2>Mortalidad</h2>
-                <p>Anota las aves que se pierden en cada lote y la causa.</p>
-                <span class="abrir">Abrir mortalidad</span>
-            </a>
+        <!-- Mortalidad -->
+        <a class="modulo modulo-mortalidad" href="{% url 'mortalidad_lista' %}">
+            <span class="icono">🐥</span>
+            <h2>Mortalidad</h2>
+            <p>Anota las aves que se pierden en cada lote y la causa.</p>
+            <span class="abrir">Abrir mortalidad</span>
+        </a>
 
-            <a class="modulo modulo-ventas" href="{% url 'registrar_venta' %}">
-                <span class="icono">💰</span>
-                <h2>Ventas</h2>
-                <p>Registra las ventas del galpón y edita o elimina las que se cargaron mal.</p>
-                <span class="abrir">Abrir ventas</span>
-            </a>
-        </nav>
+        <!-- Ventas -->
+        <a class="modulo modulo-ventas" href="{% url 'registrar_venta' %}">
+            <span class="icono">💰</span>
+            <h2>Ventas</h2>
+            <p>Registra las ventas del galpón y edita o elimina las que se cargaron mal.</p>
+            <span class="abrir">Abrir ventas</span>
+        </a>
 
-        <p class="proximamente">
-            En camino: inventario de alimento y reportes con estadísticas.
-        </p>
+        <!-- Consumo -->
+        <a class="modulo modulo-consumo" href="{% url 'registrar_consumo' %}">
+            <span class="icono">📝</span>
+            <h2>Consumo</h2>
+            <p>Registra la cantidad de bultos consumidos al día.</p>
+            <span class="abrir">Abrir consumo</span>
+        </a>
+    </nav>
+
+    <p class="proximamente">
+        En camino: inventario de alimento y reportes con estadísticas.
+    </p>
+</main>
     </main>
 </body>
 </html>
