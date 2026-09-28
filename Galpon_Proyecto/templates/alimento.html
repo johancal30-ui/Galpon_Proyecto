@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario de Alimento - Galpón Proyecto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .page { max-width: 1100px; margin: auto; }
+        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .masthead { background: #007bff; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .masthead h1 { margin: 0; }
+        .masthead p { margin: 5px 0 0; font-size: 14px; }
+        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .form-row { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { display: inline-block; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
+        .btn:hover { background: #218838; }
+        .error-campo { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; border-left: 4px solid #dc3545; }
+        .messages { list-style: none; padding: 0; margin-bottom: 20px; }
+        .messages li { padding: 10px; border-radius: 5px; margin-bottom: 5px; }
+        .messages .success { background: #d4edda; color: #155724; }
+        .messages .error { background: #f8d7da; color: #721c24; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f4f4f4; }
+        .accion { text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; }
+        .editar { background: #007bff; }
+        .eliminar { background: #dc3545; }
+        .stock-card { display: inline-block; padding: 15px; margin: 5px; border-radius: 8px; background: #f8f9fa; border-left: 4px solid #28a745; min-width: 180px; }
+        .stock-card h4 { margin: 0 0 5px; color: #333; }
+        .stock-card p { margin: 0; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
+
+        <div class="masthead">
+            <h1>🌾 Inventario de Alimento</h1>
+            <p>Control de ingreso de bultos y stock disponible</p>
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if error_manual %}
+                <div class="error-campo">{{ error_manual }}</div>
+            {% endif %}
+
+            <h3>Registrar ingreso</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <label for="{{ form.tipo.id_for_label }}">Tipo de alimento:</label>
+                    {{ form.tipo }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.cantidad_bultos.id_for_label }}">Cantidad de bultos:</label>
+                    {{ form.cantidad_bultos }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.kilos_por_bulto.id_for_label }}">Kilos por bulto:</label>
+                    {{ form.kilos_por_bulto }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.costo_unitario.id_for_label }}">Costo unitario:</label>
+                    {{ form.costo_unitario }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.proveedor.id_for_label }}">Proveedor:</label>
+                    {{ form.proveedor }}
+                </div>
+                <button class="btn" type="submit">Registrar ingreso</button>
+            </form>
+
+            <h3>Stock actual por tipo</h3>
+
+<div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+    {% for item in stock_por_tipo %}
+        {% if item.total_bultos < 8 %}
+            <div class="stock-card" style="min-width: 220px; background: #fff5f5; border-left: 5px solid #dc3545; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(220,53,69,0.15);">
+                <h4 style="margin: 0 0 10px; color: #dc3545;">⚠️ {{ item.tipo }}</h4>
+                <p style="margin: 5px 0;"><strong>Bultos:</strong> {{ item.total_bultos }}</p>
+                <p style="margin: 5px 0;"><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
+                <p style="margin: 5px 0;"><strong>Costo total:</strong> ${{ item.costo_total|floatformat:0 }}</p>
+                <p style="margin: 10px 0 0; color: #dc3545; font-weight: bold; font-size: 13px;">¡Stock bajo! Reabastecer pronto.</p>
+            </div>
+        {% else %}
+            <div class="stock-card" style="min-width: 220px; background: white; border-left: 5px solid #28a745; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                <h4 style="margin: 0 0 10px; color: #28a745;">{{ item.tipo }}</h4>
+                <p style="margin: 5px 0;"><strong>Bultos:</strong> {{ item.total_bultos }}</p>
+                <p style="margin: 5px 0;"><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
+                <p style="margin: 5px 0;"><strong>Costo total:</strong> ${{ item.costo_total|floatformat:0 }}</p>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p>No hay stock registrado.</p>
+    {% endfor %}
+</div>
+            
+            <h3>Total invertido por período</h3>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #007bff;">
+                <form method="get" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                    <div>
+                        <label for="fecha_desde" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Desde:</label>
+                        <input type="date" name="fecha_desde" id="fecha_desde" value="{{ fecha_desde|default:'' }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div>
+                        <label for="fecha_hasta" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Hasta:</label>
+                        <input type="date" name="fecha_hasta" id="fecha_hasta" value="{{ fecha_hasta|default:'' }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn" style="background: #007bff;">Calcular</button>
+                    </div>
+                </form>
+
+                {% if total_invertido is not None %}
+                <div style="margin-top: 20px; padding: 15px; background: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 5px;">
+                    <p style="margin: 0; font-size: 16px;">
+                        <strong>Total invertido:</strong>
+                        <span style="color: #0c5460; font-size: 20px;">${{ total_invertido|floatformat:0 }}</span>
+                    </p>
+                    {% if fecha_desde and fecha_hasta %}
+                        <p style="margin: 5px 0 0; font-size: 13px; color: #666;">
+                            Período: {{ fecha_desde }} al {{ fecha_hasta }}
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+
+            <h3>Historial de ingresos</h3>
+            <table>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Bultos</th>
+                    <th>Kilos/bulto</th>
+                    <th>Costo unit.</th>
+                    <th>Costo total</th>
+                    <th>Proveedor</th>
+                    <th>Acciones</th>
+                </tr>
+                {% for item in historial %}
+                <tr>
+                    <td>{{ item.fecha }}</td>
+                    <td>{{ item.get_tipo_display }}</td>
+                    <td>{{ item.cantidad_bultos }}</td>
+                    <td>{{ item.kilos_por_bulto }}</td>
+                    <td>${{ item.costo_unitario }}</td>
+                    <td>${{ item.costo_total }}</td>
+                    <td>{{ item.proveedor }}</td>
+                    <td>
+                        <a class="accion editar" href="{% url 'editar_alimento' item.id %}">Editar</a>
+                        <a class="accion eliminar" href="{% url 'eliminar_alimento' item.id %}">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8">No hay ingresos registrados todavía.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>
