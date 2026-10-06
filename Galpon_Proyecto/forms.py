@@ -1,7 +1,7 @@
 from django import forms
 from .models import RegistroConsumo
 from .models import RegistroMortalidad
-from .models import Venta, Alimento, Inventario
+from .models import Venta, Alimento, Inventario, GastoOperativo
 
 class RegistroConsumoForm(forms.ModelForm):
     class Meta:
@@ -101,4 +101,19 @@ class InventarioForm(forms.ModelForm):
             'tipo': 'Tipo de insumo',
             'stock_actual': 'Stock actual',
             'stock_minimo': 'Límite mínimo',
+        }
+
+class GastoOperativoForm(forms.ModelForm):
+    class Meta:
+        model = GastoOperativo
+        fields = ['categoria', 'descripcion', 'monto']
+        widgets = {
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+            'monto': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+        labels = {
+            'categoria': 'Categoría',
+            'descripcion': 'Descripción',
+            'monto': 'Monto',
         }

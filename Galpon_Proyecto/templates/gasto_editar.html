@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Gasto - Galpón Proyecto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .page { max-width: 700px; margin: auto; }
+        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .masthead { background: #007bff; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .masthead h1 { margin: 0; }
+        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .form-row { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; margin-right: 10px; }
+        .btn:hover { background: #0056b3; }
+        .btn-cancelar { background: #6c757d; }
+        .btn-cancelar:hover { background: #5a6268; }
+        .error-campo { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; border-left: 4px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a class="volver" href="{% url 'registrar_gasto' %}">← Volver a gastos</a>
+
+        <div class="masthead">
+            <h1>✏️ Editar Gasto</h1>
+        </div>
+
+        <div class="content">
+            {% if error_manual %}
+                <div class="error-campo">{{ error_manual }}</div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <label>Categoría:</label>
+                    {{ form.categoria }}
+                </div>
+                <div class="form-row">
+                    <label>Descripción:</label>
+                    {{ form.descripcion }}
+                </div>
+                <div class="form-row">
+                    <label>Monto:</label>
+                    {{ form.monto }}
+                </div>
+                <button class="btn" type="submit">Guardar cambios</button>
+                <a class="btn btn-cancelar" href="{% url 'registrar_gasto' %}">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

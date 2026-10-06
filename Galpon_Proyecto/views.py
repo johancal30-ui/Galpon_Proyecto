@@ -3,8 +3,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Avg
 from django.utils import timezone
-from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Venta, Alimento, Inventario, AlertaStock)
-from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm)
+from datetime import date
+from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Venta, Alimento, Inventario, AlertaStock, GastoOperativo)
+from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm, GastoOperativoForm)
 
 
 # PRODUCCIÓN (JOHAN)
@@ -531,3 +532,148 @@ def inventario(request):
         'inventarios': inventarios,
         'alertas': alertas,
     })
+
+
+# GASTOS OPERATIVOS ANDRES
+@login_required
+def registrar_gasto(request):
+    form = GastoOperativoForm()
+    error_manual = None
+
+    if request.method == 'POST':
+        form = GastoOperativoForm(request.POST)
+
+        categoria = request.POST.get('categoria', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        monto = request.POST.get('monto', '')
+
+        # Validar categoría
+        if not categoria:
+            error_manual = "Debes seleccionar una categoría."
+
+        # Validar descripción
+        elif not descripcion:
+            error_manual = "La descripción es obligatoria."
+
+        # Validar monto
+        elif not monto:
+            error_manual = "El monto es obligatorio."
+        else:
+            try:
+                monto_float = float(monto)
+                if monto_float <= 0:
+                    error_manual = "El monto debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "El monto debe ser un número válido."
+
+        # Si todo está bien, guardar
+        if error_manual is None:
+            gasto = GastoOperativo(
+                categoria=categoria,
+                descripcion=descripcion,
+                monto=monto_float,
+                registrado_por=request.user,
+            )
+            gasto.save()
+            messages.success(request, f'Gasto registrado. Monto: ${gasto.monto}')
+            return redirect('registrar_gasto')
+
+    # Calcular totales
+    hoy = date.today()
+    gastos_mes = GastoOperativo.objects.filter(
+        fecha__year=hoy.year,
+        fecha__month=hoy.month
+    ).aggregate(total=Sum('monto'))['total'] or 0
+
+    gastos_totales = GastoOperativo.objects.aggregate(
+        total=Sum('monto')
+    )['total'] or 0
+
+    # Costo real por cubeta
+    # Gastos operativos del mes + Costo de alimento del mes
+    costo_alimento_mes = Alimento.objects.filter(
+        fecha__year=hoy.year,
+        fecha__month=hoy.month
+    ).aggregate(total=Sum('costo_total'))['total'] or 0
+
+    # Cubetas producidas del mes
+    cubetas_producidas = RegistroProduccion.objects.filter(
+        fecha__year=hoy.year,
+        fecha__month=hoy.month
+    ).aggregate(total=Sum('cantidad_cubetas'))['total'] or 0
+
+    # Cálculo final
+    costo_total_mes = gastos_mes + costo_alimento_mes
+    if cubetas_producidas > 0:
+        costo_por_cubeta = costo_total_mes / cubetas_producidas
+    else:
+        costo_por_cubeta = 0
+
+    gastos = GastoOperativo.objects.all()
+
+    return render(request, 'gasto.html', {
+        'form': form,
+        'gastos': gastos,
+        'error_manual': error_manual,
+        'gastos_mes': gastos_mes,
+        'gastos_totales': gastos_totales,
+        'costo_alimento_mes': costo_alimento_mes,
+        'cubetas_producidas': cubetas_producidas,
+        'costo_total_mes': costo_total_mes,
+        'costo_por_cubeta': costo_por_cubeta,
+    })
+
+
+@login_required
+def editar_gasto(request, pk):
+    gasto = get_object_or_404(GastoOperativo, pk=pk)
+    error_manual = None
+
+    if request.method == 'POST':
+        categoria = request.POST.get('categoria', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        monto = request.POST.get('monto', '')
+
+        if not categoria:
+            error_manual = "Debes seleccionar una categoría."
+        elif not descripcion:
+            error_manual = "La descripción es obligatoria."
+        elif not monto:
+            error_manual = "El monto es obligatorio."
+        else:
+            try:
+                monto_float = float(monto)
+                if monto_float <= 0:
+                    error_manual = "El monto debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "El monto debe ser un número válido."
+
+        if error_manual is None:
+            gasto.categoria = categoria
+            gasto.descripcion = descripcion
+            gasto.monto = monto_float
+            gasto.save()
+            messages.success(request, 'Gasto actualizado correctamente.')
+            return redirect('registrar_gasto')
+        else:
+            form = GastoOperativoForm(request.POST, instance=gasto)
+    else:
+        form = GastoOperativoForm(instance=gasto)
+
+    return render(request, 'gasto_editar.html', {
+        'form': form,
+        'gasto': gasto,
+        'error_manual': error_manual,
+    })
+
+
+@login_required
+def eliminar_gasto(request, pk):
+    gasto = get_object_or_404(GastoOperativo, pk=pk)
+
+    if request.method == 'POST':
+        gasto.delete()
+        messages.success(request, 'Gasto eliminado.')
+        return redirect('registrar_gasto')
+
+    return render(request, 'gasto_eliminar.html', {'gasto': gasto})

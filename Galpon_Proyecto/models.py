@@ -253,3 +253,29 @@ class AlertaStock(models.Model):
     def __str__(self):
         estado = 'Activa' if self.activa else 'Resuelta'
         return f"{self.inventario.get_tipo_display()} - {estado}"
+
+# GASTOS OPERATIVOS ANDRES
+class GastoOperativo(models.Model):
+    CATEGORIAS = [
+        ('servicios', 'Servicios públicos'),
+        ('transporte', 'Transporte'),
+        ('empaque', 'Empaque'),
+        ('mano_obra', 'Mano de obra'),
+        ('insumos', 'Insumos'),
+        ('otro', 'Otro'),
+    ]
+
+    fecha = models.DateField(auto_now_add=True)
+    categoria = models.CharField(max_length=20, choices=CATEGORIAS)
+    descripcion = models.CharField(max_length=200, help_text="Detalle del gasto")
+    monto = models.DecimalField(max_digits=12, decimal_places=2)
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Gasto operativo'
+        verbose_name_plural = 'Gastos operativos'
+
+    def __str__(self):
+        return f"{self.fecha} - {self.get_categoria_display()} - ${self.monto}"

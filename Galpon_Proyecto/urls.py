@@ -26,4 +26,9 @@ urlpatterns = [
     path('alimento/eliminar/<int:pk>/', views.eliminar_alimento, name='eliminar_alimento'),
     # Inventario y alertas de stock (Jhon)
     path('inventario/', views.inventario, name='inventario'),
+
+        # Gastos operativos (Andrés - KAN-14)
+    path('gastos/', views.registrar_gasto, name='registrar_gasto'),
+    path('gastos/editar/<int:pk>/', views.editar_gasto, name='editar_gasto'),
+    path('gastos/eliminar/<int:pk>/', views.eliminar_gasto, name='eliminar_gasto'),
 ]
