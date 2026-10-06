@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Avg
+from django.utils import timezone
 from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Venta, Alimento, Inventario, AlertaStock)
 from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm)
 
@@ -145,12 +146,11 @@ def mortalidad_eliminar(request, pk):
 @login_required
 def registrar_venta(request):
     form = VentaForm()
-    error_manual = None  # <-- Para guardar errores que detectemos
+    error_manual = None
 
     if request.method == 'POST':
         form = VentaForm(request.POST)
 
-        # Validación manual (sin form.is_valid())
         cliente = request.POST.get('cliente', '').strip()
         cantidad = request.POST.get('cantidad_cubetas', '')
         precio = request.POST.get('precio_unitario', '')
@@ -182,6 +182,21 @@ def registrar_venta(request):
                 except (ValueError, TypeError):
                     error_manual = "El precio debe ser un número válido."
 
+        # Verificar stock disponible
+        if error_manual is None:
+            total_producido = RegistroProduccion.objects.aggregate(
+                total=Sum('cantidad_cubetas')
+            )['total'] or 0
+
+            total_vendido = Venta.objects.aggregate(
+                total=Sum('cantidad_cubetas')
+            )['total'] or 0
+
+            stock_disponible = total_producido - total_vendido
+
+            if cantidad_int > stock_disponible:
+                error_manual = f"Stock insuficiente. Solo hay {stock_disponible} cubetas disponibles."
+
         # Si todo está bien, guardar
         if error_manual is None:
             venta = Venta(
@@ -196,11 +211,28 @@ def registrar_venta(request):
             messages.success(request, f'Venta registrada. Total: ${venta.total}')
             return redirect('registrar_venta')
 
+    # Calcular stock disponible para mostrar siempre
+    total_producido = RegistroProduccion.objects.aggregate(
+        total=Sum('cantidad_cubetas')
+    )['total'] or 0
+    total_vendido = Venta.objects.aggregate(
+        total=Sum('cantidad_cubetas')
+    )['total'] or 0
+    stock_disponible = total_producido - total_vendido
+
+    # Ingresos del día
+    hoy = timezone.now().date()
+    ingresos_hoy = Venta.objects.filter(fecha=hoy).aggregate(
+        total=Sum('total')
+    )['total'] or 0
+
     ventas = Venta.objects.all()
     return render(request, 'venta.html', {
         'form': form,
         'ventas': ventas,
         'error_manual': error_manual,
+        'stock_disponible': stock_disponible,
+        'ingresos_hoy': ingresos_hoy,
     })
 
 @login_required
