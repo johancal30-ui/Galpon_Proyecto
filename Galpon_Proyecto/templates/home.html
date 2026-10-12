@@ -99,6 +99,7 @@
         .modulo-ventas { --acento: var(--verde-claro); }
         .modulo-consumo {   --acento: var(--tinta);} 
         .modulo-alimento { --acento: var(--yema); }
+        .modulo-gastos { --acento: var(--cresta); }
 
         .icono { font-size: 2.4rem; line-height: 1; }
         .modulo h2 {
@@ -204,7 +205,17 @@
             <p>Revisa el inventario del alimento.</p>
             <span class="abrir">Abrir alimento</span>
         </a>
+        <!-- Gastos -->
+           <a class="modulo modulo-gastos" href="{% url 'registrar_gasto' %}">
+               <span class="icono">💰</span>
+               <h2>Gastos</h2>
+               <p>Registra los gastos del galpón.</p>
+               <span class="abrir">Abrir gastos</span>
+           </a>
     </nav>
+
+
+
 
     <p class="proximamente">
         En camino: inventario de alimento y reportes con estadísticas.
