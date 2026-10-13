@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gastos Operativos - Galpón Proyecto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .page { max-width: 1100px; margin: auto; }
+        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .masthead { background: #dc3545; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .masthead h1 { margin: 0; }
+        .masthead p { margin: 5px 0 0; font-size: 14px; }
+        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .form-row { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { display: inline-block; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
+        .btn:hover { background: #c82333; }
+        .error-campo { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; border-left: 4px solid #dc3545; }
+        .messages { list-style: none; padding: 0; margin-bottom: 20px; }
+        .messages li { padding: 10px; border-radius: 5px; margin-bottom: 5px; }
+        .messages .success { background: #d4edda; color: #155724; }
+        .messages .error { background: #f8d7da; color: #721c24; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f4f4f4; }
+        .accion { text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; }
+        .editar { background: #007bff; }
+        .eliminar { background: #dc3545; }
+        .card { flex: 1; min-width: 200px; padding: 15px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
+
+        <div class="masthead">
+            <h1>💸 Gastos Operativos</h1>
+            <p>Control de costos adicionales del galpón</p>
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if error_manual %}
+                <div class="error-campo">{{ error_manual }}</div>
+            {% endif %}
+
+            <h3>Registrar gasto</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <label for="{{ form.categoria.id_for_label }}">Categoría:</label>
+                    {{ form.categoria }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.descripcion.id_for_label }}">Descripción:</label>
+                    {{ form.descripcion }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.monto.id_for_label }}">Monto:</label>
+                    {{ form.monto }}
+                </div>
+                <button class="btn" type="submit">Registrar gasto</button>
+            </form>
+
+            <h3>Resumen financiero</h3>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px;">
+                <div class="card" style="background: #fff3cd; border-left: 5px solid #ffc107;">
+                    <p style="margin: 0; font-size: 13px; color: #666;">Gastos operativos del mes</p>
+                    <p style="margin: 5px 0 0; font-size: 22px; color: #856404; font-weight: bold;">${{ gastos_mes|floatformat:0 }}</p>
+                </div>
+                <div class="card" style="background: #f8d7da; border-left: 5px solid #dc3545;">
+                    <p style="margin: 0; font-size: 13px; color: #666;">Costo de alimento del mes</p>
+                    <p style="margin: 5px 0 0; font-size: 22px; color: #721c24; font-weight: bold;">${{ costo_alimento_mes|floatformat:0 }}</p>
+                </div>
+                <div class="card" style="background: #d1ecf1; border-left: 5px solid #17a2b8;">
+                    <p style="margin: 0; font-size: 13px; color: #666;">Cubetas producidas del mes</p>
+                    <p style="margin: 5px 0 0; font-size: 22px; color: #0c5460; font-weight: bold;">{{ cubetas_producidas }}</p>
+                </div>
+                <div class="card" style="background: #d4edda; border-left: 5px solid #28a745;">
+                    <p style="margin: 0; font-size: 13px; color: #666;">Costo real por cubeta</p>
+                    <p style="margin: 5px 0 0; font-size: 22px; color: #155724; font-weight: bold;">${{ costo_por_cubeta|floatformat:0 }}</p>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: #666;">
+                <strong>Total de gastos operativos (histórico):</strong> ${{ gastos_totales|floatformat:0 }}
+            </p>
+
+            <h3>Historial de gastos</h3>
+            <table>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Categoría</th>
+                    <th>Descripción</th>
+                    <th>Monto</th>
+                    <th>Acciones</th>
+                </tr>
+                {% for gasto in gastos %}
+                <tr>
+                    <td>{{ gasto.fecha }}</td>
+                    <td>{{ gasto.get_categoria_display }}</td>
+                    <td>{{ gasto.descripcion }}</td>
+                    <td>${{ gasto.monto }}</td>
+                    <td>
+                        <a class="accion editar" href="{% url 'editar_gasto' gasto.id %}">Editar</a>
+                        <a class="accion eliminar" href="{% url 'eliminar_gasto' gasto.id %}">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No hay gastos registrados todavía.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

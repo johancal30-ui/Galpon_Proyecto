@@ -41,7 +41,6 @@
     padding: 48px 24px 80px;
   }
 
-  /* NUEVO: link de volver al inicio */
   .volver {
     display: inline-block;
     margin-bottom: 20px;
@@ -215,7 +214,6 @@
     text-decoration: underline;
   }
 
-  /* NUEVO: estilo del botón eliminar (antes era un <a>, ahora un <button>) */
   .acciones form {
     display: inline;
     margin: 0;
@@ -277,7 +275,6 @@
 <body>
 <div class="page">
 
-  <!-- NUEVO: link para volver al inicio -->
   <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
 
   <div class="masthead">
@@ -285,7 +282,7 @@
       <h1>Registro de mortalidad</h1>
       <p>Control de bajas por lote — galpón avícola</p>
     </div>
-    <a class="btn-registrar" href="{% url 'accounts:mortalidad_registrar' %}">Registrar mortalidad</a>
+    <a class="btn-registrar" href="{% url 'mortalidad_registrar' %}">Registrar mortalidad</a>
   </div>
 
   {% if messages %}
@@ -339,9 +336,8 @@
         </td>
         <td data-label="Registrado por">{{ registro.registrado_por|default:"—" }}</td>
         <td data-label="Acciones" class="acciones">
-          <!-- ANTES ERA UN <a href> — AHORA ES UN FORM POST (más seguro) -->
           <form method="post"
-                action="{% url 'accounts:mortalidad_eliminar' registro.pk %}">
+                action="{% url 'mortalidad_eliminar' registro.pk %}">
             {% csrf_token %}
             <button type="submit"
                     class="btn-eliminar"
@@ -357,7 +353,7 @@
   {% else %}
   <div class="vacio">
     <p>Todavía no hay registros de mortalidad.</p>
-    <a class="btn-registrar" href="{% url 'accounts:mortalidad_registrar' %}">Registrar el primero</a>
+    <a class="btn-registrar" href="{% url 'mortalidad_registrar' %}">Registrar el primero</a>
   </div>
   {% endif %}
 

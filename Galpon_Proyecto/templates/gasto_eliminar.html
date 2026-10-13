@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Gasto - Galpón Proyecto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .page { max-width: 600px; margin: auto; }
+        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .masthead { background: #dc3545; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .masthead h1 { margin: 0; }
+        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .info p { margin: 5px 0; }
+        .btn { display: inline-block; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; margin-right: 10px; }
+        .btn:hover { background: #c82333; }
+        .btn-cancelar { background: #6c757d; }
+        .btn-cancelar:hover { background: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a class="volver" href="{% url 'registrar_gasto' %}">← Volver a gastos</a>
+
+        <div class="masthead">
+            <h1>🗑️ Eliminar Gasto</h1>
+        </div>
+
+        <div class="content">
+            <p>¿Estás seguro de que quieres eliminar este gasto? Esta acción no se puede deshacer.</p>
+
+            <div class="info">
+                <p><strong>Fecha:</strong> {{ gasto.fecha }}</p>
+                <p><strong>Categoría:</strong> {{ gasto.get_categoria_display }}</p>
+                <p><strong>Descripción:</strong> {{ gasto.descripcion }}</p>
+                <p><strong>Monto:</strong> ${{ gasto.monto }}</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <button class="btn" type="submit">Sí, eliminar</button>
+                <a class="btn btn-cancelar" href="{% url 'registrar_gasto' %}">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

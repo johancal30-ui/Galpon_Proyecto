@@ -2,14 +2,33 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Ruta de Consumo (rama Gato)
+    # Consumo (Jhon)
     path('consumo/', views.registrar_consumo, name='registrar_consumo'),
-    
-    # Rutas de Producción (tu Historia de Usuario)
+
+    # Producción (Johan)
     path('produccion/', views.registrar_produccion, name='registrar_produccion'),
-    path('produccion/editar/<int:id>/', views.editar_produccion, name='editar_produccion'),
-    path('produccion/eliminar/<int:id>/', views.eliminar_produccion, name='eliminar_produccion'),
+    path('produccion/editar/<int:pk>/', views.editar_produccion, name='editar_produccion'),
+    path('produccion/eliminar/<int:pk>/', views.eliminar_produccion, name='eliminar_produccion'),
+
+    # Mortalidad (Jeffry)
     path('mortalidad/', views.mortalidad_lista, name='mortalidad_lista'),
     path('mortalidad/registrar/', views.mortalidad_registrar, name='mortalidad_registrar'),
     path('mortalidad/eliminar/<int:pk>/', views.mortalidad_eliminar, name='mortalidad_eliminar'),
+    
+     # Ventas (Andrés)
+    path('ventas/', views.registrar_venta, name='registrar_venta'),
+    path('ventas/editar/<int:pk>/', views.editar_venta, name='editar_venta'),
+    path('ventas/eliminar/<int:pk>/', views.eliminar_venta, name='eliminar_venta'),
+
+    #alimento(andres)
+    path('alimento/', views.registrar_alimento, name='registrar_alimento'),
+    path('alimento/editar/<int:pk>/', views.editar_alimento, name='editar_alimento'),
+    path('alimento/eliminar/<int:pk>/', views.eliminar_alimento, name='eliminar_alimento'),
+    # Inventario y alertas de stock (Jhon)
+    path('inventario/', views.inventario, name='inventario'),
+
+        # Gastos operativos (Andrés - KAN-14)
+    path('gastos/', views.registrar_gasto, name='registrar_gasto'),
+    path('gastos/editar/<int:pk>/', views.editar_gasto, name='editar_gasto'),
+    path('gastos/eliminar/<int:pk>/', views.eliminar_gasto, name='eliminar_gasto'),
 ]

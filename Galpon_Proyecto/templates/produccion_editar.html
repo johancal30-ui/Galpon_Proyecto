@@ -29,7 +29,8 @@
             {% csrf_token %}
             <label for="cantidad_huevos">Cantidad de huevos recolectados:</label>
             <input type="text" id="cantidad_huevos" name="cantidad_huevos" value="{{ registro.cantidad_huevos }}">
-
+            <label for="cantidad_huevos_rotos">Cantidad de huevos rotos:</label>
+            <input type="text" id="cantidad_huevos_rotos" name="cantidad_huevos_rotos" value="0">
             <label for="cantidad_cubetas">Número de cubetas armadas:</label>
             <input type="text" id="cantidad_cubetas" name="cantidad_cubetas" value="{{ registro.cantidad_cubetas }}">
 
