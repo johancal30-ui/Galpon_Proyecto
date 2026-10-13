@@ -160,30 +160,12 @@ class Alimento(models.Model):
         self.costo_total = self.cantidad_bultos * self.costo_unitario
         super().save(*args, **kwargs)
 # INVENTARIO Y ALERTAS DE STOCK (JHON)
-
 class Inventario(models.Model):
-    TIPOS_INSUMO = [
-        ('alimento', 'Alimento'),
-        ('vacuna', 'Vacuna'),
-    ]
-
-    tipo = models.CharField(
-        max_length=20,
-        choices=TIPOS_INSUMO
-    )
-
-    stock_actual = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0
-    )
-
-    stock_minimo = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0
-    )
-
+    TIPOS_INSUMO = [('alimento', 'Alimento'), ('vacuna', 'Vacuna')]
+    
+    tipo = models.CharField(max_length=20, choices=TIPOS_INSUMO)
+    stock_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    stock_minimo = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -195,53 +177,21 @@ class Inventario(models.Model):
 
     @property
     def stock_bajo(self):
-        """
-        Determina si el stock está en el límite mínimo
-        o por debajo de este.
-        """
         return self.stock_actual <= self.stock_minimo
 
     def verificar_alerta(self):
-        """
-        Crea una alerta cuando el stock está en el mínimo
-        o por debajo de este.
-
-        Si el stock vuelve a estar por encima del mínimo,
-        resuelve automáticamente las alertas activas.
-        """
-
         if self.stock_bajo:
             AlertaStock.objects.get_or_create(
-                inventario=self,
-                activa=True,
-                defaults={
-                    'mensaje': (
-                        f'El stock de {self.get_tipo_display()} '
-                        f'está bajo. Stock actual: {self.stock_actual}. '
-                        f'Mínimo permitido: {self.stock_minimo}.'
-                    )
-                }
+                inventario=self, activa=True,
+                defaults={'mensaje': f'Stock bajo de {self.get_tipo_display()}. Actual: {self.stock_actual}, Mínimo: {self.stock_minimo}.'}
             )
-
         else:
-            alertas_activas = self.alertas.filter(activa=True)
+            self.alertas.filter(activa=True).update(activa=False, resuelta_en=timezone.now())
 
-            alertas_activas.update(
-                activa=False,
-                resuelta_en=timezone.now()
-            )
-    
 class AlertaStock(models.Model):
-    inventario = models.ForeignKey(
-        Inventario,
-        on_delete=models.CASCADE,
-        related_name='alertas'
-    )
-
+    inventario = models.ForeignKey(Inventario, on_delete=models.CASCADE, related_name='alertas')
     mensaje = models.CharField(max_length=255)
-
     activa = models.BooleanField(default=True)
-
     creada_en = models.DateTimeField(auto_now_add=True)
     resuelta_en = models.DateTimeField(null=True, blank=True)
 
@@ -253,29 +203,3 @@ class AlertaStock(models.Model):
     def __str__(self):
         estado = 'Activa' if self.activa else 'Resuelta'
         return f"{self.inventario.get_tipo_display()} - {estado}"
-
-# GASTOS OPERATIVOS ANDRES
-class GastoOperativo(models.Model):
-    CATEGORIAS = [
-        ('servicios', 'Servicios públicos'),
-        ('transporte', 'Transporte'),
-        ('empaque', 'Empaque'),
-        ('mano_obra', 'Mano de obra'),
-        ('insumos', 'Insumos'),
-        ('otro', 'Otro'),
-    ]
-
-    fecha = models.DateField(auto_now_add=True)
-    categoria = models.CharField(max_length=20, choices=CATEGORIAS)
-    descripcion = models.CharField(max_length=200, help_text="Detalle del gasto")
-    monto = models.DecimalField(max_digits=12, decimal_places=2)
-    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    creado_en = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-fecha']
-        verbose_name = 'Gasto operativo'
-        verbose_name_plural = 'Gastos operativos'
-
-    def __str__(self):
-        return f"{self.fecha} - {self.get_categoria_display()} - ${self.monto}"
