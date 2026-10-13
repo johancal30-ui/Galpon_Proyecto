@@ -159,6 +159,9 @@ class Alimento(models.Model):
         # Calcular costo total automáticamente
         self.costo_total = self.cantidad_bultos * self.costo_unitario
         super().save(*args, **kwargs)
+
+
+
 # INVENTARIO Y ALERTAS DE STOCK (JHON)
 class Inventario(models.Model):
     TIPOS_INSUMO = [('alimento', 'Alimento'), ('vacuna', 'Vacuna')]
@@ -203,3 +206,11 @@ class AlertaStock(models.Model):
     def __str__(self):
         estado = 'Activa' if self.activa else 'Resuelta'
         return f"{self.inventario.get_tipo_display()} - {estado}"
+
+class GastoOperativo(models.Model):
+    # Modelo temporal para evitar el error de importación
+    concepto = models.CharField(max_length=100)
+    
+    class Meta:
+        verbose_name = 'Gasto Operativo'
+        verbose_name_plural = 'Gastos Operativos'
