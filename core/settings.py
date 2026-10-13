@@ -112,6 +112,8 @@ TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
+USE_THOUSAND_SEPARATOR = True
+
 USE_TZ = True
 
 

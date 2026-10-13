@@ -74,24 +74,12 @@
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px;">
                 <div class="card" style="background: #fff3cd; border-left: 5px solid #ffc107;">
                     <p style="margin: 0; font-size: 13px; color: #666;">Gastos operativos del mes</p>
-                    <p style="margin: 5px 0 0; font-size: 22px; color: #856404; font-weight: bold;">${{ gastos_mes|floatformat:0 }}</p>
-                </div>
-                <div class="card" style="background: #f8d7da; border-left: 5px solid #dc3545;">
-                    <p style="margin: 0; font-size: 13px; color: #666;">Costo de alimento del mes</p>
-                    <p style="margin: 5px 0 0; font-size: 22px; color: #721c24; font-weight: bold;">${{ costo_alimento_mes|floatformat:0 }}</p>
-                </div>
-                <div class="card" style="background: #d1ecf1; border-left: 5px solid #17a2b8;">
-                    <p style="margin: 0; font-size: 13px; color: #666;">Cubetas producidas del mes</p>
-                    <p style="margin: 5px 0 0; font-size: 22px; color: #0c5460; font-weight: bold;">{{ cubetas_producidas }}</p>
-                </div>
-                <div class="card" style="background: #d4edda; border-left: 5px solid #28a745;">
-                    <p style="margin: 0; font-size: 13px; color: #666;">Costo real por cubeta</p>
-                    <p style="margin: 5px 0 0; font-size: 22px; color: #155724; font-weight: bold;">${{ costo_por_cubeta|floatformat:0 }}</p>
+                    <p style="margin: 5px 0 0; font-size: 22px; color: #856404; font-weight: bold;">${{ gastos_mes }}</p>
                 </div>
             </div>
 
             <p style="font-size: 13px; color: #666;">
-                <strong>Total de gastos operativos (histórico):</strong> ${{ gastos_totales|floatformat:0 }}
+                <strong>Total de gastos operativos (histórico):</strong> ${{ gastos_totales|floatformat:"0g" }}
             </p>
 
             <h3>Historial de gastos</h3>
@@ -108,7 +96,7 @@
                     <td>{{ gasto.fecha }}</td>
                     <td>{{ gasto.get_categoria_display }}</td>
                     <td>{{ gasto.descripcion }}</td>
-                    <td>${{ gasto.monto }}</td>
+                    <td>${{ gasto.monto_form }}</td>
                     <td>
                         <a class="accion editar" href="{% url 'editar_gasto' gasto.id %}">Editar</a>
                         <a class="accion eliminar" href="{% url 'eliminar_gasto' gasto.id %}">Eliminar</a>

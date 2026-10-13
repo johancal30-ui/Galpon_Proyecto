@@ -611,6 +611,14 @@ def registrar_gasto(request):
 
     gastos = GastoOperativo.objects.all()
 
+        # Formatear números con punto de miles
+    gastos_mes = f"{int(gastos_mes):,}".replace(",", ".")
+    gastos_totales = f"{int(gastos_totales):,}".replace(",", ".")
+    
+    # Formatear el monto de cada gasto en el historial
+    for gasto in gastos:
+        gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")    
+
     return render(request, 'gasto.html', {
         'form': form,
         'gastos': gastos,
