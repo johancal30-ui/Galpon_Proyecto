@@ -83,12 +83,12 @@ class Lote(models.Model):
 # REGISTRO DE MORTALIDAD (JEFFRY)
 class RegistroMortalidad(models.Model):
     CAUSAS = [
-        ('enfermedad', 'Enfermedad'),
-        ('calor', 'Estrés calórico'),
-        ('depredador', 'Depredador'),
-        ('accidente', 'Accidente'),
-        ('desconocida', 'Causa desconocida'),
-        ('otra', 'Otra'),
+    ('enfermedad', 'Enfermedad'),
+    ('calor', 'Estrés calórico'),
+    ('depredador', 'Depredador'),
+    ('accidente', 'Accidente'),
+    ('desconocida', 'Causa desconocida'),
+    ('otra', 'Otra'),
     ]
 
     lote = models.ForeignKey(Lote, on_delete=models.CASCADE, related_name='mortalidades')

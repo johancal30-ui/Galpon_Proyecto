@@ -1,7 +1,9 @@
 from django import forms
+from django.utils import timezone
 from .models import RegistroConsumo
 from .models import RegistroMortalidad
 from .models import Venta, Alimento, Inventario, GastoOperativo
+
 
 class RegistroConsumoForm(forms.ModelForm):
     class Meta:
@@ -20,10 +22,56 @@ class RegistroConsumoForm(forms.ModelForm):
             'stock_disponible': 'Stock disponible (bultos)',
         }
 
+
 class RegistroMortalidadForm(forms.ModelForm):
     class Meta:
         model = RegistroMortalidad
         fields = ['lote', 'fecha', 'cantidad', 'causa', 'observaciones']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date'}),
+            'observaciones': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Opcional'}),
+        }
+        labels = {
+            'lote': 'Lote',
+            'fecha': 'Fecha',
+            'cantidad': 'Cantidad de aves muertas',
+            'causa': 'Causa',
+            'observaciones': 'Observaciones',
+        }
+        help_texts = {
+            'cantidad': 'Número entero, mayor a cero, y no mayor al total de aves vivas del lote.',
+        }
+
+    # ✅ CRITERIO 3
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get('cantidad')
+
+        if cantidad is None:
+            raise forms.ValidationError("La cantidad es obligatoria.")
+
+        if cantidad <= 0:
+            raise forms.ValidationError(
+                "La cantidad debe ser un número entero mayor a cero."
+            )
+
+        # ✅ CRITERIO 4
+        lote = self.cleaned_data.get('lote')
+        if lote and cantidad > lote.aves_vivas:
+            raise forms.ValidationError(
+                "La cantidad de muertes no puede ser mayor al total de aves vivas del lote."
+            )
+
+        return cantidad
+
+    # ✅ CRITERIO 6
+    def clean_fecha(self):
+        fecha = self.cleaned_data.get('fecha')
+
+        if fecha and fecha > timezone.now().date():
+            raise forms.ValidationError("No se puede registrar una fecha futura.")
+
+        return fecha
+
 
 class VentaForm(forms.ModelForm):
     class Meta:
@@ -58,6 +106,7 @@ class VentaForm(forms.ModelForm):
             raise forms.ValidationError('El precio debe ser mayor a cero.')
         return precio
 
+
 class AlimentoForm(forms.ModelForm):
     class Meta:
         model = Alimento
@@ -76,32 +125,23 @@ class AlimentoForm(forms.ModelForm):
             'costo_unitario': 'Costo unitario por bulto',
             'proveedor': 'Proveedor',
         }
+
+
 class InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario
         fields = ['tipo', 'stock_actual', 'stock_minimo']
-
         widgets = {
-            'tipo': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'stock_actual': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'min': '0'
-            }),
-            'stock_minimo': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'min': '0'
-            }),
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
+            'stock_actual': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'stock_minimo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
         }
-
         labels = {
             'tipo': 'Tipo de insumo',
             'stock_actual': 'Stock actual',
             'stock_minimo': 'Límite mínimo',
         }
+
 
 class GastoOperativoForm(forms.ModelForm):
     class Meta:
