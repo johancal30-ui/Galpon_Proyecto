@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Correo Enviado</title>
+    <style>
+        body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 500px; text-align: center; }
+        h1 { color: #28a745; }
+        p { color: #555; }
+        a { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 ¡Correo Enviado!</h1>
+        <p>Se ha enviado un enlace para restablecer tu contraseña a tu correo electrónico.</p>
+        <p>Revisa tu bandeja de entrada (y la carpeta de spam).</p>
+        <a href="{% url 'accounts:login' %}">Volver al inicio de sesión</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recuperar Contraseña</title>
+    <style>
+        body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px; }
+        h1 { text-align: center; color: #333; }
+        p { color: #555; font-size: 14px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        .link { text-align: center; margin-top: 20px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Recuperar Contraseña</h1>
+        <p>Ingresa tu correo registrado y te enviaremos un enlace para restablecer tu contraseña.</p>
+        <form method="post">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Correo electrónico" required>
+            <button type="submit">Enviar enlace</button>
+        </form>
+        <div class="link">
+            <a href="{% url 'accounts:login' %}">Volver al inicio de sesión</a>
+        </div>
+    </div>
+</body>
+</html>
