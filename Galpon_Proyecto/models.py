@@ -208,9 +208,14 @@ class AlertaStock(models.Model):
         return f"{self.inventario.get_tipo_display()} - {estado}"
 
 class GastoOperativo(models.Model):
-    # Modelo temporal para evitar el error de importación
     concepto = models.CharField(max_length=100)
+    monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    categoria = models.CharField(max_length=50, blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True)
     
     class Meta:
         verbose_name = 'Gasto Operativo'
         verbose_name_plural = 'Gastos Operativos'
+
+    def __str__(self):
+        return f"{self.concepto} - ${self.monto}"
