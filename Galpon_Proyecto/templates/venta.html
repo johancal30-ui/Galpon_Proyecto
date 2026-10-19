@@ -112,7 +112,9 @@
                     <td>${{ venta.total_form }}</td>
                     <td>
                         <a class="accion editar" href="{% url 'editar_venta' venta.id %}">Editar</a>
-                        <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
+                        {% if user.is_superuser %}
+                            <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

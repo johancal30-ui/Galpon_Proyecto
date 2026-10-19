@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test 
 from django.db.models import Sum, Avg
 from django.utils import timezone
 from datetime import date
@@ -298,6 +298,7 @@ def editar_venta(request, pk):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
@@ -502,6 +503,7 @@ def editar_alimento(request, pk):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def eliminar_alimento(request, pk):
     alimento = get_object_or_404(Alimento, pk=pk)
     if request.method == 'POST':

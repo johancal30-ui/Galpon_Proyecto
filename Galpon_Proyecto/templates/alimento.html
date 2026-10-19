@@ -164,7 +164,9 @@
                     <td>{{ item.proveedor }}</td>
                     <td>
                         <a class="accion editar" href="{% url 'editar_alimento' item.id %}">Editar</a>
+                        {% if user.is_superuser %}
                         <a class="accion eliminar" href="{% url 'eliminar_alimento' item.id %}">Eliminar</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
