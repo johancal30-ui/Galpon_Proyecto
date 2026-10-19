@@ -212,6 +212,7 @@ class GastoOperativo(models.Model):
     categoria = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=200)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Gasto Operativo'
