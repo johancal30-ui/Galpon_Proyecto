@@ -3,30 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>Gastos Operativos - Galpón Proyecto</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+<style>
+        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: #F1F5F0; margin: 0; padding: 20px; color: #1D2B22; }
         .page { max-width: 1100px; margin: auto; }
-        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
-        .masthead { background: #dc3545; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-        .masthead h1 { margin: 0; }
-        .masthead p { margin: 5px 0 0; font-size: 14px; }
-        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .volver { display: inline-block; margin-bottom: 20px; color: #C89B3C; text-decoration: none; font-weight: bold; }
+        .volver:hover { text-decoration: underline; }
+        .masthead { background: #C89B3C; color: #FBF7EF; padding: 20px; border-radius: 8px 8px 0 0; }
+        .masthead h1 { margin: 0; font-family: Rockwell, "Roboto Slab", Georgia, serif; }
+        .masthead p { margin: 5px 0 0; font-size: 14px; color: #f8f1df; }
+        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .form-row { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { display: inline-block; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
-        .btn:hover { background: #c82333; }
-        .error-campo { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; border-left: 4px solid #dc3545; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #5B6B61; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
+        .form-control:focus { outline: none; border-color: #C89B3C; box-shadow: 0 0 0 2px rgba(200, 155, 60, 0.2); }
+        .btn { display: inline-block; padding: 10px 20px; background: #C89B3C; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; transition: background 0.2s; }
+        .btn:hover { background: #b58930; }
+        .error-campo { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; border-left: 4px solid #C0392B; }
         .messages { list-style: none; padding: 0; margin-bottom: 20px; }
         .messages li { padding: 10px; border-radius: 5px; margin-bottom: 5px; }
-        .messages .success { background: #d4edda; color: #155724; }
-        .messages .error { background: #f8d7da; color: #721c24; }
+        .messages .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .messages .error { background: #f8d7da; color: #721c24; border-left: 4px solid #C0392B; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background: #f4f4f4; }
-        .accion { text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; }
-        .editar { background: #007bff; }
-        .eliminar { background: #dc3545; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #eaeaea; text-align: left; }
+        th { background: #f8f9fa; color: #1D2B22; font-weight: bold; }
+        .accion { text-decoration: none; padding: 6px 12px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; display: inline-block; }
+        .editar { background:  #007bff; }
+        .editar:hover { background:  #007bff; }
+        .eliminar { background: #C0392B; }
+        .eliminar:hover { background: #a32e22; }
         .card { flex: 1; min-width: 200px; padding: 15px; border-radius: 8px; }
     </style>
 </head>
