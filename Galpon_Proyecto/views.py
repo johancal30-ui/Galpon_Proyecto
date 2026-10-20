@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,  permission_required
 from django.db.models import Sum, Avg
 from django.utils import timezone
 from datetime import date
@@ -9,6 +9,8 @@ from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, Alime
 
 
 # PRODUCCIÓN (JOHAN)
+from django.contrib.auth.decorators import login_required, permission_required
+
 def registrar_produccion(request):
     if request.method == 'POST':
         huevos = request.POST.get('cantidad_huevos')

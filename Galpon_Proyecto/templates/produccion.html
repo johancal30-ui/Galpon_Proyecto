@@ -2,96 +2,318 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Producción - Galpón Proyecto</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 40px;
+        :root {
+            --verde: #28a745;
+            --verde-oscuro: #1e7e34;
+            --verde-claro: #e8f5e9;
+            --rojo: #dc3545;
+            --rojo-claro: #f8d7da;
+            --rojo-texto: #721c24;
+            --texto: #1f2933;
+            --texto-suave: #6b7280;
+            --borde: #e3e8ee;
+            --fondo: #f0f2f5;
+            --radio: 14px;
+            --sombra: 0 10px 30px rgba(16, 24, 40, 0.08);
         }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at 10% 0%, #e6f7ec 0%, transparent 45%),
+                radial-gradient(circle at 90% 100%, #e0f2fe 0%, transparent 45%),
+                var(--fondo);
+            background-attachment: fixed;
+            color: var(--texto);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
         .container {
             max-width: 900px;
             margin: auto;
-            background: white;
+            background: #ffffff;
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: var(--radio);
+            box-shadow: var(--sombra);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: aparecer 0.45s ease both;
         }
-        h1 { color: #28a745; text-align: center; }
-        .mensaje-error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
+
+        h1 {
+            color: var(--verde-oscuro);
+            text-align: center;
+            font-size: 1.7rem;
+            letter-spacing: -0.4px;
+            margin: 0 0 8px;
+        }
+
+        h1::after {
+            content: "";
+            display: block;
+            width: 70px;
+            height: 4px;
+            margin: 14px auto 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #7de6bb, var(--verde));
+        }
+
+        h3 {
+            margin: 40px 0 6px;
+            font-size: 1.15rem;
+            color: var(--texto);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3::before {
+            content: "";
+            width: 5px;
+            height: 20px;
+            border-radius: 99px;
+            background: var(--verde);
+        }
+
+        /* ---------- Mensajes ---------- */
+        .mensaje-error,
         .mensaje-exito {
-            background: #e8f5e9;
-            color: #1e7e34;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px 16px;
+            border-radius: 10px;
             margin-bottom: 15px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border-left: 5px solid;
+            animation: aparecer 0.3s ease both;
         }
-        form { margin: 20px 0; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input[type="text"] {
+
+        .mensaje-error {
+            background: var(--rojo-claro);
+            color: var(--rojo-texto);
+            border-color: var(--rojo);
+        }
+
+        .mensaje-exito {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+            border-color: var(--verde);
+        }
+
+        /* ---------- Formulario ---------- */
+        form {
+            margin: 25px 0 10px;
+            padding: 24px;
+            background: #fafbfc;
+            border: 1px solid var(--borde);
+            border-radius: var(--radio);
+        }
+
+        label {
+            display: block;
+            margin-top: 16px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #374151;
+            letter-spacing: 0.1px;
+        }
+
+        label:first-of-type { margin-top: 0; }
+
+        input[type="text"],
+        input[type="number"] {
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 11px 14px;
+            margin-top: 7px;
+            border: 1.5px solid var(--borde);
+            border-radius: 10px;
             box-sizing: border-box;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--texto);
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
+
+        input[type="text"]:hover,
+        input[type="number"]:hover { border-color: #cbd5e1; }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--verde);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15);
+        }
+
+        input::placeholder { color: #9aa5b1; }
+
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #28a745;
-            color: white;
+            margin-top: 24px;
+            width: 100%;
+            padding: 13px 22px;
+            background: linear-gradient(135deg, #34c759, var(--verde));
+            color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
+            font-size: 0.98rem;
+            font-weight: 700;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.32);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
         }
-        button:hover { background: #218838; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background: #f8f9fa; }
-        a.accion { color: #28a745; text-decoration: none; margin-right: 10px; }
-        a.accion.eliminar { color: #dc3545; }
-        
-        
-        .volver { display: inline-block; margin-top: 20px; color: #555; text-decoration: none; }
+
+        button:hover {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(40, 167, 69, 0.38);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        /* ---------- Tabla ---------- */
+        .tabla-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--borde);
+            border-radius: var(--radio);
+            margin-top: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0;
+            font-size: 0.92rem;
+            min-width: 520px;
+        }
+
+        th, td {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--borde);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f6f8fa;
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--texto-suave);
+            font-weight: 700;
+        }
+
+        tbody tr { transition: background 0.15s ease; }
+        tbody tr:hover { background: #f9fdfa; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        td:first-child {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        /* ---------- Acciones ---------- */
+        a.accion {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--verde-oscuro);
+            background: var(--verde-claro);
+            border: 1px solid rgba(40, 167, 69, 0.25);
+            transition: all 0.18s ease;
+            margin-right: 6px;
+        }
+
+        a.accion:hover {
+            background: var(--verde);
+            color: #fff;
+            border-color: var(--verde);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        a.accion.eliminar {
+            color: var(--rojo-texto);
+            background: #fdecee;
+            border-color: rgba(220, 53, 69, 0.25);
+        }
+
+        a.accion.eliminar:hover {
+            background: var(--rojo);
+            color: #fff;
+            border-color: var(--rojo);
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+        }
+
+        /* ---------- Botón volver ---------- */
         .volver {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 18px;
-  background: linear-gradient(135deg, #bae6fd, #57c26e);
-  color: #000000;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-decoration: none;
-  border-radius: 20px;
-  box-shadow: 0 4px 10px #57c26e;
-  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #bae6fd, #57c26e);
+            color: #000000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px #57c26e;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-.volver:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 7px 14px rgba(125, 211, 252, 0.6);
-  background: linear-gradient(135deg, #7de6bb, #57c26e);
-  color: #0c4a6e;
-}
+        .volver:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 7px 14px rgba(125, 211, 252, 0.6);
+            background: linear-gradient(135deg, #7de6bb, #57c26e);
+            color: #0c4a6e;
+        }
 
-.volver:active {
-  transform: translateY(1px) scale(0.98);
-}
+        .volver:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* ---------- Estado vacío ---------- */
+        .vacio {
+            text-align: center;
+            padding: 34px 16px !important;
+            color: var(--texto-suave);
+            font-style: italic;
+            white-space: normal;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 600px) {
+            body { padding: 20px 12px; }
+            .container { padding: 22px 18px; border-radius: 12px; }
+            form { padding: 18px; }
+            h1 { font-size: 1.35rem; }
+            th, td { padding: 11px 12px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-  <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
+        <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
         <h1>📦 Registro de Producción Diaria</h1>
 
         {% if messages %}
@@ -105,39 +327,49 @@
         <form method="post">
             {% csrf_token %}
             <label for="cantidad_huevos">Cantidad de huevos recolectados:</label>
-            <input type="text" id="cantidad_huevos" name="cantidad_huevos">
+            <input type="text" inputmode="numeric" id="cantidad_huevos" name="cantidad_huevos" placeholder="Ej: 1200">
+
             <label for="cantidad_huevos_rotos">Cantidad de huevos rotos:</label>
-            <input type="text" id="cantidad_huevos_rotos" name="cantidad_huevos_rotos" value="0">
+            <input type="text" inputmode="numeric" id="cantidad_huevos_rotos" name="cantidad_huevos_rotos" value="0" placeholder="Ej: 0">
+
             <label for="cantidad_cubetas">Número de cubetas armadas:</label>
-            <input type="text" id="cantidad_cubetas" name="cantidad_cubetas">
+            <input type="text" inputmode="numeric" id="cantidad_cubetas" name="cantidad_cubetas" placeholder="Ej: 40">
 
             <button type="submit">Guardar registro</button>
         </form>
 
         <h3>Registros existentes</h3>
-        <table>
-            <tr>
-                <th>Fecha</th>
-                <th>Huevos</th>
-                <th>Rotos</th>
-                <th>Cubetas</th>
-                <th>Acciones</th>
-            </tr>
-            {% for registro in registros %}
-            <tr>
-                <td>{{ registro.fecha }}</td>
-                <td>{{ registro.cantidad_huevos }}</td>
-                <td>{{ registro.cantidad_huevos_rotos }}</td>
-                <td>{{ registro.cantidad_cubetas }}</td>
-                <td>
-                    <a class="accion" href="{% url 'editar_produccion' registro.id %}">Editar</a>
-                    <a class="accion eliminar" href="{% url 'eliminar_produccion' registro.id %}">Eliminar</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="4">No hay registros todavía.</td></tr>
-            {% endfor %}
-        </table>
+        <div class="tabla-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Huevos</th>
+                        <th>Rotos</th>
+                        <th>Cubetas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in registros %}
+                    <tr>
+                        <td>{{ registro.fecha }}</td>
+                        <td>{{ registro.cantidad_huevos }}</td>
+                        <td>{{ registro.cantidad_huevos_rotos }}</td>
+                        <td>{{ registro.cantidad_cubetas }}</td>
+                        <td>
+                            <a class="accion" href="{% url 'editar_produccion' registro.id %}">Editar</a>
+                            <a class="accion eliminar" href="{% url 'eliminar_produccion' registro.id %}">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="vacio">No hay registros todavía.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
     </div>
 </body>
