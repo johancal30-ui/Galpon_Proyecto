@@ -9,8 +9,6 @@ from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, Alime
 
 
 # PRODUCCIÓN (JOHAN)
-from django.contrib.auth.decorators import login_required, permission_required
-
 def registrar_produccion(request):
     if request.method == 'POST':
         huevos = request.POST.get('cantidad_huevos')
@@ -292,6 +290,8 @@ def editar_venta(request, pk):
     else:
         form = VentaForm(instance=venta)
 
+    venta.precio_form = f"{int(venta.precio_unitario):,}".replace(",", ".")
+
     return render(request, 'venta_editar.html', {
         'form': form,
         'venta': venta,
@@ -307,6 +307,8 @@ def eliminar_venta(request, pk):
         venta.delete()
         messages.success(request, 'Venta eliminada.')
         return redirect('registrar_venta')
+
+    venta.total_form = f"{int(venta.total):,}".replace(",", ".")
 
     return render(request, 'venta_eliminar.html', {'venta': venta})
 
@@ -681,6 +683,8 @@ def editar_gasto(request, pk):
     else:
         form = GastoOperativoForm(instance=gasto)
 
+    gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")
+
     return render(request, 'gasto_editar.html', {
         'form': form,
         'gasto': gasto,
@@ -696,5 +700,7 @@ def eliminar_gasto(request, pk):
         gasto.delete()
         messages.success(request, 'Gasto eliminado.')
         return redirect('registrar_gasto')
+
+    gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")
 
     return render(request, 'gasto_eliminar.html', {'gasto': gasto})

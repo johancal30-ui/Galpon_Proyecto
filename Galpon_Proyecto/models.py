@@ -209,24 +209,26 @@ class AlertaStock(models.Model):
 
 
 class GastoOperativo(models.Model):
-    # 1. Define tus opciones aquí
     CATEGORIAS = (
-        ('alimento', 'Alimento'),
-        ('mantenimiento', 'Mantenimiento'),
-        ('servicios', 'Servicios'),
+        ('servicios', 'Servicios públicos'),
         ('transporte', 'Transporte'),
-        ('otros', 'Otros'),
+        ('empaque', 'Empaque'),
+        ('mano_obra', 'Mano de obra'),
+        ('insumos', 'Insumos'),
+        ('otro', 'Otro'),
     )
-    
-    # 2. Agrega el argumento choices al campo
+
     categoria = models.CharField(max_length=100, choices=CATEGORIAS)
     descripcion = models.CharField(max_length=200)
-    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    monto = models.DecimalField(max_digits=12, decimal_places=2)
     fecha = models.DateField(auto_now_add=True)
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Gasto Operativo'
         verbose_name_plural = 'Gastos Operativos'
+        ordering = ['-fecha']
 
     def __str__(self):
-        return self.descripcion
+        return f"{self.get_categoria_display()} - ${self.monto}"
