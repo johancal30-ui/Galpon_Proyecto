@@ -79,29 +79,48 @@ def eliminar_produccion(request, pk):
         return redirect('registrar_produccion')
 
     return render(request, 'produccion_eliminar.html', {'registro': registro})
-# CONSUMO (JHON)
+
+# CONSUMO DIARIO (JHON)
 def registrar_consumo(request):
     if request.method == 'POST':
         form = RegistroConsumoForm(request.POST)
+
         if form.is_valid():
             registro = form.save(commit=False)
 
             if registro.es_consumo_anomalo:
                 messages.warning(
                     request,
-                    f"Advertencia: Consumo anómalo ({registro.consumo_gramos_por_ave} g/ave/día) "
+                    f"Advertencia: Consumo anómalo "
+                    f"({registro.consumo_gramos_por_ave} g/ave/día) "
                     f"para {registro.poblacion_gallinas} gallinas. "
                     f"Verifique un posible desperdicio o problema de nutrición."
                 )
 
             registro.save()
-            messages.success(request, f"Registro guardado. Índice: {registro.consumo_gramos_por_ave} g/ave/día.")
+
+            messages.success(
+                request,
+                f"Registro guardado. Índice: "
+                f"{registro.consumo_gramos_por_ave} g/ave/día."
+            )
+
             return redirect('registrar_consumo')
+
     else:
         form = RegistroConsumoForm()
 
-    return render(request, 'consumo_form.html', {'form': form})
+    # Consultar los consumos guardados, del más reciente al más antiguo
+    registros = RegistroConsumo.objects.all().order_by('-fecha', '-id')
 
+    return render(
+        request,
+        'consumo_form.html',
+        {
+            'form': form,
+            'registros': registros,
+        }
+    )
 
 
 # MORTALIDAD (JEFFRY)

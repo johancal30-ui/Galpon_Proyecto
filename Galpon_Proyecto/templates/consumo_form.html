@@ -249,9 +249,12 @@
             <form method="post">
 
                 {% csrf_token %}
+                {% if form.errors %}
+             <div class="alert alert-danger" style="padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #fff0f0; color: #a12626;"><strong>⚠️ Revisa los siguientes campos:</strong>
+            {{ form.errors }}
+        </div>
+    {% endif %}
 
-
-                <!-- CAMPO DE BULTOS -->
                 <div class="campo-alimento">
 
                     <div class="campo-icono">
@@ -275,15 +278,50 @@
                     {% endif %}
 
                 </div>
-
-
-                <!-- BOTÓN -->
                 <button type="submit" class="btn-confirmar">
                     ✅ Confirmar Registro
                 </button>
 
             </form>
 
+<!-- HISTORIAL DE CONSUMOS -->
+<div class="historial-consumos" style="margin-top: 25px; padding: 22px; background: #fbfdf9; border: 2px solid #e3ecd9; border-radius: 18px;">
+
+    <h2 style="color: #245c38; font-size: 1.3rem; margin-bottom: 15px;">
+        📋 Últimos consumos registrados
+    </h2>
+
+    {% if registros %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="background: #e8f2df; color: #245c38;">
+                        <th style="padding: 12px;">Fecha</th>
+                        <th style="padding: 12px;">Gallinas</th>
+                        <th style="padding: 12px;">Bultos consumidos</th>
+                        <th style="padding: 12px;">Kilos por bulto</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for registro in registros %}
+                        <tr style="border-bottom: 1px solid #e3ecd9;">
+                            <td style="padding: 12px;">{{ registro.fecha|date:"d/m/Y" }}</td>
+                            <td style="padding: 12px;">{{ registro.poblacion_gallinas }}</td>
+                            <td style="padding: 12px;">{{ registro.bultos_consumidos }}</td>
+                            <td style="padding: 12px;">{{ registro.kilos_por_bulto }} kg</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #71806b; margin: 0;">
+            🌱 Todavía no hay consumos registrados.
+        </p>
+    {% endif %}
+
+</div>
 
             <!-- DECORACIÓN -->
             <div class="decoracion-granja">
@@ -307,4 +345,3 @@
     </div>
 
 </div>
-
