@@ -2,124 +2,305 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Ventas - Galpón Proyecto</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .page { max-width: 1000px; margin: auto; }
-        .volver { display: inline-block; margin-bottom: 20px; color: #b61908; text-decoration: none; font-weight: bold; }
-        .masthead { background:#C89B3C; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-        .masthead h1 { margin: 0; }
-        .masthead p { margin: 5px 0 0; font-size: 14px; }
-        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .form-row { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { display: inline-block; padding: 10px 20px; background: #C89B3C;; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
-        .btn:hover { background: #218838; }
-        .messages { list-style: none; padding: 0; margin-bottom: 20px; }
-        .messages li { padding: 10px; border-radius: 5px; margin-bottom: 5px; }
-        .messages .success { background: #d4edda; color: #155724; }
-        .messages .error { background: #f8d7da; color: #721c24; }
-        .messages .warning { background: #fff3cd; color: #856404; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background: #f4f4f4; }
-        .accion { text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; }
-        .editar { background: #007bff; }
-        .eliminar { background: #dc3545; }
+        :root {
+            --sol: #F7C948;
+            --naranja: #F29E4C;
+            --naranja-fuerte: #E8892B;
+            --tinta: #3B2412;
+            --suave: #7A5A3A;
+            --fondo: #FFF6E3;
+            --tarjeta: #FFEEDB;
+            --tarjeta-hover: #FFE3C2;
+            --borde: #F0C48A;
+            --cresta: #C0392B;
+            --cresta-claro: #FBE3DF;
+            --exito-claro: #FFF1C2;
+            --radio: 14px;
+            --sombra: 0 10px 28px rgba(150, 90, 30, 0.15);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            color: var(--tinta);
+            line-height: 1.5;
+            background: linear-gradient(180deg, var(--sol) 0, var(--naranja) 220px, var(--fondo) 220px);
+            background-attachment: scroll;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: var(--tarjeta);
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+            box-shadow: var(--sombra);
+            padding: 36px;
+        }
+        h1 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 20px 0 8px;
+            color: var(--tinta);
+        }
+        h1::after {
+            content: "";
+            display: block;
+            width: 70px; height: 4px;
+            margin: 14px auto 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--sol), var(--naranja-fuerte));
+        }
+        h3 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            margin: 36px 0 6px;
+            font-size: 1.2rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        h3::before {
+            content: ""; width: 5px; height: 20px;
+            border-radius: 99px; background: var(--naranja-fuerte);
+        }
+        p { color: var(--suave); }
 
-        .error-campo {
-        background: #f8d7da;
-        color: #721c24;
-        padding: 8px;
-        border-radius: 4px;
-        margin-top: 5px;
-        font-size: 13px;
-        border-left: 3px solid #dc3545;
-}
+        .mensaje-error, .mensaje-exito {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 16px 0;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border-left: 5px solid;
+        }
+        .mensaje-error { background: var(--cresta-claro); color: #7A1F14; border-color: var(--cresta); }
+        .mensaje-exito { background: var(--exito-claro); color: #6B4A00; border-color: var(--naranja-fuerte); }
+
+        form {
+            margin: 24px 0 8px;
+            padding: 24px;
+            background: #FFFAF2;
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+        }
+        label { display: block; margin-top: 16px; font-weight: 700; font-size: 0.9rem; color: var(--tinta); }
+        label:first-of-type { margin-top: 0; }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 11px 14px;
+            margin-top: 7px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--tinta);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        input:hover { border-color: var(--naranja); }
+        input:focus {
+            outline: none;
+            border-color: var(--naranja-fuerte);
+            box-shadow: 0 0 0 4px rgba(242, 158, 76, 0.25);
+        }
+        input::placeholder { color: #B79A7C; }
+
+        button, .btn {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 13px 22px;
+            background: linear-gradient(135deg, var(--sol), var(--naranja-fuerte));
+            color: var(--tinta);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.98rem;
+            font-weight: 700;
+            font-family: inherit;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(232, 137, 43, 0.35);
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+        form > button { width: 100%; }
+        button:hover, .btn:hover { filter: brightness(1.05); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(232, 137, 43, 0.45); }
+        .btn-peligro { background: linear-gradient(135deg, #E5604F, var(--cresta)); color: #fff; box-shadow: 0 6px 16px rgba(192, 57, 43, 0.35); }
+        .btn-gris { background: #FFFAF2; color: var(--tinta); border: 2px solid var(--borde); box-shadow: none; }
+        .acciones-form { display: flex; gap: 12px; flex-wrap: wrap; }
+        .acciones-form button, .acciones-form .btn { flex: 1 1 180px; }
+
+        .tabla-wrapper { overflow-x: auto; border: 2px solid var(--borde); border-radius: var(--radio); margin-top: 18px; background: #FFFAF2; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; min-width: 520px; }
+        th, td { padding: 13px 16px; border-bottom: 1px solid var(--borde); text-align: left; white-space: nowrap; }
+        th { background: var(--tarjeta-hover); font-size: .76rem; text-transform: uppercase; letter-spacing: .7px; color: var(--suave); }
+        tbody tr:hover { background: var(--tarjeta); }
+        tbody tr:last-child td { border-bottom: none; }
+        td:first-child { font-weight: 600; }
+
+        a.accion {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--tinta);
+            background: var(--exito-claro);
+            border: 1px solid var(--borde);
+            margin-right: 6px;
+            transition: all .18s ease;
+        }
+        a.accion:hover { background: var(--naranja); transform: translateY(-1px); }
+        a.accion.eliminar { color: #7A1F14; background: var(--cresta-claro); border-color: rgba(192, 57, 43, .3); }
+        a.accion.eliminar:hover { background: var(--cresta); color: #fff; }
+
+        .volver {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px;
+            background: #FFFAF2;
+            color: var(--tinta);
+            font-weight: 700; font-size: .9rem;
+            text-decoration: none;
+            border: 2px solid var(--borde);
+            border-radius: 20px;
+            transition: all .2s ease;
+        }
+        .volver:hover { background: var(--sol); border-color: var(--naranja); transform: translateY(-2px); }
+
+        .resumen { background: #FFFAF2; border: 2px solid var(--borde); border-radius: var(--radio); padding: 18px 22px; margin: 20px 0; }
+        .resumen p { margin: 4px 0; color: var(--tinta); }
+
+        .vacio { text-align: center; padding: 34px 16px !important; color: var(--suave); font-style: italic; white-space: normal; }
+
+        a:focus-visible, button:focus-visible { outline: 3px solid var(--naranja-fuerte); outline-offset: 3px; }
+        @media (max-width: 600px) {
+            body { padding: 20px 12px; }
+            .container { padding: 22px 16px; }
+            form { padding: 18px; }
+            h1 { font-size: 1.4rem; }
+            th, td { padding: 11px 12px; }
+        }
+        /* ---------- Ventas ---------- */
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 14px;
+            margin-top: 7px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-size: .95rem;
+            font-family: inherit;
+            color: var(--tinta);
+            background: #fff;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--naranja-fuerte); box-shadow: 0 0 0 4px rgba(242,158,76,.25); }
+        .form-row { margin-bottom: 4px; }
+        .form-row label { margin-top: 16px; }
+        .encabezado { text-align: center; margin: 20px 0 4px; }
+        .encabezado h1 { margin: 0 0 8px; }
+        .encabezado p { margin: 0; }
+        .kpis { display: flex; gap: 16px; flex-wrap: wrap; margin: 24px 0; }
+        .kpi { flex: 1 1 200px; padding: 16px 20px; background: #FFFAF2; border: 2px solid var(--borde); border-left: 6px solid var(--naranja-fuerte); border-radius: var(--radio); }
+        .kpi.ingresos { border-left-color: var(--sol); }
+        .kpi p { margin: 0; font-size: .85rem; color: var(--suave); }
+        .kpi .valor { margin-top: 4px; font-size: 1.7rem; font-weight: 800; color: var(--tinta); font-family: Rockwell, "Roboto Slab", Georgia, serif; }
+        .messages { list-style: none; padding: 0; margin: 16px 0; }
+        .messages li { padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; font-size: .92rem; border-left: 5px solid; }
+        .messages .success { background: var(--exito-claro); color: #6B4A00; border-color: var(--naranja-fuerte); }
+        .messages .error { background: var(--cresta-claro); color: #7A1F14; border-color: var(--cresta); }
+        .messages .warning { background: #FFE9B8; color: #6B4A00; border-color: var(--sol); }
+        .error-campo { background: var(--cresta-claro); color: #7A1F14; padding: 10px 14px; border-radius: 10px; margin-bottom: 15px; font-size: .9rem; font-weight: 600; border-left: 5px solid var(--cresta); }
+
     </style>
 </head>
 <body>
-    <div class="page">
+    <div class="container">
         <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
 
-        <div class="masthead">
+        <div class="encabezado">
             <h1>💰 Registro de Ventas</h1>
             <p>Control de ventas de huevos y cubetas - Galpón Avícola</p>
         </div>
 
-        <div class="content">
-            {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                        <li class="{{ message.tags }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-        <div style="display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 200px; padding: 15px; background: #e8f5e9; border-left: 5px solid #28a745; border-radius: 8px;">
-                <p style="margin: 0; font-size: 13px; color: #666;">Stock disponible</p>
-                <p style="margin: 5px 0 0; font-size: 24px; color: #28a745; font-weight: bold;">{{ stock_disponible }} cubetas</p>
+        <div class="kpis">
+            <div class="kpi">
+                <p>Stock disponible</p>
+                <p class="valor">{{ stock_disponible }} cubetas</p>
             </div>
-            <div style="flex: 1; min-width: 200px; padding: 15px; background: #f3bbbb; border-left: 5px solid #f3423c; border-radius: 8px;">
-                <p style="margin: 0; font-size: 13px; color: #666;">Ingresos de hoy</p>
-                <p style="margin: 5px 0 0; font-size: 24px; color: #f02626; font-weight: bold;">${{ ingresos_hoy }}</p>
+            <div class="kpi ingresos">
+                <p>Ingresos de hoy</p>
+                <p class="valor">${{ ingresos_hoy }}</p>
             </div>
         </div>
+
         <h3>Nueva venta</h3>
         <form method="post">
             {% csrf_token %}
-            
-            {% if error_manual %}
-                <div class="error-campo" style="margin-bottom:15px;">
-                    {{ error_manual }}
-            </div>
-        {% endif %}
-        <div class="form-row">
-            <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
-            {{ form.cliente }}
-        </div>
-        <div class="form-row">
-            <label for="{{ form.cantidad_cubetas.id_for_label }}">Cantidad de cubetas:</label>
-            {{ form.cantidad_cubetas }}
-        </div>
-        <div class="form-row">
-            <label for="{{ form.precio_unitario.id_for_label }}">Precio por cubeta:</label>
-            {{ form.precio_unitario }}
-        </div>
-        <button class="btn" type="submit">Registrar venta</button>
-    </form>
 
-            <h3>Ventas registradas</h3>
+            {% if error_manual %}
+                <div class="error-campo">
+                    {{ error_manual }}
+                </div>
+            {% endif %}
+            <div class="form-row">
+                <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
+                {{ form.cliente }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.cantidad_cubetas.id_for_label }}">Cantidad de cubetas:</label>
+                {{ form.cantidad_cubetas }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.precio_unitario.id_for_label }}">Precio por cubeta:</label>
+                {{ form.precio_unitario }}
+            </div>
+            <button class="btn" type="submit">Registrar venta</button>
+        </form>
+
+        <h3>Ventas registradas</h3>
+        <div class="tabla-wrapper">
             <table>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Huevos</th>
-                    <th>Cubetas</th>
-                    <th>Precio unit.</th>
-                    <th>Total</th>
-                    <th>Acciones</th>
-                </tr>
-                {% for venta in ventas %}
-                <tr>
-                    <td>{{ venta.fecha }}</td>
-                    <td>{{ venta.cliente }}</td>
-                    <td>{{ venta.cantidad_huevos }}</td>
-                    <td>{{ venta.cantidad_cubetas }}</td>
-                    <td>${{ venta.precio_form }}</td>
-                    <td>${{ venta.total_form }}</td>
-                    <td>
-                        <a class="accion editar" href="{% url 'editar_venta' venta.id %}">Editar</a>
-                        {% if user.is_superuser %}
-                            <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="7">No hay ventas registradas todavía.</td></tr>
-                {% endfor %}
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Huevos</th>
+                        <th>Cubetas</th>
+                        <th>Precio unit.</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in ventas %}
+                    <tr>
+                        <td>{{ venta.fecha }}</td>
+                        <td>{{ venta.cliente }}</td>
+                        <td>{{ venta.cantidad_huevos }}</td>
+                        <td>{{ venta.cantidad_cubetas }}</td>
+                        <td>${{ venta.precio_form }}</td>
+                        <td>${{ venta.total_form }}</td>
+                        <td>
+                            <a class="accion" href="{% url 'editar_venta' venta.id %}">Editar</a>
+                            {% if user.is_superuser %}
+                                <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="vacio">No hay ventas registradas todavía.</td></tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>

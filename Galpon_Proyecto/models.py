@@ -209,7 +209,17 @@ class AlertaStock(models.Model):
 
 
 class GastoOperativo(models.Model):
-    categoria = models.CharField(max_length=100)
+    # 1. Define tus opciones aquí
+    CATEGORIAS = (
+        ('alimento', 'Alimento'),
+        ('mantenimiento', 'Mantenimiento'),
+        ('servicios', 'Servicios'),
+        ('transporte', 'Transporte'),
+        ('otros', 'Otros'),
+    )
+    
+    # 2. Agrega el argumento choices al campo
+    categoria = models.CharField(max_length=100, choices=CATEGORIAS)
     descripcion = models.CharField(max_length=200)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     fecha = models.DateField(auto_now_add=True)
