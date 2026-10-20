@@ -6,15 +6,15 @@
     <style>
         body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
         .page { max-width: 1000px; margin: auto; }
-        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
-        .masthead { background: #007bff; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .volver { display: inline-block; margin-bottom: 20px; color: #b61908; text-decoration: none; font-weight: bold; }
+        .masthead { background:#C89B3C; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
         .masthead h1 { margin: 0; }
         .masthead p { margin: 5px 0 0; font-size: 14px; }
         .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .form-row { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
         .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { display: inline-block; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
+        .btn { display: inline-block; padding: 10px 20px; background: #C89B3C;; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
         .btn:hover { background: #218838; }
         .messages { list-style: none; padding: 0; margin-bottom: 20px; }
         .messages li { padding: 10px; border-radius: 5px; margin-bottom: 5px; }
@@ -62,9 +62,9 @@
                 <p style="margin: 0; font-size: 13px; color: #666;">Stock disponible</p>
                 <p style="margin: 5px 0 0; font-size: 24px; color: #28a745; font-weight: bold;">{{ stock_disponible }} cubetas</p>
             </div>
-            <div style="flex: 1; min-width: 200px; padding: 15px; background: #e3f2fd; border-left: 5px solid #007bff; border-radius: 8px;">
+            <div style="flex: 1; min-width: 200px; padding: 15px; background: #f3bbbb; border-left: 5px solid #f3423c; border-radius: 8px;">
                 <p style="margin: 0; font-size: 13px; color: #666;">Ingresos de hoy</p>
-                <p style="margin: 5px 0 0; font-size: 24px; color: #007bff; font-weight: bold;">${{ ingresos_hoy|floatformat:0 }}</p>
+                <p style="margin: 5px 0 0; font-size: 24px; color: #f02626; font-weight: bold;">${{ ingresos_hoy }}</p>
             </div>
         </div>
         <h3>Nueva venta</h3>
@@ -108,11 +108,13 @@
                     <td>{{ venta.cliente }}</td>
                     <td>{{ venta.cantidad_huevos }}</td>
                     <td>{{ venta.cantidad_cubetas }}</td>
-                    <td>${{ venta.precio_unitario }}</td>
-                    <td>${{ venta.total }}</td>
+                    <td>${{ venta.precio_form }}</td>
+                    <td>${{ venta.total_form }}</td>
                     <td>
                         <a class="accion editar" href="{% url 'editar_venta' venta.id %}">Editar</a>
-                        <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
+                        {% if user.is_superuser %}
+                            <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
