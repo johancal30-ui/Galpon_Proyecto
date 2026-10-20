@@ -287,13 +287,16 @@
     {{ form.poblacion_gallinas }}
 </div>
 
+
 <div class="campo-alimento">
     <div class="campo-icono">⚖️</div>
     <label for="{{ form.kilos_por_bulto.id_for_label }}">
-        Kilos por bulto
+        Kilos por bulto 
+        40 kg
     </label>
     {{ form.kilos_por_bulto }}
 </div>
+
 
 <div class="campo-alimento">
     <div class="campo-icono">📦</div>
@@ -321,7 +324,7 @@
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
                     <tr style="background: #e8f2df; color: #245c38;">
-                        <th style="padding: 12px;">Fecha</th>
+                        <th style="padding: 5px;">Fecha</th>
                         <th style="padding: 12px;">Gallinas</th>
                         <th style="padding: 12px;">Bultos consumidos</th>
                         <th style="padding: 12px;">Kilos por bulto</th>
@@ -331,7 +334,7 @@
                 <tbody>
                     {% for registro in registros %}
                         <tr style="border-bottom: 1px solid #e3ecd9;">
-                            <td style="padding: 12px;">{{ registro.fecha|date:"d/m/Y" }}</td>
+                            <td style="padding: 7px;">{{ registro.fecha|date:"d/m/Y" }}</td>
                             <td style="padding: 12px;">{{ registro.poblacion_gallinas }}</td>
                             <td style="padding: 12px;">{{ registro.bultos_consumidos }}</td>
                             <td style="padding: 12px;">{{ registro.kilos_por_bulto }} kg</td>

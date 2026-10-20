@@ -26,37 +26,40 @@ class RegistroConsumo(models.Model):
     fecha = models.DateField(default=timezone.now)
     poblacion_gallinas = models.PositiveIntegerField(default=1000)
     bultos_consumidos = models.DecimalField(max_digits=5, decimal_places=2)
-    kilos_por_bulto = models.DecimalField(max_digits=5, decimal_places=2, default=40.0)
-    stock_disponible = models.DecimalField(max_digits=6, decimal_places=2, default=50.0)
+    kilos_por_bulto = models.DecimalField(max_digits=5, decimal_places=2, default=40)
+    stock_disponible = models.DecimalField(max_digits=6, decimal_places=2, default=50)
 
-# Rango estándar diario de kilos por gallina
-    CONSUMO_MIN_K_AVE = 0.08
-    CONSUMO_MAX_K_AVE = 0.13
+# Rango estándar diario de gramos por gallina
+    CONSUMO_MIN_G_AVE = 80.0
+    CONSUMO_MAX_G_AVE = 130.0
 
     @property
-    def consumo_kilos_por_ave(self):
-        """Calcula el consumo diario en kilos por gallina (kg/ave/día)"""
+    def consumo_gramos_por_ave(self):
+        """Calcula el consumo diario en gramos por gallina (g/ave/día)"""
         if self.poblacion_gallinas > 0 and self.bultos_consumidos:
             total_kilos = float(self.bultos_consumidos) * float(self.kilos_por_bulto)
-            return round(total_kilos / self.poblacion_gallinas, 2)
+            total_gramos = total_kilos * 1000
+            return round(total_gramos / self.poblacion_gallinas, 2)
         return 0.0
 
     @property
     def es_consumo_anomalo(self):
         """Verifica si el consumo está fuera del rango esperado"""
-        k_ave = self.consumo_kilos_por_ave
-        return k_ave < self.CONSUMO_MIN_K_AVE or k_ave > self.CONSUMO_MAX_K_AVE
-
+        g_ave = self.consumo_gramos_por_ave
+        return g_ave < self.CONSUMO_MIN_G_AVE or g_ave > self.CONSUMO_MAX_G_AVE
+    @property
+    def stock_restante(self):
+        return self.stock_disponible - self.bultos_consumidos
+    
     def clean(self):
-        """Validaciones de datos"""
-        if self.bultos_consumidos is None or self.bultos_consumidos <= 0:
-            raise ValidationError({'bultos_consumidos': 'El número de bultos debe ser mayor a cero.'})
-
-        if self.bultos_consumidos > self.stock_disponible:
-            raise ValidationError({
-                'bultos_consumidos': f'La cantidad supera el stock disponible ({self.stock_disponible} bultos).'
-            })
-
+        if (
+            self.bultos_consumidos is None
+          or self.bultos_consumidos <= 0
+    ):
+          raise ValidationError({
+            'bultos_consumidos':
+                'El número de bultos debe ser mayor a cero.'
+        })
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
