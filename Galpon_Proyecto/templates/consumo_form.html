@@ -278,6 +278,31 @@
                     {% endif %}
 
                 </div>
+
+<div class="campo-alimento">
+    <div class="campo-icono">🐔</div>
+    <label for="{{ form.poblacion_gallinas.id_for_label }}">
+        Población de gallinas
+    </label>
+    {{ form.poblacion_gallinas }}
+</div>
+
+<div class="campo-alimento">
+    <div class="campo-icono">⚖️</div>
+    <label for="{{ form.kilos_por_bulto.id_for_label }}">
+        Kilos por bulto
+    </label>
+    {{ form.kilos_por_bulto }}
+</div>
+
+<div class="campo-alimento">
+    <div class="campo-icono">📦</div>
+    <label for="{{ form.stock_disponible.id_for_label }}">
+        Stock disponible (bultos)
+    </label>
+    {{ form.stock_disponible }}
+</div>
+
                 <button type="submit" class="btn-confirmar">
                     ✅ Confirmar Registro
                 </button>

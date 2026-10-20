@@ -29,24 +29,23 @@ class RegistroConsumo(models.Model):
     kilos_por_bulto = models.DecimalField(max_digits=5, decimal_places=2, default=40.0)
     stock_disponible = models.DecimalField(max_digits=6, decimal_places=2, default=50.0)
 
-# Rango estándar diario de gramos por gallina
-    CONSUMO_MIN_G_AVE = 80.0
-    CONSUMO_MAX_G_AVE = 130.0
+# Rango estándar diario de kilos por gallina
+    CONSUMO_MIN_K_AVE = 0.08
+    CONSUMO_MAX_K_AVE = 0.13
 
     @property
-    def consumo_gramos_por_ave(self):
-        """Calcula el consumo diario en gramos por gallina (g/ave/día)"""
+    def consumo_kilos_por_ave(self):
+        """Calcula el consumo diario en kilos por gallina (kg/ave/día)"""
         if self.poblacion_gallinas > 0 and self.bultos_consumidos:
             total_kilos = float(self.bultos_consumidos) * float(self.kilos_por_bulto)
-            total_gramos = total_kilos * 1000
-            return round(total_gramos / self.poblacion_gallinas, 2)
+            return round(total_kilos / self.poblacion_gallinas, 2)
         return 0.0
 
     @property
     def es_consumo_anomalo(self):
         """Verifica si el consumo está fuera del rango esperado"""
-        g_ave = self.consumo_gramos_por_ave
-        return g_ave < self.CONSUMO_MIN_G_AVE or g_ave > self.CONSUMO_MAX_G_AVE
+        k_ave = self.consumo_kilos_por_ave
+        return k_ave < self.CONSUMO_MIN_K_AVE or k_ave > self.CONSUMO_MAX_K_AVE
 
     def clean(self):
         """Validaciones de datos"""
