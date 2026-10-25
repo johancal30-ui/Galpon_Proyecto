@@ -209,6 +209,9 @@
             <label for="cantidad_cubetas">Número de cubetas armadas:</label>
             <input type="text" inputmode="numeric" id="cantidad_cubetas" name="cantidad_cubetas" placeholder="Ej: 40">
 
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" value="{{ hoy|date:'Y-m-d' }}">
+
             <button type="submit">Guardar registro</button>
         </form>
 

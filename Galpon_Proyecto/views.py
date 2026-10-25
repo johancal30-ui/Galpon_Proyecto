@@ -4,8 +4,15 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Sum, Avg
 from django.utils import timezone
 from datetime import date
+from django.utils import datetime
 from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Venta, Alimento, Inventario, AlertaStock, GastoOperativo)
 from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm, GastoOperativoForm)
+#creado por johan para descargar reporte excel:
+from datetime import date
+from django.db.models import Sum
+from django.db.models.functions import ExtractMonth
+from django.http import HttpResponse
+from .reportes import construir_reporte
 
 
 # PRODUCCIÓN (JOHAN)
@@ -14,8 +21,69 @@ def registrar_produccion(request):
         huevos = request.POST.get('cantidad_huevos')
         cubetas = request.POST.get('cantidad_cubetas')
         rotos = request.POST.get('cantidad_huevos_rotos') or '0'
-        if not huevos or not cubetas:
+        fecha_texto = request.POST.get('fecha')                      
+
+        if not huevos or not cubetas or not fecha_texto:             #fecha_texto
             messages.error(request, "Por favor, complete todos los campos.")
+        else:
+            # convertir y validar la fecha
+            try:
+                fecha = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
+            except ValueError:
+                fecha = None
+
+            if fecha is None:                                        #
+                messages.error(request, "La fecha no es válida")
+            elif fecha > timezone.localdate():                       
+                messages.error(request, "La fecha no puede ser futura")
+            else:
+                try:
+                    huevos = int(huevos)
+                    cubetas = int(cubetas)
+                    rotos = int(rotos)
+                    if huevos <= 0 or cubetas <= 0:
+                        messages.error(request, "La cantidad debe ser un número entero mayor a cero")
+                    elif rotos < 0:
+                        messages.error(request, "Los huevos rotos deben ser un número entero mayor o igual a cero")
+                    elif rotos > huevos:
+                        messages.error(request, "Los huevos rotos no pueden superar el total recolectado")
+                    else:
+                        RegistroProduccion.objects.create(
+                            fecha=fecha,                             
+                            cantidad_huevos=huevos,
+                            cantidad_huevos_rotos=rotos,
+                            cantidad_cubetas=cubetas
+                        )
+                        messages.success(request, "Registro guardado exitosamente")
+                        return redirect('registrar_produccion')
+                except (ValueError, TypeError):
+                    messages.error(request, "La cantidad debe ser un número entero mayor a cero")
+
+    registros = RegistroProduccion.objects.all()
+    return render(request, 'produccion.html', {
+        'registros': registros,
+        'hoy': timezone.localdate(),                                 
+    })
+
+
+def editar_produccion(request, pk):
+    registro = get_object_or_404(RegistroProduccion, pk=pk)
+    if request.method == 'POST':
+        huevos = request.POST.get('cantidad_huevos')
+        cubetas = request.POST.get('cantidad_cubetas')
+        rotos = request.POST.get('cantidad_huevos_rotos') or '0'
+        fecha_texto = request.POST.get('fecha')                      
+
+        # convertir y validar la fecha
+        try:
+            fecha = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            fecha = None
+
+        if fecha is None:                                            
+            messages.error(request, "La fecha no es válida")
+        elif fecha > timezone.localdate():                          
+            messages.error(request, "La fecha no puede ser futura")
         else:
             try:
                 huevos = int(huevos)
@@ -28,48 +96,17 @@ def registrar_produccion(request):
                 elif rotos > huevos:
                     messages.error(request, "Los huevos rotos no pueden superar el total recolectado")
                 else:
-                    RegistroProduccion.objects.create(
-                        cantidad_huevos=huevos,
-                        cantidad_huevos_rotos=rotos,
-                        cantidad_cubetas=cubetas
-                    )
-                    messages.success(request, "Registro guardado exitosamente")
+                    registro.fecha = fecha                           # NUEVO
+                    registro.cantidad_huevos = huevos
+                    registro.cantidad_huevos_rotos = rotos
+                    registro.cantidad_cubetas = cubetas
+                    registro.save()
+                    messages.success(request, "Registro actualizado exitosamente")
                     return redirect('registrar_produccion')
             except (ValueError, TypeError):
                 messages.error(request, "La cantidad debe ser un número entero mayor a cero")
 
-    registros = RegistroProduccion.objects.all()
-    return render(request, 'produccion.html', {'registros': registros})
-
-
-def editar_produccion(request, pk):
-    registro = get_object_or_404(RegistroProduccion, pk=pk)
-    if request.method == 'POST':
-        huevos = request.POST.get('cantidad_huevos')
-        cubetas = request.POST.get('cantidad_cubetas')
-        rotos = request.POST.get('cantidad_huevos_rotos') or '0'
-        try:
-            huevos = int(huevos)
-            cubetas = int(cubetas)
-            rotos = int(rotos)
-            if huevos <= 0 or cubetas <= 0:
-                messages.error(request, "La cantidad debe ser un número entero mayor a cero")
-            elif rotos < 0:
-                messages.error(request, "Los huevos rotos deben ser un número entero mayor o igual a cero")
-            elif rotos > huevos:
-                messages.error(request, "Los huevos rotos no pueden superar el total recolectado")
-            else:
-                registro.cantidad_huevos = huevos
-                registro.cantidad_huevos_rotos = rotos
-                registro.cantidad_cubetas = cubetas
-                registro.save()
-                messages.success(request, "Registro actualizado exitosamente")
-                return redirect('registrar_produccion')
-        except (ValueError, TypeError):
-            messages.error(request, "La cantidad debe ser un número entero mayor a cero")
-
     return render(request, 'produccion_editar.html', {'registro': registro})
-
 def eliminar_produccion(request, pk):
     registro = get_object_or_404(RegistroProduccion, pk=pk)
 
@@ -704,3 +741,47 @@ def eliminar_gasto(request, pk):
     gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")
 
     return render(request, 'gasto_eliminar.html', {'gasto': gasto})
+
+#JOHAN descargar reporte EXCEL
+@login_required
+def descargar_reporte_excel(request):
+    # Año del reporte: el actual, o ?anio=2025 en la URL
+    try:
+        anio = int(request.GET.get('anio', date.today().year))
+    except ValueError:
+        anio = date.today().year
+ 
+    def por_mes(queryset, campo):
+        datos = (queryset.filter(fecha__year=anio)
+                 .annotate(mes=ExtractMonth('fecha'))
+                 .values('mes')
+                 .annotate(suma=Sum(campo)))
+        return {d['mes']: d['suma'] or 0 for d in datos}
+ 
+    ventas_mes = por_mes(Venta.objects, 'total')
+    gastos_mes = por_mes(GastoOperativo.objects, 'monto')
+    huevos_mes = por_mes(RegistroProduccion.objects, 'cantidad_huevos')
+ 
+    # Bultos de alimento por mes (columnas "Compra" y "Consumo").
+    # Ajusta el nombre del modelo y el campo según lo que usó tu compañero:
+    #   compra_bultos = por_mes(IngresoAlimento.objects, 'cantidad_bultos')
+    #   consumo_bultos = por_mes(ConsumoAlimento.objects, 'cantidad_bultos')
+    compra_bultos = {}    # vacío = la columna sale en blanco
+    consumo_bultos = {}
+ 
+    producciones = [(r.fecha, r.cantidad_huevos, r.cantidad_huevos_rotos, r.cantidad_cubetas)
+                    for r in RegistroProduccion.objects.filter(fecha__year=anio).order_by('fecha')]
+    ventas = [(v.fecha, v.cliente, v.cantidad_cubetas, float(v.precio_unitario), float(v.total))
+              for v in Venta.objects.filter(fecha__year=anio).order_by('fecha')]
+    gastos = [(g.fecha, g.get_categoria_display(), g.descripcion, float(g.monto))
+              for g in GastoOperativo.objects.filter(fecha__year=anio).order_by('fecha')]
+ 
+    contenido = construir_reporte(anio, ventas_mes, gastos_mes, huevos_mes,
+                                  producciones, ventas, gastos,
+                                  compra_bultos, consumo_bultos)
+ 
+    respuesta = HttpResponse(
+        contenido,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    respuesta['Content-Disposition'] = f'attachment; filename="reporte_galpon_{anio}.xlsx"'
+    return respuesta

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 # REGISTRO DE PRODUCCIÓN (JOHAN)
 
 class RegistroProduccion(models.Model):
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateField(default=timezone.localdate)
     cantidad_huevos = models.PositiveIntegerField()
     cantidad_cubetas = models.PositiveIntegerField()
     cantidad_huevos_rotos = models.PositiveIntegerField(default=0)

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     #MIAS
     'accounts',
     'Galpon_Proyecto',
+    'tailwind',
 ]
 
 MIDDLEWARE = [

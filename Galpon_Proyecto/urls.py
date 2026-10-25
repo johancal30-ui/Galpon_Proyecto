@@ -31,4 +31,7 @@ urlpatterns = [
     path('gastos/', views.registrar_gasto, name='registrar_gasto'),
     path('gastos/editar/<int:pk>/', views.editar_gasto, name='editar_gasto'),
     path('gastos/eliminar/<int:pk>/', views.eliminar_gasto, name='eliminar_gasto'),
+
+    # descargar reporte (JOHAN)
+    path('reporte-excel/', views.descargar_reporte_excel, name='descargar_reporte_excel'),
 ]
