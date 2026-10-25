@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Sum, Avg
 from django.utils import timezone
 from datetime import date
-from django.utils import datetime
+from datetime import datetime
 from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Venta, Alimento, Inventario, AlertaStock, GastoOperativo)
 from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm, GastoOperativoForm)
 #creado por johan para descargar reporte excel:

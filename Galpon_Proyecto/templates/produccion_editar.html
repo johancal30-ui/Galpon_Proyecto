@@ -200,6 +200,9 @@
 
         <form method="post">
             {% csrf_token %}
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" value="{{ registro.fecha|date:'Y-m-d' }}">
+
             <label for="cantidad_huevos">Cantidad de huevos recolectados:</label>
             <input type="text" inputmode="numeric" id="cantidad_huevos" name="cantidad_huevos" value="{{ registro.cantidad_huevos }}">
 
