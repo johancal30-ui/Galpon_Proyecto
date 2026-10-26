@@ -31,4 +31,8 @@ urlpatterns = [
     path('gastos/', views.registrar_gasto, name='registrar_gasto'),
     path('gastos/editar/<int:pk>/', views.editar_gasto, name='editar_gasto'),
     path('gastos/eliminar/<int:pk>/', views.eliminar_gasto, name='eliminar_gasto'),
+
+        # Vacunación (Jeffry)
+    path('vacunacion/', views.vacunacion_lista, name='vacunacion_lista'),
+    path('vacunacion/registrar/', views.vacunacion_registrar, name='vacunacion_registrar'),
 ]
