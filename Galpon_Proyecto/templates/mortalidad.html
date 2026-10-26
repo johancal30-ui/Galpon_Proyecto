@@ -25,18 +25,18 @@
 
   body {
     margin: 0;
-    background: var(--paper);
+    background-color: var(--paper);
+    /* FONDO SVG CON HUEVOS Y PLUMAS */
+    background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d9cfb8' fill-opacity='0.4'%3E%3Cpath d='M20 30c0-3.3 2.7-6 6-6s6 2.7 6 6c0 4-6 10-6 10s-6-6-6-10z'/%3E%3Cpath d='M80 90c0-4.4 3.6-8 8-8s8 3.6 8 8c0 5.3-8 13-8 13s-8-7.7-8-13z'/%3E%3Ccircle cx='50' cy='90' r='3'/%3E%3Ccircle cx='10' cy='70' r='2'/%3E%3Ccircle cx='100' cy='20' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
     color: var(--ink);
     font-family: 'Inter', sans-serif;
     line-height: 1.5;
   }
 
-  h1, h2, .num {
-    font-family: 'Zilla Slab', serif;
-  }
+  h1, h2, .num { font-family: 'Zilla Slab', serif; }
 
   .page {
-    max-width: 980px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 48px 24px 80px;
   }
@@ -47,6 +47,7 @@
     color: var(--ink-soft);
     text-decoration: none;
     font-size: 0.9rem;
+    font-weight: 500;
   }
   .volver:hover { text-decoration: underline; }
 
@@ -65,7 +66,6 @@
     margin: 0;
     font-size: 2.1rem;
     font-weight: 700;
-    letter-spacing: 0.2px;
   }
 
   .masthead .title-block p {
@@ -87,16 +87,9 @@
     transition: background 0.15s ease;
   }
 
-  .btn-registrar:hover {
-    background: var(--barn-dark);
-  }
+  .btn-registrar:hover { background: var(--barn-dark); }
 
-  .messages {
-    list-style: none;
-    margin: 0 0 28px;
-    padding: 0;
-  }
-
+  .messages { list-style: none; margin: 0 0 28px; padding: 0; }
   .messages li {
     background: var(--paper-raised);
     border-left: 4px solid var(--sage);
@@ -110,6 +103,7 @@
     border-top: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
     margin-bottom: 40px;
+    background: rgba(246, 241, 228, 0.7); /* Fondo semitransparente para leer bien */
   }
 
   .stub .stat {
@@ -117,10 +111,7 @@
     padding: 18px 22px;
     border-right: 1px solid var(--rule);
   }
-
-  .stub .stat:last-child {
-    border-right: none;
-  }
+  .stub .stat:last-child { border-right: none; }
 
   .stub .stat .label {
     font-size: 0.82rem;
@@ -144,20 +135,14 @@
     margin-bottom: 12px;
   }
 
-  .ledger-heading h2 {
-    font-size: 1.3rem;
-    margin: 0;
-  }
-
-  .ledger-heading .count {
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-  }
+  .ledger-heading h2 { font-size: 1.3rem; margin: 0; }
+  .ledger-heading .count { font-size: 0.85rem; color: var(--ink-soft); }
 
   table.ledger {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.93rem;
+    background: var(--paper); /* Fondo para que resalte la tabla */
   }
 
   table.ledger thead th {
@@ -175,9 +160,7 @@
     vertical-align: middle;
   }
 
-  table.ledger tbody tr:hover {
-    background: var(--paper-raised);
-  }
+  table.ledger tbody tr:hover { background: var(--paper-raised); }
 
   .causa-tag {
     display: inline-block;
@@ -199,75 +182,50 @@
     font-size: 1.05rem;
   }
 
-  .acciones a {
+  .detalles-texto {
+    font-size: 0.85rem;
     color: var(--ink-soft);
-    text-decoration: none;
-    font-size: 0.85rem;
-    margin-right: 12px;
+    font-style: italic;
+    max-width: 200px;
+    white-space: normal;
   }
 
-  .acciones a.eliminar {
-    color: var(--rust);
-  }
-
-  .acciones a:hover {
-    text-decoration: underline;
-  }
-
-  .acciones form {
-    display: inline;
-    margin: 0;
-    padding: 0;
-  }
-
+  .acciones form { display: inline; margin: 0; padding: 0; }
   .btn-eliminar {
-    background: none;
-    border: none;
-    padding: 0;
-    font-family: inherit;
-    font-size: 0.85rem;
-    color: var(--rust);
-    cursor: pointer;
+    background: none; border: none; padding: 0;
+    font-family: inherit; font-size: 0.85rem;
+    color: var(--rust); cursor: pointer;
   }
-
-  .btn-eliminar:hover {
-    text-decoration: underline;
-  }
+  .btn-eliminar:hover { text-decoration: underline; }
 
   .vacio {
     border: 1px dashed var(--rule);
     padding: 48px 24px;
     text-align: center;
     color: var(--ink-soft);
+    background: var(--paper);
   }
+  .vacio p { margin: 0 0 16px; }
 
-  .vacio p {
-    margin: 0 0 16px;
-  }
-
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     .stub { flex-direction: column; }
     .stub .stat { border-right: none; border-bottom: 1px solid var(--rule); }
     .stub .stat:last-child { border-bottom: none; }
     table.ledger thead { display: none; }
     table.ledger, table.ledger tbody, table.ledger tr, table.ledger td {
-      display: block;
-      width: 100%;
+      display: block; width: 100%;
     }
     table.ledger tr {
       border-bottom: 1px solid var(--rule);
       padding: 10px 0;
     }
     table.ledger td {
-      border-bottom: none;
-      padding: 4px 12px;
+      border-bottom: none; padding: 4px 12px;
     }
     table.ledger td::before {
       content: attr(data-label);
-      display: block;
-      font-size: 0.72rem;
-      color: var(--ink-soft);
-      margin-bottom: 2px;
+      display: block; font-size: 0.72rem;
+      color: var(--ink-soft); margin-bottom: 2px;
     }
   }
 </style>
@@ -296,15 +254,16 @@
   <div class="stub">
     <div class="stat">
       <div class="label">Registros totales</div>
-      <div class="num">{{ total_registros|default:0 }}</div>
+      <!-- AHORA USA LA VARIABLE CORRECTA -->
+      <div class="num">{{ total_registros }}</div>
     </div>
     <div class="stat">
       <div class="label">Aves perdidas (total)</div>
-      <div class="num alert">{{ total_cantidad|default:0 }}</div>
+      <div class="num alert">{{ total_cantidad }}</div>
     </div>
     <div class="stat">
       <div class="label">Lotes afectados</div>
-      <div class="num ok">{{ lotes_afectados|default:0 }}</div>
+      <div class="num ok">{{ lotes_afectados }}</div>
     </div>
   </div>
 
@@ -321,6 +280,7 @@
         <th scope="col">Lote</th>
         <th scope="col">Cantidad</th>
         <th scope="col">Causa</th>
+        <th scope="col">Detalles</th> <!-- NUEVA COLUMNA -->
         <th scope="col">Registrado por</th>
         <th scope="col">Acciones</th>
       </tr>
@@ -334,14 +294,15 @@
         <td data-label="Causa">
           <span class="causa-tag causa-{{ registro.causa }}">{{ registro.get_causa_display }}</span>
         </td>
+        <!-- AQUI MOSTRAMOS LA OBSERVACION -->
+        <td data-label="Detalles" class="detalles-texto">
+          {{ registro.observaciones|default:"—" }}
+        </td>
         <td data-label="Registrado por">{{ registro.registrado_por|default:"—" }}</td>
         <td data-label="Acciones" class="acciones">
-          <form method="post"
-                action="{% url 'mortalidad_eliminar' registro.pk %}">
+          <form method="post" action="{% url 'mortalidad_eliminar' registro.pk %}">
             {% csrf_token %}
-            <button type="submit"
-                    class="btn-eliminar"
-                    onclick="return confirm('¿Eliminar este registro?');">
+            <button type="submit" class="btn-eliminar" onclick="return confirm('¿Eliminar este registro?');">
               Eliminar
             </button>
           </form>
