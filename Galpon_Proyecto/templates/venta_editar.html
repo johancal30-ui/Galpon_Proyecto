@@ -233,8 +233,14 @@
             {% endif %}
 
             <div class="form-row">
-                <label>Cliente:</label>
-                {{ form.cliente }}
+                <label for="cliente">Cliente:</label>
+                <select id="cliente" name="cliente" required>
+                    <option value="">— Selecciona un cliente —</option>
+                    {% for c in clientes %}
+                        <option value="{{ c.nombre }}" {% if c.nombre == venta.cliente %}selected{% endif %}>{{ c.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <a href="{% url 'registrar_cliente' %}" style="font-size:.85rem;font-weight:700;color:var(--naranja-fuerte)">+ Agregar cliente nuevo</a>
             </div>
 
             <div class="form-row">
@@ -244,7 +250,7 @@
 
             <div class="form-row">
                 <label>Precio por cubeta:</label>
-                <input type="text" name="precio_unitario" id="id_precio_unitario" class="form-control" value="{{ venta.precio_form }}">
+                {{ form.precio_unitario }}
             </div>
 
             <div class="acciones-form">
