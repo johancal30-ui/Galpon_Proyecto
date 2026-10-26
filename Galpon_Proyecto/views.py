@@ -605,15 +605,12 @@ def registrar_gasto(request):
         descripcion = request.POST.get('descripcion', '').strip()
         monto = request.POST.get('monto', '')
 
-        # Validar categoría
         if not categoria:
             error_manual = "Debes seleccionar una categoría."
 
-        # Validar descripción
         elif not descripcion:
             error_manual = "La descripción es obligatoria."
 
-        # Validar monto
         elif not monto:
             error_manual = "El monto es obligatorio."
         else:
@@ -624,7 +621,6 @@ def registrar_gasto(request):
             except (ValueError, TypeError):
                 error_manual = "El monto debe ser un número válido."
 
-        # Si todo está bien, guardar
         if error_manual is None:
             gasto = GastoOperativo(
                 categoria=categoria,
@@ -636,7 +632,6 @@ def registrar_gasto(request):
             messages.success(request, f'Gasto registrado. Monto: ${gasto.monto}')
             return redirect('registrar_gasto')
 
-    # Calcular totales
     hoy = date.today()
     gastos_mes = GastoOperativo.objects.filter(
         fecha__year=hoy.year,
