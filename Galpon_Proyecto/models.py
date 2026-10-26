@@ -159,6 +159,9 @@ class Alimento(models.Model):
         # Calcular costo total automáticamente
         self.costo_total = self.cantidad_bultos * self.costo_unitario
         super().save(*args, **kwargs)
+
+
+
 # INVENTARIO Y ALERTAS DE STOCK (JHON)
 class Inventario(models.Model):
     TIPOS_INSUMO = [('alimento', 'Alimento'), ('vacuna', 'Vacuna')]
@@ -203,3 +206,29 @@ class AlertaStock(models.Model):
     def __str__(self):
         estado = 'Activa' if self.activa else 'Resuelta'
         return f"{self.inventario.get_tipo_display()} - {estado}"
+
+
+class GastoOperativo(models.Model):
+    CATEGORIAS = (
+        ('servicios', 'Servicios públicos'),
+        ('transporte', 'Transporte'),
+        ('empaque', 'Empaque'),
+        ('mano_obra', 'Mano de obra'),
+        ('insumos', 'Insumos'),
+        ('otro', 'Otro'),
+    )
+
+    categoria = models.CharField(max_length=100, choices=CATEGORIAS)
+    descripcion = models.CharField(max_length=200)
+    monto = models.DecimalField(max_digits=12, decimal_places=2)
+    fecha = models.DateField(auto_now_add=True)
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Gasto Operativo'
+        verbose_name_plural = 'Gastos Operativos'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.get_categoria_display()} - ${self.monto}"

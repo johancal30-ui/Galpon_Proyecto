@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test 
 from django.db.models import Sum, Avg
 from django.utils import timezone
 from datetime import date
@@ -107,16 +107,19 @@ def registrar_consumo(request):
 # MORTALIDAD (JEFFRY)
 @login_required
 def mortalidad_lista(request):
-    registros = RegistroMortalidad.objects.select_related('lote').all()
+    registros = RegistroMortalidad.objects.select_related('lote', 'registrado_por').all()
     total_cantidad = registros.aggregate(Sum('cantidad'))['cantidad__sum'] or 0
     lotes_afectados = registros.values('lote').distinct().count()
+    
+    # NUEVO: Contador exacto para el template
+    total_registros = registros.count() 
 
     return render(request, 'mortalidad.html', {
         'registros': registros,
         'total_cantidad': total_cantidad,
         'lotes_afectados': lotes_afectados,
+        'total_registros': total_registros, # <-- Enviamos el dato
     })
-
 
 @login_required
 def mortalidad_registrar(request):
@@ -177,7 +180,8 @@ def registrar_venta(request):
                 error_manual = "El precio por cubeta es obligatorio."
             else:
                 try:
-                    precio_float = float(precio)
+                    precio_limpio = str(precio).replace(".", "").replace(",", ".")
+                    precio_float = float(precio_limpio)
                     if precio_float <= 0:
                         error_manual = "El precio debe ser mayor a cero."
                 except (ValueError, TypeError):
@@ -212,7 +216,6 @@ def registrar_venta(request):
             messages.success(request, f'Venta registrada. Total: ${venta.total}')
             return redirect('registrar_venta')
 
-    # Calcular stock disponible para mostrar siempre
     total_producido = RegistroProduccion.objects.aggregate(
         total=Sum('cantidad_cubetas')
     )['total'] or 0
@@ -221,13 +224,18 @@ def registrar_venta(request):
     )['total'] or 0
     stock_disponible = total_producido - total_vendido
 
-    # Ingresos del día
     hoy = timezone.now().date()
     ingresos_hoy = Venta.objects.filter(fecha=hoy).aggregate(
         total=Sum('total')
     )['total'] or 0
 
     ventas = Venta.objects.all()
+
+    ingresos_hoy = f"{int(ingresos_hoy):,}".replace(",", ".")
+    for v in ventas:
+        v.total_form = f"{int(v.total):,}".replace(",", ".")
+        v.precio_form = f"{int(v.precio_unitario):,}".replace(",", ".")
+
     return render(request, 'venta.html', {
         'form': form,
         'ventas': ventas,
@@ -263,7 +271,8 @@ def editar_venta(request, pk):
                 error_manual = "El precio por cubeta es obligatorio."
             else:
                 try:
-                    precio_float = float(precio)
+                    precio_limpio = str(precio).replace(".", "").replace(",", ".")
+                    precio_float = float(precio_limpio)
                     if precio_float <= 0:
                         error_manual = "El precio debe ser mayor a cero."
                 except (ValueError, TypeError):
@@ -284,6 +293,8 @@ def editar_venta(request, pk):
     else:
         form = VentaForm(instance=venta)
 
+    venta.precio_form = f"{int(venta.precio_unitario):,}".replace(",", ".")
+
     return render(request, 'venta_editar.html', {
         'form': form,
         'venta': venta,
@@ -292,12 +303,15 @@ def editar_venta(request, pk):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
         venta.delete()
         messages.success(request, 'Venta eliminada.')
         return redirect('registrar_venta')
+
+    venta.total_form = f"{int(venta.total):,}".replace(",", ".")
 
     return render(request, 'venta_eliminar.html', {'venta': venta})
 
@@ -410,7 +424,16 @@ def registrar_alimento(request):
         except Exception:
             total_invertido = None
 
-    # ESTE ES EL RETURN FINAL
+    if total_invertido is not None:
+        total_invertido = f"{int(total_invertido):,}".replace(",", ".")
+    
+    for a in historial:
+        a.costo_unit_form = f"{int(a.costo_unitario):,}".replace(",", ".")
+        a.costo_total_form = f"{int(a.costo_total):,}".replace(",", ".")
+        
+    for s in stock_por_tipo:
+        s['costo_total_form'] = f"{int(s['costo_total']):,}".replace(",", ".")
+
     return render(request, 'alimento.html', {
         'form': form,
         'stock_por_tipo': stock_por_tipo,
@@ -487,6 +510,7 @@ def editar_alimento(request, pk):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def eliminar_alimento(request, pk):
     alimento = get_object_or_404(Alimento, pk=pk)
     if request.method == 'POST':
@@ -589,20 +613,16 @@ def registrar_gasto(request):
         total=Sum('monto')
     )['total'] or 0
 
-    # Costo real por cubeta
-    # Gastos operativos del mes + Costo de alimento del mes
     costo_alimento_mes = Alimento.objects.filter(
         fecha__year=hoy.year,
         fecha__month=hoy.month
     ).aggregate(total=Sum('costo_total'))['total'] or 0
 
-    # Cubetas producidas del mes
     cubetas_producidas = RegistroProduccion.objects.filter(
         fecha__year=hoy.year,
         fecha__month=hoy.month
     ).aggregate(total=Sum('cantidad_cubetas'))['total'] or 0
 
-    # Cálculo final
     costo_total_mes = gastos_mes + costo_alimento_mes
     if cubetas_producidas > 0:
         costo_por_cubeta = costo_total_mes / cubetas_producidas
@@ -610,6 +630,12 @@ def registrar_gasto(request):
         costo_por_cubeta = 0
 
     gastos = GastoOperativo.objects.all()
+
+    gastos_mes = f"{int(gastos_mes):,}".replace(",", ".")
+    gastos_totales = f"{int(gastos_totales):,}".replace(",", ".")
+
+    for gasto in gastos:
+        gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")    
 
     return render(request, 'gasto.html', {
         'form': form,
@@ -660,6 +686,8 @@ def editar_gasto(request, pk):
     else:
         form = GastoOperativoForm(instance=gasto)
 
+    gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")
+
     return render(request, 'gasto_editar.html', {
         'form': form,
         'gasto': gasto,
@@ -675,5 +703,7 @@ def eliminar_gasto(request, pk):
         gasto.delete()
         messages.success(request, 'Gasto eliminado.')
         return redirect('registrar_gasto')
+
+    gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")
 
     return render(request, 'gasto_eliminar.html', {'gasto': gasto})

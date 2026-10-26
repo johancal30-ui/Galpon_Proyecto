@@ -2,170 +2,374 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Alimento - Galpón Proyecto</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .page { max-width: 1100px; margin: auto; }
-        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
-        .masthead { background: #007bff; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-        .masthead h1 { margin: 0; }
-        .masthead p { margin: 5px 0 0; font-size: 14px; }
-        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .form-row { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { display: inline-block; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; }
-        .btn:hover { background: #218838; }
-        .error-campo { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; border-left: 4px solid #dc3545; }
-        .messages { list-style: none; padding: 0; margin-bottom: 20px; }
-        .messages li { padding: 10px; border-radius: 5px; margin-bottom: 5px; }
-        .messages .success { background: #d4edda; color: #155724; }
-        .messages .error { background: #f8d7da; color: #721c24; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background: #f4f4f4; }
-        .accion { text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 13px; margin-right: 5px; }
-        .editar { background: #007bff; }
-        .eliminar { background: #dc3545; }
-        .stock-card { display: inline-block; padding: 15px; margin: 5px; border-radius: 8px; background: #f8f9fa; border-left: 4px solid #28a745; min-width: 180px; }
-        .stock-card h4 { margin: 0 0 5px; color: #333; }
-        .stock-card p { margin: 0; font-size: 14px; color: #666; }
+        :root {
+            --sol: #F7C948;
+            --naranja: #F29E4C;
+            --naranja-fuerte: #E8892B;
+            --tinta: #3B2412;
+            --suave: #7A5A3A;
+            --fondo: #FFF6E3;
+            --tarjeta: #FFEEDB;
+            --tarjeta-hover: #FFE3C2;
+            --borde: #F0C48A;
+            --cresta: #C0392B;
+            --cresta-claro: #FBE3DF;
+            --exito-claro: #FFF1C2;
+            --radio: 14px;
+            --sombra: 0 10px 28px rgba(150, 90, 30, 0.15);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            color: var(--tinta);
+            line-height: 1.5;
+            background: linear-gradient(180deg, var(--sol) 0, var(--naranja) 220px, var(--fondo) 220px);
+            background-attachment: scroll;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: var(--tarjeta);
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+            box-shadow: var(--sombra);
+            padding: 36px;
+        }
+        h1 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 20px 0 8px;
+            color: var(--tinta);
+        }
+        h1::after {
+            content: "";
+            display: block;
+            width: 70px; height: 4px;
+            margin: 14px auto 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--sol), var(--naranja-fuerte));
+        }
+        h3 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            margin: 36px 0 6px;
+            font-size: 1.2rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        h3::before {
+            content: ""; width: 5px; height: 20px;
+            border-radius: 99px; background: var(--naranja-fuerte);
+        }
+        p { color: var(--suave); }
+
+        .mensaje-error, .mensaje-exito {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 16px 0;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border-left: 5px solid;
+        }
+        .mensaje-error { background: var(--cresta-claro); color: #7A1F14; border-color: var(--cresta); }
+        .mensaje-exito { background: var(--exito-claro); color: #6B4A00; border-color: var(--naranja-fuerte); }
+
+        form {
+            margin: 24px 0 8px;
+            padding: 24px;
+            background: #FFFAF2;
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+        }
+        label { display: block; margin-top: 16px; font-weight: 700; font-size: 0.9rem; color: var(--tinta); }
+        label:first-of-type { margin-top: 0; }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 11px 14px;
+            margin-top: 7px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--tinta);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        input:hover { border-color: var(--naranja); }
+        input:focus {
+            outline: none;
+            border-color: var(--naranja-fuerte);
+            box-shadow: 0 0 0 4px rgba(242, 158, 76, 0.25);
+        }
+        input::placeholder { color: #B79A7C; }
+
+        button, .btn {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 13px 22px;
+            background: linear-gradient(135deg, var(--sol), var(--naranja-fuerte));
+            color: var(--tinta);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.98rem;
+            font-weight: 700;
+            font-family: inherit;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(232, 137, 43, 0.35);
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+        form > button { width: 100%; }
+        button:hover, .btn:hover { filter: brightness(1.05); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(232, 137, 43, 0.45); }
+        .btn-peligro { background: linear-gradient(135deg, #E5604F, var(--cresta)); color: #fff; box-shadow: 0 6px 16px rgba(192, 57, 43, 0.35); }
+        .btn-gris { background: #FFFAF2; color: var(--tinta); border: 2px solid var(--borde); box-shadow: none; }
+        .acciones-form { display: flex; gap: 12px; flex-wrap: wrap; }
+        .acciones-form button, .acciones-form .btn { flex: 1 1 180px; }
+
+        .tabla-wrapper { overflow-x: auto; border: 2px solid var(--borde); border-radius: var(--radio); margin-top: 18px; background: #FFFAF2; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; min-width: 520px; }
+        th, td { padding: 13px 16px; border-bottom: 1px solid var(--borde); text-align: left; white-space: nowrap; }
+        th { background: var(--tarjeta-hover); font-size: .76rem; text-transform: uppercase; letter-spacing: .7px; color: var(--suave); }
+        tbody tr:hover { background: var(--tarjeta); }
+        tbody tr:last-child td { border-bottom: none; }
+        td:first-child { font-weight: 600; }
+
+        a.accion {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--tinta);
+            background: var(--exito-claro);
+            border: 1px solid var(--borde);
+            margin-right: 6px;
+            transition: all .18s ease;
+        }
+        a.accion:hover { background: var(--naranja); transform: translateY(-1px); }
+        a.accion.eliminar { color: #7A1F14; background: var(--cresta-claro); border-color: rgba(192, 57, 43, .3); }
+        a.accion.eliminar:hover { background: var(--cresta); color: #fff; }
+
+        .volver {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px;
+            background: #FFFAF2;
+            color: var(--tinta);
+            font-weight: 700; font-size: .9rem;
+            text-decoration: none;
+            border: 2px solid var(--borde);
+            border-radius: 20px;
+            transition: all .2s ease;
+        }
+        .volver:hover { background: var(--sol); border-color: var(--naranja); transform: translateY(-2px); }
+
+        .resumen { background: #FFFAF2; border: 2px solid var(--borde); border-radius: var(--radio); padding: 18px 22px; margin: 20px 0; }
+        .resumen p { margin: 4px 0; color: var(--tinta); }
+
+        .vacio { text-align: center; padding: 34px 16px !important; color: var(--suave); font-style: italic; white-space: normal; }
+
+        a:focus-visible, button:focus-visible { outline: 3px solid var(--naranja-fuerte); outline-offset: 3px; }
+        @media (max-width: 600px) {
+            body { padding: 20px 12px; }
+            .container { padding: 22px 16px; }
+            form { padding: 18px; }
+            h1 { font-size: 1.4rem; }
+            th, td { padding: 11px 12px; }
+        }
+        /* ---------- Ventas ---------- */
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 14px;
+            margin-top: 7px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-size: .95rem;
+            font-family: inherit;
+            color: var(--tinta);
+            background: #fff;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--naranja-fuerte); box-shadow: 0 0 0 4px rgba(242,158,76,.25); }
+        .form-row { margin-bottom: 4px; }
+        .form-row label { margin-top: 16px; }
+        .encabezado { text-align: center; margin: 20px 0 4px; }
+        .encabezado h1 { margin: 0 0 8px; }
+        .encabezado p { margin: 0; }
+        .kpis { display: flex; gap: 16px; flex-wrap: wrap; margin: 24px 0; }
+        .kpi { flex: 1 1 200px; padding: 16px 20px; background: #FFFAF2; border: 2px solid var(--borde); border-left: 6px solid var(--naranja-fuerte); border-radius: var(--radio); }
+        .kpi.ingresos { border-left-color: var(--sol); }
+        .kpi p { margin: 0; font-size: .85rem; color: var(--suave); }
+        .kpi .valor { margin-top: 4px; font-size: 1.7rem; font-weight: 800; color: var(--tinta); font-family: Rockwell, "Roboto Slab", Georgia, serif; }
+        .messages { list-style: none; padding: 0; margin: 16px 0; }
+        .messages li { padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; font-size: .92rem; border-left: 5px solid; }
+        .messages .success { background: var(--exito-claro); color: #6B4A00; border-color: var(--naranja-fuerte); }
+        .messages .error { background: var(--cresta-claro); color: #7A1F14; border-color: var(--cresta); }
+        .messages .warning { background: #FFE9B8; color: #6B4A00; border-color: var(--sol); }
+        .error-campo { background: var(--cresta-claro); color: #7A1F14; padding: 10px 14px; border-radius: 10px; margin-bottom: 15px; font-size: .9rem; font-weight: 600; border-left: 5px solid var(--cresta); }
+
+    
+        /* ---------- Alimento ---------- */
+        .stock-grid { display: flex; flex-wrap: wrap; gap: 16px; margin: 18px 0 8px; }
+        .stock-card { flex: 1 1 220px; max-width: 320px; padding: 16px 20px; background: #FFFAF2; border: 2px solid var(--borde); border-left: 6px solid var(--naranja-fuerte); border-radius: var(--radio); }
+        .stock-card h4 { margin: 0 0 10px; font-family: Rockwell, "Roboto Slab", Georgia, serif; font-size: 1.1rem; color: var(--tinta); }
+        .stock-card p { margin: 5px 0; font-size: .92rem; color: var(--suave); }
+        .stock-card p strong { color: var(--tinta); }
+        .stock-card.bajo { background: var(--cresta-claro); border-color: rgba(192,57,43,.35); border-left-color: var(--cresta); }
+        .stock-card.bajo h4 { color: var(--cresta); }
+        .stock-card .alerta { margin-top: 10px; color: var(--cresta); font-weight: 700; font-size: .85rem; }
+        .periodo { background: #FFFAF2; border: 2px solid var(--borde); border-left: 6px solid var(--sol); border-radius: var(--radio); padding: 20px; margin: 18px 0 8px; }
+        .periodo form { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; margin: 0; padding: 0; background: none; border: none; }
+        .periodo label { margin-top: 0; }
+        .periodo input { width: auto; }
+        .periodo button { margin-top: 0; }
+        .total-box { margin-top: 18px; padding: 14px 18px; background: var(--exito-claro); border-left: 5px solid var(--naranja-fuerte); border-radius: 10px; }
+        .total-box p { margin: 0; color: var(--tinta); }
+        .total-box .monto { font-size: 1.4rem; font-weight: 800; font-family: Rockwell, "Roboto Slab", Georgia, serif; }
+        .total-box .rango { margin-top: 4px; font-size: .85rem; color: var(--suave); }
     </style>
 </head>
 <body>
-    <div class="page">
+    <div class="container">
         <a class="volver" href="{% url 'accounts:home' %}">← Volver al inicio</a>
 
-        <div class="masthead">
+        <div class="encabezado">
             <h1>🌾 Inventario de Alimento</h1>
             <p>Control de ingreso de bultos y stock disponible</p>
         </div>
 
-        <div class="content">
-            {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                        <li class="{{ message.tags }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-            {% if error_manual %}
-                <div class="error-campo">{{ error_manual }}</div>
-            {% endif %}
+        {% if error_manual %}
+            <div class="error-campo">{{ error_manual }}</div>
+        {% endif %}
 
-            <h3>Registrar ingreso</h3>
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-row">
-                    <label for="{{ form.tipo.id_for_label }}">Tipo de alimento:</label>
-                    {{ form.tipo }}
+        <h3>Registrar ingreso</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="{{ form.tipo.id_for_label }}">Tipo de alimento:</label>
+                {{ form.tipo }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.cantidad_bultos.id_for_label }}">Cantidad de bultos:</label>
+                {{ form.cantidad_bultos }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.kilos_por_bulto.id_for_label }}">Kilos por bulto:</label>
+                {{ form.kilos_por_bulto }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.costo_unitario.id_for_label }}">Costo unitario:</label>
+                {{ form.costo_unitario }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.proveedor.id_for_label }}">Proveedor:</label>
+                {{ form.proveedor }}
+            </div>
+            <button class="btn" type="submit">Registrar ingreso</button>
+        </form>
+
+        <h3>Stock actual por tipo</h3>
+        <div class="stock-grid">
+            {% for item in stock_por_tipo %}
+                {% if item.total_bultos < 8 %}
+                    <div class="stock-card bajo">
+                        <h4>⚠️ {{ item.tipo }}</h4>
+                        <p><strong>Bultos:</strong> {{ item.total_bultos }}</p>
+                        <p><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
+                        <p><strong>Costo total:</strong> ${{ item.costo_total|floatformat:0 }}</p>
+                        <p class="alerta">¡Stock bajo! Reabastecer pronto.</p>
+                    </div>
+                {% else %}
+                    <div class="stock-card">
+                        <h4>{{ item.tipo }}</h4>
+                        <p><strong>Bultos:</strong> {{ item.total_bultos }}</p>
+                        <p><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
+                        <p><strong>Costo total:</strong> ${{ item.costo_total_form }}</p>
+                    </div>
+                {% endif %}
+            {% empty %}
+                <p>No hay stock registrado.</p>
+            {% endfor %}
+        </div>
+
+        <h3>Total invertido por período</h3>
+        <div class="periodo">
+            <form method="get">
+                <div>
+                    <label for="fecha_desde">Desde:</label>
+                    <input type="date" name="fecha_desde" id="fecha_desde" value="{{ fecha_desde|default:'' }}">
                 </div>
-                <div class="form-row">
-                    <label for="{{ form.cantidad_bultos.id_for_label }}">Cantidad de bultos:</label>
-                    {{ form.cantidad_bultos }}
+                <div>
+                    <label for="fecha_hasta">Hasta:</label>
+                    <input type="date" name="fecha_hasta" id="fecha_hasta" value="{{ fecha_hasta|default:'' }}">
                 </div>
-                <div class="form-row">
-                    <label for="{{ form.kilos_por_bulto.id_for_label }}">Kilos por bulto:</label>
-                    {{ form.kilos_por_bulto }}
+                <div>
+                    <button type="submit" class="btn">Calcular</button>
                 </div>
-                <div class="form-row">
-                    <label for="{{ form.costo_unitario.id_for_label }}">Costo unitario:</label>
-                    {{ form.costo_unitario }}
-                </div>
-                <div class="form-row">
-                    <label for="{{ form.proveedor.id_for_label }}">Proveedor:</label>
-                    {{ form.proveedor }}
-                </div>
-                <button class="btn" type="submit">Registrar ingreso</button>
             </form>
 
-            <h3>Stock actual por tipo</h3>
-
-<div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
-    {% for item in stock_por_tipo %}
-        {% if item.total_bultos < 8 %}
-            <div class="stock-card" style="min-width: 220px; background: #fff5f5; border-left: 5px solid #dc3545; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(220,53,69,0.15);">
-                <h4 style="margin: 0 0 10px; color: #dc3545;">⚠️ {{ item.tipo }}</h4>
-                <p style="margin: 5px 0;"><strong>Bultos:</strong> {{ item.total_bultos }}</p>
-                <p style="margin: 5px 0;"><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
-                <p style="margin: 5px 0;"><strong>Costo total:</strong> ${{ item.costo_total|floatformat:0 }}</p>
-                <p style="margin: 10px 0 0; color: #dc3545; font-weight: bold; font-size: 13px;">¡Stock bajo! Reabastecer pronto.</p>
-            </div>
-        {% else %}
-            <div class="stock-card" style="min-width: 220px; background: white; border-left: 5px solid #28a745; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
-                <h4 style="margin: 0 0 10px; color: #28a745;">{{ item.tipo }}</h4>
-                <p style="margin: 5px 0;"><strong>Bultos:</strong> {{ item.total_bultos }}</p>
-                <p style="margin: 5px 0;"><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
-                <p style="margin: 5px 0;"><strong>Costo total:</strong> ${{ item.costo_total|floatformat:0 }}</p>
-            </div>
-        {% endif %}
-    {% empty %}
-        <p>No hay stock registrado.</p>
-    {% endfor %}
-</div>
-            
-            <h3>Total invertido por período</h3>
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #007bff;">
-                <form method="get" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-                    <div>
-                        <label for="fecha_desde" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Desde:</label>
-                        <input type="date" name="fecha_desde" id="fecha_desde" value="{{ fecha_desde|default:'' }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
-                    </div>
-                    <div>
-                        <label for="fecha_hasta" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Hasta:</label>
-                        <input type="date" name="fecha_hasta" id="fecha_hasta" value="{{ fecha_hasta|default:'' }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
-                    </div>
-                    <div>
-                        <button type="submit" class="btn" style="background: #007bff;">Calcular</button>
-                    </div>
-                </form>
-
-                {% if total_invertido is not None %}
-                <div style="margin-top: 20px; padding: 15px; background: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 5px;">
-                    <p style="margin: 0; font-size: 16px;">
+            {% if total_invertido is not None %}
+                <div class="total-box">
+                    <p>
                         <strong>Total invertido:</strong>
-                        <span style="color: #0c5460; font-size: 20px;">${{ total_invertido|floatformat:0 }}</span>
+                        <span class="monto">${{ total_invertido }}</span>
                     </p>
                     {% if fecha_desde and fecha_hasta %}
-                        <p style="margin: 5px 0 0; font-size: 13px; color: #666;">
-                            Período: {{ fecha_desde }} al {{ fecha_hasta }}
-                        </p>
+                        <p class="rango">Período: {{ fecha_desde }} al {{ fecha_hasta }}</p>
                     {% endif %}
                 </div>
             {% endif %}
         </div>
 
-
-            <h3>Historial de ingresos</h3>
+        <h3>Historial de ingresos</h3>
+        <div class="tabla-wrapper">
             <table>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Bultos</th>
-                    <th>Kilos/bulto</th>
-                    <th>Costo unit.</th>
-                    <th>Costo total</th>
-                    <th>Proveedor</th>
-                    <th>Acciones</th>
-                </tr>
-                {% for item in historial %}
-                <tr>
-                    <td>{{ item.fecha }}</td>
-                    <td>{{ item.get_tipo_display }}</td>
-                    <td>{{ item.cantidad_bultos }}</td>
-                    <td>{{ item.kilos_por_bulto }}</td>
-                    <td>${{ item.costo_unitario }}</td>
-                    <td>${{ item.costo_total }}</td>
-                    <td>{{ item.proveedor }}</td>
-                    <td>
-                        <a class="accion editar" href="{% url 'editar_alimento' item.id %}">Editar</a>
-                        <a class="accion eliminar" href="{% url 'eliminar_alimento' item.id %}">Eliminar</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="8">No hay ingresos registrados todavía.</td></tr>
-                {% endfor %}
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Bultos</th>
+                        <th>Kilos/bulto</th>
+                        <th>Costo unit.</th>
+                        <th>Costo total</th>
+                        <th>Proveedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in historial %}
+                    <tr>
+                        <td>{{ item.fecha }}</td>
+                        <td>{{ item.get_tipo_display }}</td>
+                        <td>{{ item.cantidad_bultos }}</td>
+                        <td>{{ item.kilos_por_bulto }}</td>
+                        <td>${{ item.costo_unit_form }}</td>
+                        <td>${{ item.costo_total_form }}</td>
+                        <td>{{ item.proveedor }}</td>
+                        <td>
+                            <a class="accion" href="{% url 'editar_alimento' item.id %}">Editar</a>
+                            {% if user.is_superuser %}
+                                <a class="accion eliminar" href="{% url 'eliminar_alimento' item.id %}">Eliminar</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="vacio">No hay ingresos registrados todavía.</td></tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>
