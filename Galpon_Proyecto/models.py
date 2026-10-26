@@ -232,3 +232,15 @@ class GastoOperativo(models.Model):
 
     def __str__(self):
         return f"{self.get_categoria_display()} - ${self.monto}"
+
+    # JOHAN CLIENTESS
+class Cliente(models.Model):
+        nombre = models.CharField(max_length=100, unique=True)
+        telefono = models.CharField(max_length=20, blank=True)
+        creado_en = models.DateTimeField(auto_now_add=True)
+ 
+        class Meta:
+            ordering = ['nombre']
+ 
+        def __str__(self):
+            return self.nombre

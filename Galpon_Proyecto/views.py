@@ -13,6 +13,8 @@ from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
 from django.http import HttpResponse
 from .reportes import construir_reporte
+# creado por johan para CLIENTESS
+from .models import Cliente
 
 
 # PRODUCCIÓN (JOHAN)
@@ -783,3 +785,26 @@ def descargar_reporte_excel(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     respuesta['Content-Disposition'] = f'attachment; filename="reporte_galpon_{anio}.xlsx"'
     return respuesta
+
+#JOHAN CLIENTES
+@login_required
+def registrar_cliente(request):
+    error_manual = None
+ 
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+ 
+        if not nombre:
+            error_manual = "El nombre del cliente es obligatorio."
+        elif Cliente.objects.filter(nombre__iexact=nombre).exists():
+            error_manual = "Ese cliente ya está registrado."
+        else:
+            Cliente.objects.create(nombre=nombre, telefono=telefono)
+            messages.success(request, 'Cliente registrado correctamente.')
+            return redirect('registrar_cliente')
+ 
+    return render(request, 'cliente.html', {
+        'clientes': Cliente.objects.all(),
+        'error_manual': error_manual,
+    })

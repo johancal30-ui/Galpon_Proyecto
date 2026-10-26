@@ -34,4 +34,7 @@ urlpatterns = [
 
     # descargar reporte (JOHAN)
     path('reporte-excel/', views.descargar_reporte_excel, name='descargar_reporte_excel'),
+
+    # JOHAN CLIENTESS
+    path('clientes/', views.registrar_cliente, name='registrar_cliente'),
 ]
