@@ -146,16 +146,19 @@ def registrar_consumo(request):
 # MORTALIDAD (JEFFRY)
 @login_required
 def mortalidad_lista(request):
-    registros = RegistroMortalidad.objects.select_related('lote').all()
+    registros = RegistroMortalidad.objects.select_related('lote', 'registrado_por').all()
     total_cantidad = registros.aggregate(Sum('cantidad'))['cantidad__sum'] or 0
     lotes_afectados = registros.values('lote').distinct().count()
+    
+    # NUEVO: Contador exacto para el template
+    total_registros = registros.count() 
 
     return render(request, 'mortalidad.html', {
         'registros': registros,
         'total_cantidad': total_cantidad,
         'lotes_afectados': lotes_afectados,
+        'total_registros': total_registros, # <-- Enviamos el dato
     })
-
 
 @login_required
 def mortalidad_registrar(request):
