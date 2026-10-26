@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView,)
 
 def login_view(request):
-    # Si el usuario ya está logueado, lo mandamos a la home
     if request.user.is_authenticated:
         return redirect('accounts:home')
 
