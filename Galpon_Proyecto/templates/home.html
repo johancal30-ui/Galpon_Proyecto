@@ -42,7 +42,7 @@
             z-index: 1;
         }
 
-        /* Decoración de la portada (solo adorno, no se puede tocar) */
+        /* Decoración de la portada */
         .decoracion {
             position: absolute;
             inset: 0;
@@ -140,7 +140,6 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
         }
-        /* Todas las tarjetas comparten el mismo estilo; solo cambia el emoji */
         .modulo {
             display: flex;
             flex-direction: column;
@@ -182,13 +181,71 @@
         .abrir { font-weight: 700; color: var(--tinta); margin-top: 8px; }
         .abrir::after { content: " →"; color: var(--naranja-fuerte); }
 
-        .proximamente {
-            margin-top: 28px;
-            padding: 16px 20px;
-            border: 2px dashed var(--borde);
-            background: var(--tarjeta);
-            border-radius: 10px;
-            color: var(--suave);
+        /* --- NUEVO DISEÑO DEL BANNER DE POLLITOS --- */
+        .banner-pollitos {
+            position: relative;
+            margin-top: 40px;
+            background: linear-gradient(180deg, var(--tarjeta) 0%, #FFFAF2 100%);
+            border: 2px solid var(--borde);
+            border-radius: 20px;
+            overflow: hidden;
+            text-align: center;
+            padding: 40px 20px 80px; /* Espacio para los pollitos abajo */
+        }
+        .banner-texto {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            font-size: 1.5rem;
+            color: var(--tinta);
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+            margin: 0;
+            font-style: italic;
+        }
+        .banner-suelo {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: #E8C28D; /* Color de tierra/paja */
+            border-top: 2px dashed #D1A36B;
+            z-index: 1;
+        }
+        .fila-pollitos {
+            position: absolute;
+            bottom: 25px; /* Apoyados en el suelo */
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            z-index: 2;
+            padding: 0 10px;
+        }
+        .pollito {
+            width: 50px;
+            height: auto;
+            transition: transform 0.3s ease;
+            animation: saltar 2s infinite ease-in-out alternate;
+        }
+        /* Retrasos para que no salten todos al mismo tiempo */
+        .pollito:nth-child(1) { animation-delay: 0s; }
+        .pollito:nth-child(2) { animation-delay: -0.4s; }
+        .pollito:nth-child(3) { animation-delay: -0.8s; }
+        .pollito:nth-child(4) { animation-delay: -1.2s; }
+        .pollito:nth-child(5) { animation-delay: -0.6s; }
+        .pollito:nth-child(6) { animation-delay: -1.5s; }
+        .pollito:nth-child(7) { animation-delay: -0.2s; }
+
+        @keyframes saltar {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        
+        .banner-pollitos:hover .pollito {
+            animation-play-state: paused;
+            transform: scale(1.1);
         }
 
         a:focus-visible {
@@ -197,6 +254,12 @@
         }
         @media (prefers-reduced-motion: no-preference) {
             .modulo { transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
+        }
+        @media (max-width: 600px) {
+            .fila-pollitos { padding: 0 5px; }
+            .pollito { width: 35px; }
+            .banner-texto { font-size: 1.2rem; }
+            .banner-pollitos { padding-bottom: 60px; }
         }
         @media (max-width: 480px) {
             .portada { padding: 24px 16px 56px; }
@@ -322,18 +385,103 @@
                <span class="abrir">Abrir gastos</span>
            </a>
            
-        <!-- Vacunación (NUEVA) -->
+        <!-- Vacunación -->
         <a class="modulo modulo-vacunacion" href="{% url 'vacunacion_lista' %}">
             <span class="icono">💉</span>
             <h2>Vacunación</h2>
             <p>Lleva el control del esquema de vacunación y programa los refuerzos.</p>
             <span class="abrir">Abrir vacunación</span>
         </a>
+
+        <!-- Reporte de Rentabilidad -->
+        <a class="modulo modulo-reportes" href="{% url 'reporte_rentabilidad' %}">
+            <span class="icono">📊</span>
+            <h2>Reportes</h2>
+            <p>Consulta el balance de costos e ingresos para saber si el galpón es rentable.</p>
+            <span class="abrir">Ver reporte</span>
+        </a>
+        
     </nav>
 
-    <p class="proximamente">
-        huevos a tu hogar, el desayuno  de mamá
-    </p>
+    <!-- NUEVO BANNER CON FILA DE POLLITOS -->
+    <div class="banner-pollitos">
+        <p class="banner-texto">"Huevo de dia y huevo de noche🥵"</p>
+        
+        <div class="banner-suelo"></div>
+        
+        <div class="fila-pollitos">
+            <!-- Pollito 1 -->
+            <svg class="pollito" viewBox="0 0 60 60">
+                <ellipse cx="30" cy="45" rx="20" ry="12" fill="#F7C948"/>
+                <circle cx="30" cy="25" r="15" fill="#F7C948"/>
+                <circle cx="25" cy="22" r="2.5" fill="#3B2412"/>
+                <circle cx="35" cy="22" r="2.5" fill="#3B2412"/>
+                <path d="M26 30 L30 35 L34 30 Z" fill="#E8892B"/>
+                <path d="M15 42 L20 55 L25 42" fill="#E8892B"/>
+                <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
+            </svg>
+            <!-- Pollito 2 -->
+            <svg class="pollito" viewBox="0 0 60 60">
+                <ellipse cx="30" cy="45" rx="20" ry="12" fill="#F7C948"/>
+                <circle cx="30" cy="25" r="15" fill="#F7C948"/>
+                <circle cx="25" cy="22" r="2.5" fill="#3B2412"/>
+                <circle cx="35" cy="22" r="2.5" fill="#3B2412"/>
+                <path d="M26 30 L30 35 L34 30 Z" fill="#E8892B"/>
+                <path d="M15 42 L20 55 L25 42" fill="#E8892B"/>
+                <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
+            </svg>
+            <!-- Pollito 3 -->
+            <svg class="pollito" viewBox="0 0 60 60">
+                <ellipse cx="30" cy="45" rx="20" ry="12" fill="#F7C948"/>
+                <circle cx="30" cy="25" r="15" fill="#F7C948"/>
+                <circle cx="25" cy="22" r="2.5" fill="#3B2412"/>
+                <circle cx="35" cy="22" r="2.5" fill="#3B2412"/>
+                <path d="M26 30 L30 35 L34 30 Z" fill="#E8892B"/>
+                <path d="M15 42 L20 55 L25 42" fill="#E8892B"/>
+                <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
+            </svg>
+            <!-- Pollito 4 -->
+            <svg class="pollito" viewBox="0 0 60 60">
+                <ellipse cx="30" cy="45" rx="20" ry="12" fill="#F7C948"/>
+                <circle cx="30" cy="25" r="15" fill="#F7C948"/>
+                <circle cx="25" cy="22" r="2.5" fill="#3B2412"/>
+                <circle cx="35" cy="22" r="2.5" fill="#3B2412"/>
+                <path d="M26 30 L30 35 L34 30 Z" fill="#E8892B"/>
+                <path d="M15 42 L20 55 L25 42" fill="#E8892B"/>
+                <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
+            </svg>
+            <!-- Pollito 5 -->
+            <svg class="pollito" viewBox="0 0 60 60">
+                <ellipse cx="30" cy="45" rx="20" ry="12" fill="#F7C948"/>
+                <circle cx="30" cy="25" r="15" fill="#F7C948"/>
+                <circle cx="25" cy="22" r="2.5" fill="#3B2412"/>
+                <circle cx="35" cy="22" r="2.5" fill="#3B2412"/>
+                <path d="M26 30 L30 35 L34 30 Z" fill="#E8892B"/>
+                <path d="M15 42 L20 55 L25 42" fill="#E8892B"/>
+                <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
+            </svg>
+            <!-- Pollito 6 -->
+            <svg class="pollito" viewBox="0 0 60 60">
+                <ellipse cx="30" cy="45" rx="20" ry="12" fill="#F7C948"/>
+                <circle cx="30" cy="25" r="15" fill="#F7C948"/>
+                <circle cx="25" cy="22" r="2.5" fill="#3B2412"/>
+                <circle cx="35" cy="22" r="2.5" fill="#3B2412"/>
+                <path d="M26 30 L30 35 L34 30 Z" fill="#E8892B"/>
+                <path d="M15 42 L20 55 L25 42" fill="#E8892B"/>
+                <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
+            </svg>
+            <!-- Pollito 7 -->
+            <svg class="pollito" viewBox="0 0 60 60">
+                <ellipse cx="30" cy="45" rx="20" ry="12" fill="#F7C948"/>
+                <circle cx="30" cy="25" r="15" fill="#F7C948"/>
+                <circle cx="25" cy="22" r="2.5" fill="#3B2412"/>
+                <circle cx="35" cy="22" r="2.5" fill="#3B2412"/>
+                <path d="M26 30 L30 35 L34 30 Z" fill="#E8892B"/>
+                <path d="M15 42 L20 55 L25 42" fill="#E8892B"/>
+                <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
+            </svg>
+        </div>
+    </div>
 </main>
 </body>
 </html>

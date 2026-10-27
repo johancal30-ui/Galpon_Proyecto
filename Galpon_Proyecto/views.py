@@ -8,7 +8,8 @@ from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Ven
 from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm, GastoOperativoForm)
 from .models import RegistroVacunacion 
 from .forms import RegistroVacunacionForm 
-
+from datetime import datetime
+from django.db.models import Sum
 # PRODUCCIÓN (JOHAN)
 def registrar_produccion(request):
     if request.method == 'POST':
@@ -147,10 +148,30 @@ def mortalidad_registrar(request):
 @login_required
 def mortalidad_eliminar(request, pk):
     registro = get_object_or_404(RegistroMortalidad, pk=pk)
-    registro.delete()
-    messages.success(request, 'Registro eliminado.')
-    return redirect('mortalidad_lista')
+    
+    if request.method == 'POST':
+        registro.delete()
+        messages.success(request, 'Registro de mortalidad eliminado.')
+        return redirect('mortalidad_lista')
 
+    # Si es GET, mostramos la pantalla de confirmación
+    return render(request, 'mortalidad_eliminar.html', {'registro': registro})
+
+
+@login_required
+def mortalidad_editar(request, pk):
+    registro = get_object_or_404(RegistroMortalidad, pk=pk)
+    
+    if request.method == 'POST':
+        form = RegistroMortalidadForm(request.POST, instance=registro)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Registro de mortalidad actualizado correctamente.')
+            return redirect('mortalidad_lista')
+    else:
+        form = RegistroMortalidadForm(instance=registro)
+
+    return render(request, 'mortalidad_editar.html', {'form': form, 'registro': registro})
 
 # VENTAS (ANDRÉS)
 
@@ -766,3 +787,110 @@ def vacunacion_registrar(request):
         form = RegistroVacunacionForm()
 
     return render(request, 'vacunacion_registrar.html', {'form': form})
+
+
+@login_required
+def vacunacion_editar(request, pk):
+    registro = get_object_or_404(RegistroVacunacion, pk=pk)
+    
+    if request.method == 'POST':
+        form = RegistroVacunacionForm(request.POST, instance=registro)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Registro de vacunación actualizado correctamente.')
+            return redirect('vacunacion_lista')
+    else:
+        form = RegistroVacunacionForm(instance=registro)
+
+    
+    return render(request, 'vacunacion_editar.html', {'form': form, 'registro': registro})
+
+
+@login_required
+def vacunacion_eliminar(request, pk):
+    registro = get_object_or_404(RegistroVacunacion, pk=pk)
+    
+    if request.method == 'POST':
+        registro.delete()
+        messages.success(request, 'Registro de vacunación eliminado.')
+        return redirect('vacunacion_lista')
+
+    
+    return render(request, 'vacunacion_eliminar.html', {'registro': registro})
+
+@login_required
+def reporte_rentabilidad(request):
+    # Valores por defecto para el formulario
+    hoy = timezone.now().date()
+    inicio_mes = hoy.replace(day=1)
+    
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
+    
+    context = {
+        'fecha_inicio': fecha_inicio_str or inicio_mes.strftime('%Y-%m-%d'),
+        'fecha_fin': fecha_fin_str or hoy.strftime('%Y-%m-%d'),
+        'generado': False,
+        'error_fechas': None,
+    }
+
+    if fecha_inicio_str and fecha_fin_str:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
+
+            # ✅ CRITERIO 3: Validación de fechas
+            if fecha_inicio > fecha_fin:
+                context['error_fechas'] = "La fecha inicial no puede ser posterior a la fecha final."
+            else:
+                context['generado'] = True
+                
+                # 1. Costos de Alimento (Insumos)
+                costo_alimento = Alimento.objects.filter(
+                    fecha__range=[fecha_inicio, fecha_fin]
+                ).aggregate(total=Sum('costo_total'))['total'] or 0
+                
+                # 2. Costos de Gastos Operativos (Opcional, pero suma a la rentabilidad real)
+                costo_gastos = GastoOperativo.objects.filter(
+                    fecha__range=[fecha_inicio, fecha_fin]
+                ).aggregate(total=Sum('monto'))['total'] or 0
+                
+                # 3. Costos de Vacunación (Estimado, ya que no tienen un campo 'costo' en el modelo,
+                # le asignaremos un costo fijo simbólico por dosis o simplemente mostraremos las dosis)
+                dosis_vacunas = RegistroVacunacion.objects.filter(
+                    fecha_aplicacion__range=[fecha_inicio, fecha_fin]
+                ).aggregate(total=Sum('gallinas_vacunadas'))['total'] or 0
+                
+                total_insumos = costo_alimento + costo_gastos
+
+                # 4. Ingresos por Ventas (Huevos)
+                ingresos_ventas = Venta.objects.filter(
+                    fecha__range=[fecha_inicio, fecha_fin]
+                ).aggregate(total=Sum('total'))['total'] or 0
+                
+                # 5. Producción total de huevos en el periodo
+                produccion_huevos = RegistroProduccion.objects.filter(
+                    fecha__range=[fecha_inicio, fecha_fin]
+                ).aggregate(total=Sum('cantidad_huevos'))['total'] or 0
+
+                # ✅ CRITERIO 2: Cálculo del margen
+                margen = ingresos_ventas - total_insumos
+                es_rentable = margen >= 0
+
+                # Actualizamos el contexto con los resultados
+                context.update({
+                    'costo_alimento': costo_alimento,
+                    'costo_gastos': costo_gastos,
+                    'dosis_vacunas': dosis_vacunas,
+                    'total_insumos': total_insumos,
+                    'ingresos_ventas': ingresos_ventas,
+                    'produccion_huevos': produccion_huevos,
+                    'margen': margen,
+                    'es_rentable': es_rentable,
+                    'fecha_inicio': fecha_inicio_str,
+                    'fecha_fin': fecha_fin_str,
+                })
+        except ValueError:
+            context['error_fechas'] = "Formato de fecha inválido."
+
+    return render(request, 'reporte_rentabilidad.html', context)
