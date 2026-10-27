@@ -3,6 +3,7 @@ from django.utils import timezone
 from .models import RegistroConsumo
 from .models import RegistroMortalidad
 from .models import Venta, Alimento, Inventario, GastoOperativo
+from .models import RegistroVacunacion
 
 
 class RegistroConsumoForm(forms.ModelForm):
@@ -157,3 +158,46 @@ class GastoOperativoForm(forms.ModelForm):
             'descripcion': 'Descripción',
             'monto': 'Monto',
         }
+
+
+
+# ... (tus otros forms) ...
+
+class RegistroVacunacionForm(forms.ModelForm):
+    class Meta:
+        model = RegistroVacunacion
+        fields = ['lote', 'fecha_aplicacion', 'vacuna', 'gallinas_vacunadas', 'requiere_refuerzo', 'dias_para_refuerzo']
+        widgets = {
+            'fecha_aplicacion': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    # ✅ CRITERIO 4: Validar fecha futura y cantidad
+    def clean_fecha_aplicacion(self):
+        fecha = self.cleaned_data.get('fecha_aplicacion')
+        if fecha and fecha > timezone.now().date():
+            raise forms.ValidationError("No se puede registrar una fecha futura.")
+        return fecha
+
+    def clean_gallinas_vacunadas(self):
+        cantidad = self.cleaned_data.get('gallinas_vacunadas')
+        lote = self.cleaned_data.get('lote')
+        
+        if cantidad is None or cantidad <= 0:
+            raise forms.ValidationError("La cantidad debe ser mayor a cero.")
+        
+        if lote and cantidad > lote.aves_vivas:
+            raise forms.ValidationError(f"No puedes vacunar más gallinas de las que hay vivas en el lote ({lote.aves_vivas}).")
+        
+        return cantidad
+
+    # ✅ CRITERIO 3: Advertencia de cobertura parcial
+    def clean(self):
+        cleaned_data = super().clean()
+        lote = cleaned_data.get('lote')
+        cantidad = cleaned_data.get('gallinas_vacunadas')
+
+        if lote and cantidad and cantidad < lote.aves_vivas:
+            # Lanzamos una advertencia, no un error bloqueante
+            self.add_warning = f"Atención: Solo se vacunaron {cantidad} de {lote.aves_vivas} gallinas vivas. Cobertura parcial."
+        
+        return cleaned_data

@@ -108,7 +108,7 @@ class RegistroMortalidad(models.Model):
 
 # VENTA DE HUEVOS Y CUBETAS (ANDRÉS)
 class Venta(models.Model):
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateField(default=timezone.localdate)
     cliente = models.CharField(max_length=150)
     cantidad_huevos = models.PositiveIntegerField()
     cantidad_cubetas = models.PositiveIntegerField()
@@ -244,3 +244,37 @@ class Cliente(models.Model):
  
         def __str__(self):
             return self.nombre
+# ... (tus otros modelos) ...
+
+# SEGUIMIENTO DE VACUNACIÓN (JEFFRY - HU-005)
+class RegistroVacunacion(models.Model):
+    VACUNAS = [
+        ('newcastle', 'Newcastle'),
+        ('bronquitis', 'Bronquitis Infecciosa'),
+        ('gumboro', 'Gumboro'),
+        ('viruela', 'Viruela Aviar'),
+        ('otra', 'Otra'),
+    ]
+
+    lote = models.ForeignKey(Lote, on_delete=models.CASCADE, related_name='vacunaciones')
+    fecha_aplicacion = models.DateField()
+    vacuna = models.CharField(max_length=30, choices=VACUNAS)
+    gallinas_vacunadas = models.PositiveIntegerField()
+    requiere_refuerzo = models.BooleanField(default=False, help_text="¿Esta vacuna necesita una segunda dosis?")
+    dias_para_refuerzo = models.PositiveIntegerField(default=0, help_text="Días de espera para el refuerzo")
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha_aplicacion']
+
+    def __str__(self):
+        return f"{self.get_vacuna_display()} - {self.lote} ({self.fecha_aplicacion})"
+
+    @property
+    def fecha_proximo_refuerzo(self):
+        """Calcula la fecha del próximo refuerzo automáticamente"""
+        if self.requiere_refuerzo and self.dias_para_refuerzo > 0:
+            from datetime import timedelta
+            return self.fecha_aplicacion + timedelta(days=self.dias_para_refuerzo)
+        return None

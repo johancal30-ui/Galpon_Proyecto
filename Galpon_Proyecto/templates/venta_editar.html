@@ -233,6 +233,13 @@
             {% endif %}
 
             <div class="form-row">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha"
+                       value="{{ venta.fecha|date:'Y-m-d' }}"
+                       max="{{ hoy|date:'Y-m-d' }}" required>
+            </div>
+
+            <div class="form-row">
                 <label for="cliente">Cliente:</label>
                 <select id="cliente" name="cliente" required>
                     <option value="">— Selecciona un cliente —</option>
@@ -244,13 +251,15 @@
             </div>
 
             <div class="form-row">
-                <label>Cantidad de cubetas:</label>
-                {{ form.cantidad_cubetas }}
+                <label for="cantidad_cubetas">Cantidad de cubetas:</label>
+                <input type="number" id="cantidad_cubetas" name="cantidad_cubetas"
+                       value="{{ venta.cantidad_cubetas }}" min="1" required>
             </div>
 
             <div class="form-row">
-                <label>Precio por cubeta:</label>
-                {{ form.precio_unitario }}
+                <label for="precio_unitario">Precio por cubeta:</label>
+                <input type="text" id="precio_unitario" name="precio_unitario"
+                       value="{{ venta.precio_unitario|floatformat:0 }}" required>
             </div>
 
             <div class="acciones-form">
