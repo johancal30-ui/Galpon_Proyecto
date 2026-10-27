@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import RegistroVacunacion
 from .models import (
     Lote,
     RegistroMortalidad,
@@ -64,3 +65,9 @@ class AlertaStockAdmin(admin.ModelAdmin):
 class GastoOperativoAdmin(admin.ModelAdmin):
     list_display = ('fecha', 'categoria', 'descripcion', 'monto')
     list_filter = ('categoria',)
+
+
+@admin.register(RegistroVacunacion)
+class RegistroVacunacionAdmin(admin.ModelAdmin):
+    list_display = ('vacuna', 'lote', 'fecha_aplicacion', 'gallinas_vacunadas', 'requiere_refuerzo', 'fecha_proximo_refuerzo')
+    list_filter = ('vacuna', 'requiere_refuerzo')

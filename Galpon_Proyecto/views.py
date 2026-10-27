@@ -16,6 +16,8 @@ from .reportes import construir_reporte
 # creado por johan para CLIENTESS
 from .models import Cliente
 
+from .models import RegistroVacunacion 
+from .forms import RegistroVacunacionForm 
 
 # PRODUCCIÓN (JOHAN)
 def registrar_produccion(request):
@@ -149,15 +151,21 @@ def mortalidad_lista(request):
     registros = RegistroMortalidad.objects.select_related('lote', 'registrado_por').all()
     total_cantidad = registros.aggregate(Sum('cantidad'))['cantidad__sum'] or 0
     lotes_afectados = registros.values('lote').distinct().count()
-    
-    # NUEVO: Contador exacto para el template
-    total_registros = registros.count() 
+    total_registros = registros.count()
+
+    # NUEVO: Calcular los totales del inventario de TODOS los lotes
+    from .models import Lote
+    lotes = Lote.objects.all()
+    total_inicial_global = sum(lote.cantidad_inicial for lote in lotes)
+    total_actual_global = sum(lote.aves_vivas for lote in lotes)
 
     return render(request, 'mortalidad.html', {
         'registros': registros,
         'total_cantidad': total_cantidad,
         'lotes_afectados': lotes_afectados,
-        'total_registros': total_registros, # <-- Enviamos el dato
+        'total_registros': total_registros,
+        'total_inicial_global': total_inicial_global,  # <-- Nuevo
+        'total_actual_global': total_actual_global,    # <-- Nuevo
     })
 
 @login_required
@@ -334,10 +342,13 @@ def editar_venta(request, pk):
 
     venta.precio_form = f"{int(venta.precio_unitario):,}".replace(",", ".")
 
+    clientes = Cliente.objects.all()
+
     return render(request, 'venta_editar.html', {
         'form': form,
         'venta': venta,
         'error_manual': error_manual,
+        'clientes':clientes,
     })
 
 
@@ -808,3 +819,54 @@ def registrar_cliente(request):
         'clientes': Cliente.objects.all(),
         'error_manual': error_manual,
     })
+
+# VACUNACIÓN (JEFFRY - HU-005)
+@login_required
+def vacunacion_lista(request):
+    registros = RegistroVacunacion.objects.select_related('lote', 'registrado_por').all()
+    
+    # NUEVO: Calcular totales globales de inventario
+    from .models import Lote
+    lotes = Lote.objects.all()
+    total_inicial_global = sum(lote.cantidad_inicial for lote in lotes)
+    total_actual_global = sum(lote.aves_vivas for lote in lotes)
+    
+    # NUEVO: Calcular total de dosis aplicadas
+    total_vacunadas_global = registros.aggregate(Sum('gallinas_vacunadas'))['gallinas_vacunadas__sum'] or 0
+    
+    # NUEVO: Calcular cuántas faltan por vacunar
+    gallinas_sin_vacunar = max(0, total_actual_global - total_vacunadas_global)
+
+    return render(request, 'vacunacion.html', {
+        'registros': registros,
+        'total_inicial_global': total_inicial_global,
+        'total_actual_global': total_actual_global,
+        'total_vacunadas_global': total_vacunadas_global,
+        'gallinas_sin_vacunar': gallinas_sin_vacunar,
+    })
+
+@login_required
+def vacunacion_registrar(request):
+    if request.method == 'POST':
+        form = RegistroVacunacionForm(request.POST)
+        if form.is_valid():
+            registro = form.save(commit=False)
+            registro.registrado_por = request.user
+            
+            # ✅ CRITERIO 3: Mostrar advertencia si es parcial
+            if hasattr(form, 'add_warning'):
+                messages.warning(request, form.add_warning)
+            
+            registro.save()
+            
+            # ✅ CRITERIO 2: Alerta de refuerzo (simulada en el mensaje)
+            if registro.requiere_refuerzo:
+                messages.info(request, f"Se ha agendado un refuerzo para el {registro.fecha_proximo_refuerzo}.")
+                
+            # ✅ CRITERIO 1: Mensaje de éxito
+            messages.success(request, 'Registro de vacunación guardado exitosamente.')
+            return redirect('vacunacion_lista')
+    else:
+        form = RegistroVacunacionForm()
+
+    return render(request, 'vacunacion_registrar.html', {'form': form})

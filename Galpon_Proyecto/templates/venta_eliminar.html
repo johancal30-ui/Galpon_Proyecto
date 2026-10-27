@@ -4,32 +4,147 @@
     <meta charset="UTF-8">
     <title>Eliminar Venta - Galpón Proyecto</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .page { max-width: 600px; margin: auto; }
-        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
-        .masthead { background: #dc3545; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-        .masthead h1 { margin: 0; }
-        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-        .info p { margin: 5px 0; }
-        .btn { display: inline-block; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; margin-right: 10px; }
-        .btn:hover { background: #c82333; }
-        .btn-cancelar { background: #6c757d; }
-        .btn-cancelar:hover { background: #5a6268; }
+        body { 
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; 
+            background: #F9F6EE; /* Fondo crema de la página */
+            margin: 0; 
+            padding: 0;
+            color: #1D2B22; 
+            min-height: 100vh;
+        }
+
+        /* La franja naranja de arriba */
+        .franja-superior {
+            background: linear-gradient(90deg, #E8A83E, #F1C068);
+            height: 220px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* El contenedor central que simula la tarjeta */
+        .contenedor-principal {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .volver { 
+            display: inline-block; 
+            margin-bottom: 20px; 
+            color: #333; 
+            text-decoration: none; 
+            font-weight: 600; 
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #E8DFC8;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .volver:hover { background: #f0ebd8; }
+        
+        .tarjeta {
+            background: #FDF9F1; /* Color crema clarito de la tarjeta */
+            border-radius: 12px;
+            border: 1px solid #E8DFC8;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 40px;
+        }
+
+        .encabezado { 
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .encabezado h1 { 
+            margin: 0; 
+            color: #2C1E16; 
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            font-size: 2.2rem;
+        }
+        .linea { 
+            width: 60px; 
+            height: 3px; 
+            background: #D89A38; /* Rayita naranja */
+            margin: 10px auto 0; 
+        }
+
+        .texto-aviso {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        
+        .info-box {
+            background: #FDF9F1;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #D89A38; /* Borde naranja como en producción */
+            margin-bottom: 30px;
+        }
+        .info-box p { 
+            margin: 8px 0; 
+            color: #333; 
+            font-size: 1rem;
+        }
+        
+        .acciones-form { 
+            display: flex; 
+            gap: 15px; 
+        }
+        .btn-eliminar { 
+            flex: 1;
+            padding: 15px 20px; 
+            background: #D94A4A; /* Rojo del botón */
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-eliminar:hover { background: #C0392B; }
+        
+        .btn-cancelar { 
+            flex: 1;
+            padding: 15px 20px; 
+            background: #FDF9F1; 
+            color: #333; 
+            border: 1px solid #D89A38;
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-cancelar:hover { background: #f0ebd8; }
     </style>
 </head>
 <body>
-    <div class="page">
+
+    <div class="franja-superior"></div>
+
+    <div class="contenedor-principal">
         <a class="volver" href="{% url 'registrar_venta' %}">← Volver a ventas</a>
 
-        <div class="masthead">
-            <h1>🗑️ Eliminar Venta</h1>
-        </div>
+        <div class="tarjeta">
+            <div class="encabezado">
+                <h1>🗑️ Eliminar Venta</h1>
+                <div class="linea"></div>
+            </div>
 
-        <div class="content">
-            <p>¿Estás seguro de que quieres eliminar esta venta? Esta acción no se puede deshacer.</p>
+            <p class="texto-aviso">¿Seguro que quieres eliminar esta venta? Esta acción no se puede deshacer.</p>
 
-            <div class="info">
+            <div class="info-box">
                 <p><strong>Fecha:</strong> {{ venta.fecha }}</p>
                 <p><strong>Cliente:</strong> {{ venta.cliente }}</p>
                 <p><strong>Huevos:</strong> {{ venta.cantidad_huevos }}</p>
@@ -37,12 +152,13 @@
                 <p><strong>Total:</strong> ${{ venta.total_form }}</p>
             </div>
 
-            <form method="post">
+            <form method="post" class="acciones-form">
                 {% csrf_token %}
-                <button class="btn" type="submit">Sí, eliminar</button>
-                <a class="btn btn-cancelar" href="{% url 'registrar_venta' %}">Cancelar</a>
+                <button class="btn-eliminar" type="submit">Sí, eliminar</button>
+                <a class="btn-cancelar" href="{% url 'registrar_venta' %}">Cancelar</a>
             </form>
         </div>
     </div>
+
 </body>
 </html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registro de Vacunación - Galpón Proyecto</title>
+    <style>
+        :root {
+            --sol: #F7C948;
+            --naranja: #F29E4C;
+            --naranja-fuerte: #E8892B;
+            --tinta: #3B2412;
+            --suave: #7A5A3A;
+            --fondo: #FFF6E3;
+            --blanco: #FFFFFF;
+            --borde: #F0C48A;
+            --tarjeta: #FFEEDB;
+            --rojo: #C0392B;
+            --verde: #28a745;
+            --azul: #17a2b8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            background: linear-gradient(180deg, var(--sol) 0%, var(--naranja) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: var(--tinta);
+        }
+        .contenedor-principal {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--fondo);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(139, 84, 20, 0.15);
+            padding: 40px;
+        }
+        .cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--borde);
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .titulo h1 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            font-size: 2.2rem;
+            margin: 0;
+            color: var(--tinta);
+        }
+        .titulo p {
+            margin: 5px 0 0;
+            color: var(--suave);
+            font-size: 1.1rem;
+        }
+        .btn-volver {
+            display: inline-block;
+            color: var(--tinta);
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid var(--tinta);
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        .btn-volver:hover {
+            background: var(--tinta);
+            color: var(--fondo);
+        }
+        .btn-registrar {
+            background: var(--naranja-fuerte);
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 14px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(232, 137, 43, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-registrar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(232, 137, 43, 0.6);
+        }
+        
+        /* Tarjetas de resumen */
+        .tarjetas-resumen {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .tarjeta-stat {
+            background: var(--blanco);
+            border: 2px solid var(--borde);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .tarjeta-stat h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.95rem;
+            color: var(--suave);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .tarjeta-stat .numero {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0;
+            color: var(--tinta);
+        }
+        .tarjeta-stat .numero.alert { color: var(--rojo); }
+        .tarjeta-stat .numero.ok { color: var(--verde); }
+        .tarjeta-stat .numero.info { color: var(--azul); }
+        
+        .tarjeta-inventario {
+            background: var(--tarjeta);
+            border: 2px solid var(--naranja-fuerte);
+        }
+
+        .alerta {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .alerta-success { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+        .alerta-warning { background: #fff3cd; color: #856404; border-left: 5px solid #ffc107; }
+        .alerta-info { background: #d1ecf1; color: #0c5460; border-left: 5px solid #17a2b8; }
+
+        .tabla-contenedor {
+            background: var(--blanco);
+            border-radius: 16px;
+            border: 2px solid var(--borde);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            background: var(--tarjeta);
+            padding: 16px;
+            font-weight: 800;
+            color: var(--tinta);
+            border-bottom: 2px solid var(--borde);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--borde);
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #FFFDF9; }
+        
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .bg-success { background: #d4edda; color: #155724; }
+        .bg-warning { background: #fff3cd; color: #856404; }
+        
+        /* Etiqueta para la vacuna */
+        .vacuna-tag {
+            display: inline-block;
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            background: #e2f0d9;
+            color: #2b542c;
+        }
+
+        @media (max-width: 900px) {
+            .contenedor-principal { padding: 20px; }
+            .cabecera { flex-direction: column; align-items: flex-start; }
+            .tabla-contenedor { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenedor-principal">
+    <a href="{% url 'accounts:home' %}" class="btn-volver">← Volver al inicio</a>
+    
+    <div class="cabecera">
+        <div class="titulo">
+            <h1>💉 Esquema de Vacunación</h1>
+            <p>Control sanitario y seguimiento de dosis por lote</p>
+        </div>
+        <a href="{% url 'vacunacion_registrar' %}" class="btn-registrar">+ Registrar Vacunación</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alerta alerta-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- NUEVAS TARJETAS DE RESUMEN -->
+    <div class="tarjetas-resumen">
+        <div class="tarjeta-stat tarjeta-inventario">
+            <h3>Inventario Inicial</h3>
+            <p class="numero">{{ total_inicial_global }}</p>
+        </div>
+        
+        <div class="tarjeta-stat">
+            <h3>Aves Actuales vivas</h3>
+            <p class="numero">{{ total_actual_global }}</p>
+        </div>
+
+        <div class="tarjeta-stat">
+            <h3>Total Vacunadas</h3>
+            <p class="numero ok">{{ total_vacunadas_global }}</p>
+        </div>
+
+        <div class="tarjeta-stat">
+            <h3>Aves sin vacunar</h3>
+            <p class="numero alert">{{ gallinas_sin_vacunar }}</p>
+        </div>
+    </div>
+
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Lote</th>
+                    <th>Vacuna</th>
+                    <th>Vacunadas</th>
+                    <th>Estado / Refuerzo</th>
+                    <th>Registrado por</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reg in registros %}
+                <tr>
+                    <td><strong>{{ reg.fecha_aplicacion|date:"d M Y" }}</strong></td>
+                    <td>{{ reg.lote }}</td>
+                    <td>
+                        <!-- Etiqueta verde para resaltar la vacuna -->
+                        <span class="vacuna-tag">{{ reg.get_vacuna_display }}</span>
+                    </td>
+                    <td><strong>{{ reg.gallinas_vacunadas }}</strong></td>
+                    <td>
+                        {% if reg.requiere_refuerzo %}
+                            <span class="badge bg-warning">Refuerzo: {{ reg.fecha_proximo_refuerzo|date:"d M Y" }}</span>
+                        {% else %}
+                            <span class="badge bg-success">Completada</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ reg.registrado_por }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: var(--suave);">
+                        <em>Todavía no hay registros de vacunación.</em>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
