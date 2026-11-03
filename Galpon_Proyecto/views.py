@@ -6,8 +6,8 @@ from django.utils import timezone
 from datetime import date
 from datetime import datetime
 from .models import (RegistroProduccion, RegistroConsumo, RegistroMortalidad,Venta, Alimento, Inventario, AlertaStock, GastoOperativo)
-from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm, GastoOperativoForm)
-#creado por johan para descargar reporte excel:
+from .forms import (RegistroConsumoForm, RegistroMortalidadForm,VentaForm, AlimentoForm, InventarioForm,AgregarBultosForm, GastoOperativoForm)
+from django.db import transaction#creado por johan para descargar reporte excel:
 from datetime import date
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
@@ -121,29 +121,89 @@ def eliminar_produccion(request, pk):
         return redirect('registrar_produccion')
 
     return render(request, 'produccion_eliminar.html', {'registro': registro})
-# CONSUMO (JHON)
+
+# CONSUMO DIARIO (JHON)
+
 def registrar_consumo(request):
     if request.method == 'POST':
         form = RegistroConsumoForm(request.POST)
+
         if form.is_valid():
             registro = form.save(commit=False)
 
-            if registro.es_consumo_anomalo:
-                messages.warning(
-                    request,
-                    f"Advertencia: Consumo anómalo ({registro.consumo_gramos_por_ave} g/ave/día) "
-                    f"para {registro.poblacion_gallinas} gallinas. "
-                    f"Verifique un posible desperdicio o problema de nutrición."
+            try:
+                with transaction.atomic():
+                    # Consultar el inventario de alimento
+                    inventario = Inventario.objects.select_for_update().get(
+                        tipo='alimento'
+                    )
+
+                    if registro.bultos_consumidos > inventario.stock_actual:
+                        form.add_error(
+                            'bultos_consumidos',
+                            f'Solo quedan {inventario.stock_actual} '
+                            f'bultos de alimento disponibles.'
+                        )
+                    else:
+                        # Guardar el stock existente antes del consumo
+                        registro.stock_disponible = inventario.stock_actual
+                        registro.save()
+
+                        # Descontar el consumo del inventario general
+                        inventario.stock_actual -= registro.bultos_consumidos
+                        inventario.save(
+                            update_fields=['stock_actual', 'actualizado_en']
+                        )
+
+                        # Actualizar las alertas de stock
+                        inventario.verificar_alerta()
+
+                        # Mostrar advertencia si el consumo es anómalo
+                        if registro.es_consumo_anomalo:
+                            messages.warning(
+                                request,
+                                f"Advertencia: Consumo anómalo "
+                                f"({registro.consumo_gramos_por_gallina} "
+                                f"g/gallina/día) para "
+                                f"{registro.poblacion_gallinas} gallinas. "
+                                f"Verifique un posible desperdicio o "
+                                f"problema de nutrición."
+                            )
+
+                        # Mostrar éxito tanto si es normal como anómalo
+                        messages.success(
+                            request,
+                            f"Registro guardado. Consumo: "
+                            f"{registro.consumo_gramos_por_gallina} "
+                            f"g/gallina/día. "
+                            f"Stock restante: "
+                            f"{inventario.stock_actual} bultos."
+                        )
+
+                        return redirect('registrar_consumo')
+
+            except Inventario.DoesNotExist:
+                form.add_error(
+                    None,
+                    'No existe un inventario de alimento configurado. '
+                    'Configure el inventario antes de registrar consumos.'
                 )
 
-            registro.save()
-            messages.success(request, f"Registro guardado. Índice: {registro.consumo_gramos_por_ave} g/ave/día.")
-            return redirect('registrar_consumo')
     else:
         form = RegistroConsumoForm()
 
-    return render(request, 'consumo_form.html', {'form': form})
+    registros = RegistroConsumo.objects.all().order_by('-fecha', '-id')
+    inventario = Inventario.objects.filter(tipo='alimento').first()
 
+    return render(
+        request,
+        'consumo_form.html',
+        {
+            'form': form,
+            'registros': registros,
+            'inventario': inventario,
+        }
+    )
 
 
 # MORTALIDAD (JEFFRY)
@@ -634,43 +694,107 @@ def eliminar_alimento(request, pk):
         return redirect('registrar_alimento')
 
     return render(request, 'alimento_eliminar.html', {'alimento': alimento})
+
 # INVENTARIO Y ALERTAS DE STOCK (JHON)
 
-@login_required
 def inventario(request):
-    inventarios = Inventario.objects.all()
-
     if request.method == 'POST':
         form = InventarioForm(request.POST)
 
         if form.is_valid():
-            inventario = form.save()
-            inventario.verificar_alerta()
+            datos = form.save(commit=False)
 
-            if inventario.stock_bajo:
+            # Reutilizar el inventario existente del mismo tipo
+            inventario_existente = Inventario.objects.filter(
+                tipo=datos.tipo
+            ).first()
+
+            if inventario_existente:
+                inventario_existente.stock_actual = datos.stock_actual
+                inventario_existente.stock_minimo = datos.stock_minimo
+                inventario_existente.save()
+                inventario_guardado = inventario_existente
+            else:
+                datos.save()
+                inventario_guardado = datos
+
+            inventario_guardado.verificar_alerta()
+
+            if inventario_guardado.stock_bajo:
                 messages.warning(
                     request,
-                    f'⚠️ Alerta: el stock de {inventario.get_tipo_display()} '
-                    f'está en {inventario.stock_actual}, '
-                    f'por debajo o igual al mínimo de {inventario.stock_minimo}.'
+                    f"⚠️ Stock bajo de "
+                    f"{inventario_guardado.get_tipo_display()}: "
+                    f"{inventario_guardado.stock_actual}. "
+                    f"Mínimo: {inventario_guardado.stock_minimo}."
                 )
             else:
                 messages.success(
                     request,
-                    f'Inventario de {inventario.get_tipo_display()} actualizado correctamente.'
+                    f"Inventario de "
+                    f"{inventario_guardado.get_tipo_display()} "
+                    f"actualizado correctamente."
                 )
 
             return redirect('inventario')
     else:
         form = InventarioForm()
 
+    inventarios = Inventario.objects.all()
     alertas = AlertaStock.objects.filter(activa=True)
 
-    return render(request, 'inventario.html', {
-        'form': form,
-        'inventarios': inventarios,
-        'alertas': alertas,
-    })
+    return render(
+        request,
+        'inventario.html',
+        {
+            'form': form,
+            'inventarios': inventarios,
+            'alertas': alertas,
+        }
+    )
+
+
+# AGREGAR BULTOS AL INVENTARIO
+@login_required
+def agregar_bultos(request):
+    if request.method == 'POST':
+        form = AgregarBultosForm(request.POST)
+
+        if form.is_valid():
+            tipo = form.cleaned_data['tipo']
+            cantidad = form.cleaned_data['cantidad']
+
+            inventario_obj = Inventario.objects.filter(
+                tipo=tipo
+            ).first()
+
+            if inventario_obj:
+                inventario_obj.stock_actual += cantidad
+                inventario_obj.save()
+                inventario_obj.verificar_alerta()
+
+                messages.success(
+                    request,
+                    f'Se agregaron {cantidad} unidades al inventario. '
+                    f'Stock actual: {inventario_obj.stock_actual}.'
+                )
+            else:
+                messages.error(
+                    request,
+                    'Primero debes registrar ese tipo de insumo en el inventario.'
+                )
+
+            return redirect('inventario')
+
+    else:
+        form = AgregarBultosForm()
+
+    return render(
+        request,
+        'agregar_bultos.html',
+        {'form': form}
+    )
+
 
 
 # GASTOS OPERATIVOS ANDRES

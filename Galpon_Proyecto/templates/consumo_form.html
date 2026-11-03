@@ -53,14 +53,14 @@
 
     .registro-header h1 {
         margin: 10px 0 8px;
-        color: #245c38;
+        color: #d48337;
         font-weight: 800;
         font-size: 2.2rem;
     }
 
     .registro-header p {
         margin: 0;
-        color: #5f735d;
+        color: #ecaf2b;
         font-size: 1.05rem;
     }
 
@@ -115,13 +115,13 @@
     }
 
     .campo-alimento input:focus {
-        border-color: #68a357;
+        border-color: #64692d;
         box-shadow: 0 0 0 4px rgba(104, 163, 87, 0.12);
     }
 
     .ayuda {
         margin-top: 10px;
-        color: #7b8877;
+        color: #7b875e;
         font-size: 0.9rem;
     }
 
@@ -150,7 +150,7 @@
 
     .btn-confirmar:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(39, 108, 67, 0.35);
+        box-shadow: 0 10px 25px rgba(201, 218, 14, 0.35);
         background: linear-gradient(135deg, #2f7f50, #205b39);
     }
 
@@ -212,6 +212,12 @@
         }
     }
 </style>
+<div class="mb-3">
+    <a href="{% url 'accounts:home' %}"
+       class="btn btn-outline-success rounded-pill">
+        🏠 Volver al inicio
+    </a>
+</div>
 
 <div class="registro-alimento">
 
@@ -249,13 +255,15 @@
             <form method="post">
 
                 {% csrf_token %}
+                {% if form.errors %}
+             <div class="alert alert-danger" style="padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #fff0f0; color: #a12626;"><strong>⚠️ Revisa los siguientes campos:</strong>
+            {{ form.errors }}
+        </div>
+    {% endif %}
 
-
-                <!-- CAMPO DE BULTOS -->
                 <div class="campo-alimento">
 
-                    <div class="campo-icono">
-                        🌾
+                    <div class="campo-icono">🌾
                     </div>
 
                     <label for="id_bultos_consumidos">
@@ -265,7 +273,7 @@
                     {{ form.bultos_consumidos }}
 
                     <div class="ayuda">
-                        🥚 Registra la cantidad de alimento utilizada durante el día.
+                        Registra la cantidad de alimento utilizada durante el día.
                     </div>
 
                     {% if form.bultos_consumidos.errors %}
@@ -276,14 +284,58 @@
 
                 </div>
 
+<div class="campo-alimento">
+    <div class="campo-icono">🐔</div>
+    <label for="{{ form.poblacion_gallinas.id_for_label }}">
+        Población de gallinas
+    </label>
+    {{ form.poblacion_gallinas }}
+</div>
 
-                <!-- BOTÓN -->
                 <button type="submit" class="btn-confirmar">
                     ✅ Confirmar Registro
                 </button>
 
             </form>
 
+<!-- HISTORIAL DE CONSUMOS -->
+<div class="historial-consumos" style="margin-top: 25px; padding: 22px; background: #fbfdf9; border: 2px solid #e3ecd9; border-radius: 18px;">
+
+    <h2 style="color: #245c38; font-size: 1.3rem; margin-bottom: 15px;">
+        📋 Últimos consumos registrados
+    </h2>
+
+    {% if registros %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="background: #e8f2df; color: #245c38;">
+                        <th style="padding: 5px;">Fecha</th>
+                        <th style="padding: 12px;">Gallinas</th>
+                        <th style="padding: 12px;">Bultos consumidos</th>
+                        <th style="padding: 12px;">Stock restante</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for registro in registros %}
+                        <tr style="border-bottom: 1px solid #e3ecd9;">
+                            <td style="padding: 7px;">{{ registro.fecha|date:"d/m/Y" }}</td>
+                            <td style="padding: 12px;">{{ registro.poblacion_gallinas }}</td>
+                            <td style="padding: 12px;">{{ registro.bultos_consumidos }}</td>
+                            <td style="padding: 12px;">{{ registro.stock_restante }} bultos</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #71806b; margin: 0;">
+            🌱 Todavía no hay consumos registrados.
+        </p>
+    {% endif %}
+
+</div>
 
             <!-- DECORACIÓN -->
             <div class="decoracion-granja">
@@ -307,4 +359,3 @@
     </div>
 
 </div>
-
