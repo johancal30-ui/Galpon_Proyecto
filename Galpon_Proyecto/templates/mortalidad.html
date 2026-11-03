@@ -17,6 +17,7 @@
             --tarjeta: #FFEEDB;
             --rojo: #C0392B;
             --verde: #28a745;
+            --azul: #17a2b8;
         }
         * { box-sizing: border-box; }
         body {
@@ -184,15 +185,33 @@
             max-width: 200px;
         }
 
-        .btn-eliminar {
-            background: none;
-            border: 2px solid var(--rojo);
-            padding: 6px 16px;
-            border-radius: 20px;
-            color: var(--rojo);
+        /* --- ESTILOS DE LOS BOTONES DE ACCIÓN --- */
+        .acciones-grupo {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-accion {
+            text-decoration: none;
+            font-size: 0.85rem;
             font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 2px solid transparent;
             cursor: pointer;
             transition: all 0.2s;
+            background: transparent;
+        }
+        .btn-editar {
+            color: var(--naranja-fuerte);
+            border-color: var(--naranja-fuerte);
+        }
+        .btn-editar:hover {
+            background: var(--naranja-fuerte);
+            color: white;
+        }
+        .btn-eliminar {
+            color: var(--rojo);
+            border-color: var(--rojo);
         }
         .btn-eliminar:hover {
             background: var(--rojo);
@@ -286,12 +305,11 @@
                     </td>
                     <td>{{ registro.registrado_por|default:"—" }}</td>
                     <td>
-                        <form method="post" action="{% url 'mortalidad_eliminar' registro.pk %}" style="margin:0;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-eliminar" onclick="return confirm('¿Eliminar este registro?');">
-                                Eliminar
-                            </button>
-                        </form>
+                        <!-- BOTONES CORREGIDOS -->
+                        <div class="acciones-grupo">
+                            <a href="{% url 'mortalidad_editar' registro.pk %}" class="btn-accion btn-editar">Editar</a>
+                            <a href="{% url 'mortalidad_eliminar' registro.pk %}" class="btn-accion btn-eliminar">Eliminar</a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}

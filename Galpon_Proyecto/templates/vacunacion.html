@@ -88,7 +88,6 @@
             box-shadow: 0 6px 15px rgba(232, 137, 43, 0.6);
         }
         
-        /* Tarjetas de resumen */
         .tarjetas-resumen {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -117,7 +116,6 @@
         }
         .tarjeta-stat .numero.alert { color: var(--rojo); }
         .tarjeta-stat .numero.ok { color: var(--verde); }
-        .tarjeta-stat .numero.info { color: var(--azul); }
         
         .tarjeta-inventario {
             background: var(--tarjeta);
@@ -172,7 +170,6 @@
         .bg-success { background: #d4edda; color: #155724; }
         .bg-warning { background: #fff3cd; color: #856404; }
         
-        /* Etiqueta para la vacuna */
         .vacuna-tag {
             display: inline-block;
             font-size: 0.8rem;
@@ -181,6 +178,39 @@
             font-weight: 700;
             background: #e2f0d9;
             color: #2b542c;
+        }
+
+        /* --- ESTILOS NUEVOS PARA LOS BOTONES --- */
+        .acciones-grupo {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-accion {
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+        }
+        .btn-editar {
+            color: var(--naranja-fuerte);
+            border-color: var(--naranja-fuerte);
+        }
+        .btn-editar:hover {
+            background: var(--naranja-fuerte);
+            color: white;
+        }
+        .btn-eliminar {
+            color: var(--rojo);
+            border-color: var(--rojo);
+        }
+        .btn-eliminar:hover {
+            background: var(--rojo);
+            color: white;
         }
 
         @media (max-width: 900px) {
@@ -211,7 +241,6 @@
         {% endfor %}
     {% endif %}
 
-    <!-- NUEVAS TARJETAS DE RESUMEN -->
     <div class="tarjetas-resumen">
         <div class="tarjeta-stat tarjeta-inventario">
             <h3>Inventario Inicial</h3>
@@ -219,7 +248,7 @@
         </div>
         
         <div class="tarjeta-stat">
-            <h3>Aves Actuales vivas</h3>
+            <h3>Aves Actuales</h3>
             <p class="numero">{{ total_actual_global }}</p>
         </div>
 
@@ -229,7 +258,7 @@
         </div>
 
         <div class="tarjeta-stat">
-            <h3>Aves sin vacunar</h3>
+            <h3>Sin Vacunar</h3>
             <p class="numero alert">{{ gallinas_sin_vacunar }}</p>
         </div>
     </div>
@@ -244,6 +273,7 @@
                     <th>Vacunadas</th>
                     <th>Estado / Refuerzo</th>
                     <th>Registrado por</th>
+                    <th>Acciones</th> <!-- NUEVA COLUMNA -->
                 </tr>
             </thead>
             <tbody>
@@ -252,7 +282,6 @@
                     <td><strong>{{ reg.fecha_aplicacion|date:"d M Y" }}</strong></td>
                     <td>{{ reg.lote }}</td>
                     <td>
-                        <!-- Etiqueta verde para resaltar la vacuna -->
                         <span class="vacuna-tag">{{ reg.get_vacuna_display }}</span>
                     </td>
                     <td><strong>{{ reg.gallinas_vacunadas }}</strong></td>
@@ -264,10 +293,17 @@
                         {% endif %}
                     </td>
                     <td>{{ reg.registrado_por }}</td>
+                                       <td>
+                        <!-- BOTONES DE EDITAR Y ELIMINAR (CORREGIDOS) -->
+                        <div class="acciones-grupo">
+                            <a href="{% url 'vacunacion_editar' reg.pk %}" class="btn-accion btn-editar">Editar</a>
+                            <a href="{% url 'vacunacion_eliminar' reg.pk %}" class="btn-accion btn-eliminar">Eliminar</a>
+                        </div>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 40px; color: var(--suave);">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: var(--suave);">
                         <em>Todavía no hay registros de vacunación.</em>
                     </td>
                 </tr>

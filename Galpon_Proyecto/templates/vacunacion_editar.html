@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar Vacunación - Galpón Proyecto</title>
+    <style>
+        :root {
+            --sol: #F7C948;
+            --naranja: #F29E4C;
+            --naranja-fuerte: #E8892B;
+            --tinta: #3B2412;
+            --suave: #7A5A3A;
+            --fondo: #FFF6E3;
+            --blanco: #FFFFFF;
+            --borde: #F0C48A;
+            --rojo: #C0392B;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            background: linear-gradient(180deg, var(--sol) 0%, var(--naranja) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: var(--tinta);
+        }
+        .contenedor-principal {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--fondo);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(139, 84, 20, 0.15);
+            padding: 40px;
+        }
+        .btn-volver {
+            display: inline-block;
+            color: var(--tinta);
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid var(--tinta);
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        .btn-volver:hover {
+            background: var(--tinta);
+            color: var(--fondo);
+        }
+        .titulo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .titulo h1 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            font-size: 2.2rem;
+            margin: 0;
+            color: var(--tinta);
+        }
+        .titulo .linea {
+            width: 60px;
+            height: 4px;
+            background: var(--naranja);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        .formulario-tarjeta {
+            background: var(--blanco);
+            padding: 30px;
+            border-radius: 16px;
+            border: 2px solid var(--borde);
+        }
+        .campo { margin-bottom: 22px; }
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--tinta);
+        }
+        input[type="text"], input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--tinta);
+            background: var(--blanco);
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--naranja-fuerte);
+        }
+        .ayuda { font-size: 0.85rem; color: var(--suave); margin-top: 6px; }
+        .error { color: var(--rojo); font-size: 0.9rem; font-weight: 600; margin-top: 6px; }
+        .caja-refuerzo {
+            background: var(--fondo);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--borde);
+            margin-bottom: 22px;
+        }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        .checkbox-group input { width: 20px; height: 20px; accent-color: var(--naranja-fuerte); }
+        .checkbox-group label { margin: 0; cursor: pointer; }
+        
+        .acciones {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn-guardar {
+            flex: 1;
+            background: var(--naranja-fuerte);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(232, 137, 43, 0.4);
+            transition: all 0.2s;
+        }
+        .btn-guardar:hover { transform: translateY(-2px); }
+        .btn-cancelar {
+            flex: 1;
+            background: transparent;
+            color: var(--tinta);
+            text-decoration: none;
+            text-align: center;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 10px;
+            border: 2px solid var(--borde);
+            transition: all 0.2s;
+        }
+        .btn-cancelar:hover { background: var(--blanco); }
+    </style>
+</head>
+<body>
+
+<div class="contenedor-principal">
+    <a href="{% url 'vacunacion_lista' %}" class="btn-volver">← Volver a vacunación</a>
+    
+    <div class="titulo">
+        <h1>✏️ Editar Registro de Vacunación</h1>
+        <div class="linea"></div>
+    </div>
+
+    <div class="formulario-tarjeta">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="error" style="margin-bottom: 20px;">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="campo">
+                <label>Lote:</label>
+                {{ form.lote }}
+                {% if form.lote.errors %}<div class="error">{{ form.lote.errors.0 }}</div>{% endif %}
+            </div>
+            
+            <div class="campo">
+                <label>Fecha de Aplicación:</label>
+                {{ form.fecha_aplicacion }}
+                {% if form.fecha_aplicacion.errors %}<div class="error">{{ form.fecha_aplicacion.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="campo">
+                <label>Vacuna Aplicada:</label>
+                {{ form.vacuna }}
+                {% if form.vacuna.errors %}<div class="error">{{ form.vacuna.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="campo">
+                <label>Gallinas Vacunadas:</label>
+                {{ form.gallinas_vacunadas }}
+                {% if form.gallinas_vacunadas.errors %}<div class="error">{{ form.gallinas_vacunadas.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="caja-refuerzo">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="requiere_refuerzo" id="id_requiere_refuerzo" {% if form.requiere_refuerzo.value %}checked{% endif %}>
+                    <label for="id_requiere_refuerzo">Esta vacuna requiere refuerzo posterior</label>
+                </div>
+                <div class="campo" style="margin-top: 15px; margin-bottom: 0;">
+                    <label>Días de espera para el refuerzo:</label>
+                    {{ form.dias_para_refuerzo }}
+                </div>
+            </div>
+
+            <div class="acciones">
+                <button type="submit" class="btn-guardar">Guardar cambios</button>
+                <a href="{% url 'vacunacion_lista' %}" class="btn-cancelar">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -241,7 +241,7 @@
 
             <div class="form-row">
                 <label for="cliente">Cliente:</label>
-                <select id="cliente" name="cliente" required>
+                <select id="cliente" name="cliente" class="form-control" required>
                     <option value="">— Selecciona un cliente —</option>
                     {% for c in clientes %}
                         <option value="{{ c.nombre }}" {% if c.nombre == venta.cliente %}selected{% endif %}>{{ c.nombre }}</option>
@@ -257,9 +257,8 @@
             </div>
 
             <div class="form-row">
-                <label for="precio_unitario">Precio por cubeta:</label>
-                <input type="text" id="precio_unitario" name="precio_unitario"
-                       value="{{ venta.precio_unitario|floatformat:0 }}" required>
+                <label>Precio por cubeta:</label>
+                <input type="text" name="precio_unitario" id="id_precio_unitario" class="form-control" value="{{ venta.precio_form }}">
             </div>
 
             <div class="acciones-form">

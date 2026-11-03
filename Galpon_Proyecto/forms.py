@@ -79,7 +79,6 @@ class VentaForm(forms.ModelForm):
         model = Venta
         fields = ['cliente', 'cantidad_cubetas', 'precio_unitario']
         widgets = {
-            'cliente': forms.TextInput(attrs={'class': 'form-control'}),
             'cantidad_cubetas': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
             'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01'}),
         }
