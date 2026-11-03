@@ -190,32 +190,33 @@
             display: flex;
             gap: 8px;
         }
-        .btn-accion {
+        
+        /* Estilos nuevos para que los emojis se vean bien (copiados de producción) */
+        a.accion {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 99px;
+            font-size: 1.1rem;
             text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 700;
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: transparent;
+            color: var(--tinta);
+            background: var(--tarjeta); /* Fondo crema */
+            border: 1px solid var(--borde);
+            margin-right: 6px;
+            transition: all .18s ease;
+            line-height: 1;
+            text-align: center;
         }
-        .btn-editar {
-            color: var(--naranja-fuerte);
-            border-color: var(--naranja-fuerte);
+        a.accion:hover { 
+            background: var(--naranja); 
+            transform: translateY(-2px); 
         }
-        .btn-editar:hover {
-            background: var(--naranja-fuerte);
-            color: white;
+        a.accion.eliminar { 
+            color: #7A1F14; 
+            background: var(--rojo); 
+            border-color: rgba(192, 57, 43, .3); 
         }
-        .btn-eliminar {
-            color: var(--rojo);
-            border-color: var(--rojo);
-        }
-        .btn-eliminar:hover {
-            background: var(--rojo);
-            color: white;
+        a.accion.eliminar:hover { 
+            background: #a32e22; 
         }
 
         .vacio {
@@ -306,9 +307,9 @@
                     <td>{{ registro.registrado_por|default:"—" }}</td>
                     <td>
                         <!-- BOTONES CORREGIDOS -->
-                        <div class="acciones-grupo">
-                            <a href="{% url 'mortalidad_editar' registro.pk %}" class="btn-accion btn-editar">Editar</a>
-                            <a href="{% url 'mortalidad_eliminar' registro.pk %}" class="btn-accion btn-eliminar">Eliminar</a>
+                        <div class="acciones-grupo">                        
+                            <a class="accion editar" href="{% url 'mortalidad_editar' registro.id %}" title="Editar">📝</a>
+                            <a class="accion eliminar" href="{% url 'mortalidad_eliminar' registro.id %}" title="Eliminar">🗑️</a>
                         </div>
                     </td>
                 </tr>

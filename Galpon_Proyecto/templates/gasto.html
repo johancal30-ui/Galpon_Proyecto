@@ -286,8 +286,8 @@
                         <td>{{ gasto.descripcion }}</td>
                         <td>${{ gasto.monto_form }}</td>
                         <td>
-                            <a class="accion" href="{% url 'editar_gasto' gasto.id %}">Editar</a>
-                            <a class="accion eliminar" href="{% url 'eliminar_gasto' gasto.id %}">Eliminar</a>
+                            <a class="accion editar" href="{% url 'editar_gasto' gasto.id %}" title="Editar">📝</a>
+                            <a class="accion eliminar" href="{% url 'eliminar_gasto' gasto.id %}" title="Eliminar">🗑️</a>
                         </td>
                     </tr>
                     {% empty %}

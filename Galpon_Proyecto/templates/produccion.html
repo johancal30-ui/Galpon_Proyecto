@@ -235,8 +235,8 @@
                         <td>{{ registro.cantidad_huevos_rotos }}</td>
                         <td>{{ registro.cantidad_cubetas }}</td>
                         <td>
-                            <a class="accion" href="{% url 'editar_produccion' registro.id %}">Editar</a>
-                            <a class="accion eliminar" href="{% url 'eliminar_produccion' registro.id %}">Eliminar</a>
+                            <a class="accion editar" href="{% url 'editar_produccion' registro.id %}" title="Editar">📝</a>
+                            <a class="accion eliminar" href="{% url 'eliminar_produccion' registro.id %}" title="Eliminar">🗑️</a>
                         </td>
                     </tr>
                     {% empty %}

@@ -614,6 +614,8 @@ def editar_alimento(request, pk):
             alimento.save()
             messages.success(request, 'Ingreso actualizado correctamente.')
             return redirect('registrar_alimento')
+            
+    alimento.costo_form = f"{int(alimento.costo_unitario):,}".replace(",", ".")
 
     return render(request, 'alimento_editar.html', {
         'form': form,
