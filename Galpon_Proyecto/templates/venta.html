@@ -252,6 +252,9 @@
                     {{ error_manual }}
                 </div>
             {% endif %}
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" value="{{ hoy|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}">
+
             <div class="form-row">
                 <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
                 {{ form.cliente }}

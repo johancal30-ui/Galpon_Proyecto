@@ -226,6 +226,11 @@ def registrar_venta(request):
         cliente = request.POST.get('cliente', '').strip()
         cantidad = request.POST.get('cantidad_cubetas', '')
         precio = request.POST.get('precio_unitario', '')
+        fecha_texto = request.POST.get('fecha','').strip()
+
+        cantidad_int = None
+        precio_float = None
+        fecha_venta = None
 
         # Validar cliente
         if not cliente:
@@ -241,7 +246,7 @@ def registrar_venta(request):
                     error_manual = "La cantidad debe ser mayor a cero."
             except (ValueError, TypeError):
                 error_manual = "La cantidad debe ser un número entero."
-
+    
         # Validar precio
         if error_manual is None:
             if not precio:
@@ -254,6 +259,18 @@ def registrar_venta(request):
                         error_manual = "El precio debe ser mayor a cero."
                 except (ValueError, TypeError):
                     error_manual = "El precio debe ser un número válido."
+
+        # Validar fecha
+        if error_manual is None:
+            if not fecha_texto:
+                error_manual = "La fecha de la venta es obligatoria."
+            else: 
+                try:
+                    fecha_venta = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
+                    if fecha_venta > timezone.localdate():
+                        error_manual = "La fecha de la venta no puede ser futura."
+                except ValueError:
+                    error_manual = "La fecha de la venta no es válida."
 
         # Verificar stock disponible
         if error_manual is None:
@@ -278,6 +295,7 @@ def registrar_venta(request):
                 precio_unitario=precio_float,
                 cantidad_huevos=cantidad_int * 30,
                 total=cantidad_int * precio_float,
+                fecha=fecha_venta,
                 registrado_por=request.user,
             )
             venta.save()
@@ -314,19 +332,25 @@ def registrar_venta(request):
 
 @login_required
 def editar_venta(request, pk):
-    venta = get_object_or_404(Venta, pk=pk)
+    venta = get_object_or_404(Venta, id=pk)
     error_manual = None
 
     if request.method == 'POST':
         cliente = request.POST.get('cliente', '').strip()
         cantidad = request.POST.get('cantidad_cubetas', '')
         precio = request.POST.get('precio_unitario', '')
+        fecha_texto = request.POST.get('fecha', '').strip()
 
+        cantidad_int = None
+        precio_float = None
+        fecha_venta = None
+
+        #validar cliente
         if not cliente:
             error_manual = "El nombre del cliente es obligatorio."
-        elif not cantidad:
-            error_manual = "La cantidad de cubetas es obligatoria."
-        else:
+
+        #validar cantidad
+        if error_manual is None:
             try:
                 cantidad_int = int(cantidad)
                 if cantidad_int <= 0:
@@ -334,44 +358,62 @@ def editar_venta(request, pk):
             except (ValueError, TypeError):
                 error_manual = "La cantidad debe ser un número entero."
 
+        #Validar precio
         if error_manual is None:
-            if not precio:
-                error_manual = "El precio por cubeta es obligatorio."
+            try:
+                precio_limpio = str(precio).replace(".", "").replace(",", ".")
+                precio_float = float(precio_limpio)
+                if precio_float <= 0:
+                    error_manual = "El precio debe ser mayor a cero."
+            except (ValueError, TypeError):
+                error_manual = "El precio debe ser un número válido."
+
+        # fecha
+        if error_manual is None:
+            if not fecha_texto:
+                error_manual = "La fecha de la venta es obligatoria."
             else:
                 try:
-                    precio_limpio = str(precio).replace(".", "").replace(",", ".")
-                    precio_float = float(precio_limpio)
-                    if precio_float <= 0:
-                        error_manual = "El precio debe ser mayor a cero."
-                except (ValueError, TypeError):
-                    error_manual = "El precio debe ser un número válido."
+                    fecha_venta = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
+                    if fecha_venta > timezone.localdate():
+                        error_manual = "La fecha de la venta no puede ser futura."
+                except ValueError:
+                    error_manual = "La fecha de la venta no es válida."
 
+        # Verificar stock 
+        if error_manual is None:
+            total_producido = RegistroProduccion.objects.aggregate(
+                total=Sum('cantidad_cubetas')
+            )['total'] or 0
+            total_vendido = Venta.objects.exclude(id=venta.id).aggregate(
+                total=Sum('cantidad_cubetas')
+            )['total'] or 0
+            stock_disponible = total_producido - total_vendido
+
+            if cantidad_int > stock_disponible:
+                error_manual = f"Stock insuficiente. Solo hay {stock_disponible} cubetas disponibles."
+
+        # Guardar cambios
         if error_manual is None:
             venta.cliente = cliente
             venta.cantidad_cubetas = cantidad_int
             venta.precio_unitario = precio_float
             venta.cantidad_huevos = cantidad_int * 30
             venta.total = cantidad_int * precio_float
+            venta.fecha = fecha_venta
             venta.save()
             messages.success(request, 'Venta actualizada correctamente.')
             return redirect('registrar_venta')
-        else:
-            # Si hay error, volvemos a mostrar el form con los datos actuales
-            form = VentaForm(request.POST, instance=venta)
-    else:
-        form = VentaForm(instance=venta)
-
-    venta.precio_form = f"{int(venta.precio_unitario):,}".replace(",", ".")
 
     clientes = Cliente.objects.all()
 
     return render(request, 'venta_editar.html', {
-        'form': form,
         'venta': venta,
+        'clientes': Cliente.objects.all(),
+        'hoy': timezone.localdate(),
         'error_manual': error_manual,
         'clientes':clientes,
     })
-
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -954,13 +996,12 @@ def reporte_rentabilidad(request):
                     fecha__range=[fecha_inicio, fecha_fin]
                 ).aggregate(total=Sum('costo_total'))['total'] or 0
                 
-                # 2. Costos de Gastos Operativos (Opcional, pero suma a la rentabilidad real)
+                # 2. Costos de Gastos Operativos
                 costo_gastos = GastoOperativo.objects.filter(
                     fecha__range=[fecha_inicio, fecha_fin]
                 ).aggregate(total=Sum('monto'))['total'] or 0
                 
-                # 3. Costos de Vacunación (Estimado, ya que no tienen un campo 'costo' en el modelo,
-                # le asignaremos un costo fijo simbólico por dosis o simplemente mostraremos las dosis)
+                # 3. Dosis de Vacunas
                 dosis_vacunas = RegistroVacunacion.objects.filter(
                     fecha_aplicacion__range=[fecha_inicio, fecha_fin]
                 ).aggregate(total=Sum('gallinas_vacunadas'))['total'] or 0
@@ -981,15 +1022,15 @@ def reporte_rentabilidad(request):
                 margen = ingresos_ventas - total_insumos
                 es_rentable = margen >= 0
 
-                # Actualizamos el contexto con los resultados
+                # Actualizamos el contexto con los resultados y formateamos los números
                 context.update({
-                    'costo_alimento': costo_alimento,
-                    'costo_gastos': costo_gastos,
+                    'costo_alimento': f"{int(costo_alimento):,}".replace(",", "."),
+                    'costo_gastos': f"{int(costo_gastos):,}".replace(",", "."),
                     'dosis_vacunas': dosis_vacunas,
-                    'total_insumos': total_insumos,
-                    'ingresos_ventas': ingresos_ventas,
+                    'total_insumos': f"{int(total_insumos):,}".replace(",", "."),
+                    'ingresos_ventas': f"{int(ingresos_ventas):,}".replace(",", "."),
                     'produccion_huevos': produccion_huevos,
-                    'margen': margen,
+                    'margen': f"{int(margen):,}".replace(",", "."),
                     'es_rentable': es_rentable,
                     'fecha_inicio': fecha_inicio_str,
                     'fecha_fin': fecha_fin_str,

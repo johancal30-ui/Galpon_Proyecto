@@ -421,29 +421,29 @@
            </a>
            
         <!-- Vacunación (Oculto hasta que la URL exista) -->
-        {% comment %}
+        
         <a class="modulo modulo-vacunacion" href="{% url 'vacunacion_lista' %}">
             <span class="icono">💉</span>
             <h2>Vacunación</h2>
             <p>Lleva el control del esquema de vacunación y programa los refuerzos.</p>
             <span class="abrir">Abrir vacunación</span>
         </a>
-        {% endcomment %}
+        
 
         <!-- Reporte de Rentabilidad (Oculto hasta que la URL exista) -->
-        {% comment %}
+        
         <a class="modulo modulo-reportes" href="{% url 'reporte_rentabilidad' %}">
             <span class="icono">📊</span>
             <h2>Reportes</h2>
             <p>Consulta el balance de costos e ingresos para saber si el galpón es rentable.</p>
             <span class="abrir">Ver reporte</span>
         </a>
-        {% endcomment %}
+        
         
     </nav>
 
     <!-- Sección de Reporte Anual (Oculta porque 'descargar_reporte_excel' no existe aún) -->
-    {% comment %}
+    
     <section class="reporte">
         <div>
             <h2>📊 Reporte anual</h2>
@@ -451,11 +451,7 @@
         </div>
         <a class="btn-excel" href="{% url 'descargar_reporte_excel' %}">Descargar reporte Excel</a>
     </section>
-    {% endcomment %}
-
-    <p class="proximamente">
-        el galpon castillo calma tus ganas de un rico huevo
-    </p>
+    
     <!-- NUEVO BANNER CON FILA DE POLLITOS -->
     <div class="banner-pollitos">
         <p class="banner-texto"> huevos para tu desayuno 🐣 </p>

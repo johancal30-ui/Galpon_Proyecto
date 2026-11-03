@@ -108,7 +108,7 @@ class RegistroMortalidad(models.Model):
 
 # VENTA DE HUEVOS Y CUBETAS (ANDRÉS)
 class Venta(models.Model):
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateField(default=timezone.localdate)
     cliente = models.CharField(max_length=150)
     cantidad_huevos = models.PositiveIntegerField()
     cantidad_cubetas = models.PositiveIntegerField()

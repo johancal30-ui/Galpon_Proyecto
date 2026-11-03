@@ -217,7 +217,11 @@
 </head>
 <body>
     <div class="container">
-        <a class="volver" href="{% url 'registrar_venta' %}">← Volver a ventas</a>
+        {% if request.GET.next_venta %}
+            <a href="{% url 'editar_venta' request.GET.next_venta %}" class="volver">← Volver a la venta</a>
+        {% else %}
+            <a href="{% url 'registrar_venta' %}" class="volver">← Volver a ventas</a>
+        {% endif %}
 
         <div class="encabezado">
             <h1>👥 Clientes</h1>
