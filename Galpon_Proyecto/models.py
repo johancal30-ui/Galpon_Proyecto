@@ -34,7 +34,7 @@ class RegistroConsumo(models.Model):
     CONSUMO_MAX_G_AVE = 130.0
 
     @property
-    def consumo_gramos_por_ave(self):
+    def consumo_gramos_por_gallina(self):
         """Calcula el consumo diario en gramos por gallina (g/ave/día)"""
         if self.poblacion_gallinas > 0 and self.bultos_consumidos:
             total_kilos = float(self.bultos_consumidos) * float(self.kilos_por_bulto)
@@ -45,7 +45,7 @@ class RegistroConsumo(models.Model):
     @property
     def es_consumo_anomalo(self):
         """Verifica si el consumo está fuera del rango esperado"""
-        g_ave = self.consumo_gramos_por_ave
+        g_ave = self.consumo_gramos_por_gallina
         return g_ave < self.CONSUMO_MIN_G_AVE or g_ave > self.CONSUMO_MAX_G_AVE
     @property
     def stock_restante(self):
@@ -169,8 +169,8 @@ class Inventario(models.Model):
     TIPOS_INSUMO = [('alimento', 'Alimento'), ('vacuna', 'Vacuna')]
     
     tipo = models.CharField(max_length=20, choices=TIPOS_INSUMO)
-    stock_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    stock_minimo = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    stock_actual = models.PositiveIntegerField(default=0)
+    stock_minimo = models.PositiveIntegerField(default=0)
     actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:

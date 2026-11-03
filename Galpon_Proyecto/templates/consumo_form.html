@@ -53,14 +53,14 @@
 
     .registro-header h1 {
         margin: 10px 0 8px;
-        color: #245c38;
+        color: #d48337;
         font-weight: 800;
         font-size: 2.2rem;
     }
 
     .registro-header p {
         margin: 0;
-        color: #5f735d;
+        color: #ecaf2b;
         font-size: 1.05rem;
     }
 
@@ -115,13 +115,13 @@
     }
 
     .campo-alimento input:focus {
-        border-color: #68a357;
+        border-color: #64692d;
         box-shadow: 0 0 0 4px rgba(104, 163, 87, 0.12);
     }
 
     .ayuda {
         margin-top: 10px;
-        color: #7b8877;
+        color: #7b875e;
         font-size: 0.9rem;
     }
 
@@ -150,7 +150,7 @@
 
     .btn-confirmar:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(39, 108, 67, 0.35);
+        box-shadow: 0 10px 25px rgba(201, 218, 14, 0.35);
         background: linear-gradient(135deg, #2f7f50, #205b39);
     }
 
@@ -212,6 +212,12 @@
         }
     }
 </style>
+<div class="mb-3">
+    <a href="{% url 'accounts:home' %}"
+       class="btn btn-outline-success rounded-pill">
+        🏠 Volver al inicio
+    </a>
+</div>
 
 <div class="registro-alimento">
 
@@ -257,8 +263,7 @@
 
                 <div class="campo-alimento">
 
-                    <div class="campo-icono">
-                        🌾
+                    <div class="campo-icono">🌾
                     </div>
 
                     <label for="id_bultos_consumidos">
@@ -268,7 +273,7 @@
                     {{ form.bultos_consumidos }}
 
                     <div class="ayuda">
-                        🥚 Registra la cantidad de alimento utilizada durante el día.
+                        Registra la cantidad de alimento utilizada durante el día.
                     </div>
 
                     {% if form.bultos_consumidos.errors %}
@@ -285,25 +290,6 @@
         Población de gallinas
     </label>
     {{ form.poblacion_gallinas }}
-</div>
-
-
-<div class="campo-alimento">
-    <div class="campo-icono">⚖️</div>
-    <label for="{{ form.kilos_por_bulto.id_for_label }}">
-        Kilos por bulto 
-        40 kg
-    </label>
-    {{ form.kilos_por_bulto }}
-</div>
-
-
-<div class="campo-alimento">
-    <div class="campo-icono">📦</div>
-    <label for="{{ form.stock_disponible.id_for_label }}">
-        Stock disponible (bultos)
-    </label>
-    {{ form.stock_disponible }}
 </div>
 
                 <button type="submit" class="btn-confirmar">
@@ -327,7 +313,7 @@
                         <th style="padding: 5px;">Fecha</th>
                         <th style="padding: 12px;">Gallinas</th>
                         <th style="padding: 12px;">Bultos consumidos</th>
-                        <th style="padding: 12px;">Kilos por bulto</th>
+                        <th style="padding: 12px;">Stock restante</th>
                     </tr>
                 </thead>
 
@@ -337,7 +323,7 @@
                             <td style="padding: 7px;">{{ registro.fecha|date:"d/m/Y" }}</td>
                             <td style="padding: 12px;">{{ registro.poblacion_gallinas }}</td>
                             <td style="padding: 12px;">{{ registro.bultos_consumidos }}</td>
-                            <td style="padding: 12px;">{{ registro.kilos_por_bulto }} kg</td>
+                            <td style="padding: 12px;">{{ registro.stock_restante }} bultos</td>
                         </tr>
                     {% endfor %}
                 </tbody>
