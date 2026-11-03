@@ -13,6 +13,7 @@ urlpatterns = [
     # Mortalidad (Jeffry)
     path('mortalidad/', views.mortalidad_lista, name='mortalidad_lista'),
     path('mortalidad/registrar/', views.mortalidad_registrar, name='mortalidad_registrar'),
+    path('mortalidad/editar/<int:pk>/', views.mortalidad_editar, name='mortalidad_editar'), # <-- NUEVA
     path('mortalidad/eliminar/<int:pk>/', views.mortalidad_eliminar, name='mortalidad_eliminar'),
     
      # Ventas (Andrés)
@@ -31,4 +32,18 @@ urlpatterns = [
     path('gastos/', views.registrar_gasto, name='registrar_gasto'),
     path('gastos/editar/<int:pk>/', views.editar_gasto, name='editar_gasto'),
     path('gastos/eliminar/<int:pk>/', views.eliminar_gasto, name='eliminar_gasto'),
+
+    # descargar reporte (JOHAN)
+    path('reporte-excel/', views.descargar_reporte_excel, name='descargar_reporte_excel'),
+
+    # JOHAN CLIENTESS
+    path('clientes/', views.registrar_cliente, name='registrar_cliente'),
+        # Vacunación (Jeffry)
+    path('vacunacion/', views.vacunacion_lista, name='vacunacion_lista'),
+    path('vacunacion/registrar/', views.vacunacion_registrar, name='vacunacion_registrar'),
+    path('vacunacion/editar/<int:pk>/', views.vacunacion_editar, name='vacunacion_editar'),
+    path('vacunacion/eliminar/<int:pk>/', views.vacunacion_eliminar, name='vacunacion_eliminar'),
+
+        # Reportes (Jeffry)
+    path('reportes/rentabilidad/', views.reporte_rentabilidad, name='reporte_rentabilidad'),
 ]

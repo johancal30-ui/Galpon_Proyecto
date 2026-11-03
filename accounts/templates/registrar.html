@@ -1,231 +1,216 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Registrar mortalidad — Galpón</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --paper: #EFE8D8;
-    --paper-raised: #F6F1E4;
-    --ink: #2B2620;
-    --ink-soft: #6b6255;
-    --rule: #d9cfb8;
-    --barn: #8C3B2E;
-    --barn-dark: #6e2e24;
-    --rust: #B65C38;
-    --rust-bg: #f7e9e2;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    line-height: 1.5;
-  }
-
-  h1 { font-family: 'Zilla Slab', serif; }
-
-  .page {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 48px 24px 80px;
-  }
-
-  .masthead {
-    border-bottom: 3px solid var(--ink);
-    padding-bottom: 20px;
-    margin-bottom: 12px;
-  }
-
-  .masthead a.volver {
-    display: inline-block;
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    text-decoration: none;
-    margin-bottom: 10px;
-  }
-
-  .masthead a.volver:hover { text-decoration: underline; }
-
-  .masthead h1 {
-    margin: 0;
-    font-size: 1.9rem;
-    font-weight: 700;
-  }
-
-  .masthead p {
-    margin: 4px 0 0;
-    color: var(--ink-soft);
-    font-size: 0.95rem;
-  }
-
-  .errores-generales {
-    background: var(--rust-bg);
-    border-left: 4px solid var(--rust);
-    padding: 12px 16px;
-    margin: 24px 0;
-    font-size: 0.9rem;
-    color: var(--rust);
-  }
-
-  form {
-    margin-top: 28px;
-  }
-
-  .campo {
-    margin-bottom: 22px;
-  }
-
-  .campo label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .campo .ayuda {
-    font-size: 0.8rem;
-    color: var(--ink-soft);
-    margin-top: 5px;
-  }
-
-  .campo input,
-  .campo select,
-  .campo textarea {
-    width: 100%;
-    background: var(--paper-raised);
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    padding: 10px 12px;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    color: var(--ink);
-  }
-
-  .campo input:focus,
-  .campo select:focus,
-  .campo textarea:focus {
-    outline: none;
-    border-color: var(--barn);
-  }
-
-  .campo.con-error input,
-  .campo.con-error select,
-  .campo.con-error textarea {
-    border-color: var(--rust);
-  }
-
-  .campo .error {
-    color: var(--rust);
-    font-size: 0.82rem;
-    margin-top: 5px;
-  }
-
-  .acciones {
-    display: flex;
-    gap: 12px;
-    margin-top: 32px;
-    border-top: 1px solid var(--rule);
-    padding-top: 24px;
-  }
-
-  .btn-guardar {
-    background: var(--barn);
-    color: #fdf9ef;
-    border: 1px solid var(--barn-dark);
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 12px 26px;
-    border-radius: 3px;
-    cursor: pointer;
-  }
-
-  .btn-guardar:hover { background: var(--barn-dark); }
-
-  .btn-cancelar {
-    color: var(--ink-soft);
-    text-decoration: none;
-    font-size: 0.95rem;
-    padding: 12px 10px;
-  }
-
-  .btn-cancelar:hover { text-decoration: underline; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar Mortalidad - Galpón Proyecto</title>
+    <style>
+        :root {
+            --sol: #F7C948;
+            --naranja: #F29E4C;
+            --naranja-fuerte: #E8892B;
+            --tinta: #3B2412;
+            --suave: #7A5A3A;
+            --fondo: #FFF6E3;
+            --blanco: #FFFFFF;
+            --borde: #F0C48A;
+            --rojo: #C0392B;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            background: linear-gradient(180deg, var(--sol) 0%, var(--naranja) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: var(--tinta);
+        }
+        .contenedor-principal {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--fondo);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(139, 84, 20, 0.15);
+            padding: 40px;
+        }
+        .btn-volver {
+            display: inline-block;
+            color: var(--tinta);
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid var(--tinta);
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        .btn-volver:hover {
+            background: var(--tinta);
+            color: var(--fondo);
+        }
+        .titulo {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--borde);
+            padding-bottom: 20px;
+        }
+        .titulo h1 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            font-size: 2rem;
+            margin: 0;
+            color: var(--tinta);
+        }
+        .formulario-tarjeta {
+            background: var(--blanco);
+            padding: 30px;
+            border-radius: 16px;
+            border: 2px solid var(--borde);
+        }
+        .campo { margin-bottom: 22px; }
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--tinta);
+        }
+        input[type="text"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--tinta);
+            background: var(--fondo);
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--naranja-fuerte);
+        }
+        .ayuda {
+            font-size: 0.85rem;
+            color: var(--suave);
+            margin-top: 6px;
+        }
+        .error {
+            color: var(--rojo);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        .errores-generales {
+            background: #fce4e4;
+            color: var(--rojo);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--rojo);
+            font-weight: 600;
+        }
+        .acciones {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            border-top: 2px solid var(--borde);
+            padding-top: 20px;
+        }
+        .btn-guardar {
+            flex: 1;
+            background: var(--naranja-fuerte);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(232, 137, 43, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-guardar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(232, 137, 43, 0.6);
+        }
+        .btn-cancelar {
+            flex: 1;
+            background: transparent;
+            color: var(--tinta);
+            text-decoration: none;
+            text-align: center;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 30px;
+            border: 2px solid var(--tinta);
+            transition: all 0.2s;
+        }
+        .btn-cancelar:hover {
+            background: var(--tinta);
+            color: var(--fondo);
+        }
+    </style>
 </head>
 <body>
-<div class="page">
 
-  <div class="masthead">
-    <a class="volver" href="{% url 'mortalidad_lista' %}">← Volver al registro</a>
-    <h1>Registrar mortalidad</h1>
-    <p>Ingresa la baja de aves de la jornada</p>
-  </div>
-
-  {% if form.non_field_errors %}
-    <div class="errores-generales">
-      {% for error in form.non_field_errors %}
-        <div>{{ error }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
-  <form method="post" novalidate>
-    {% csrf_token %}
-
-    <div class="campo {% if form.lote.errors %}con-error{% endif %}">
-      <label for="{{ form.lote.id_for_label }}">Lote</label>
-      {{ form.lote }}
-      {% for error in form.lote.errors %}
-        <div class="error">{{ error }}</div>
-      {% endfor %}
+<div class="contenedor-principal">
+    <a href="{% url 'mortalidad_lista' %}" class="btn-volver">← Volver a la lista</a>
+    
+    <div class="titulo">
+        <h1>🐥 Registrar Mortalidad</h1>
+        <p style="color: var(--suave); margin-top: 10px;">Ingresa los datos de la baja</p>
     </div>
 
-    <div class="campo {% if form.fecha.errors %}con-error{% endif %}">
-      <label for="{{ form.fecha.id_for_label }}">Fecha</label>
-      {{ form.fecha }}
-      {% for error in form.fecha.errors %}
-        <div class="error">{{ error }}</div>
-      {% endfor %}
-    </div>
+    <div class="formulario-tarjeta">
+        {% if form.non_field_errors %}
+            <div class="errores-generales">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-    <div class="campo {% if form.cantidad.errors %}con-error{% endif %}">
-      <label for="{{ form.cantidad.id_for_label }}">Cantidad de aves muertas</label>
-      {{ form.cantidad }}
-      <div class="ayuda">Número entero, mayor a cero, y no mayor al total de aves vivas del lote</div>
-      {% for error in form.cantidad.errors %}
-        <div class="error">{{ error }}</div>
-      {% endfor %}
-    </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="campo">
+                <label>Lote:</label>
+                {{ form.lote }}
+                {% if form.lote.errors %}<div class="error">{{ form.lote.errors.0 }}</div>{% endif %}
+            </div>
 
-    <div class="campo {% if form.causa.errors %}con-error{% endif %}">
-      <label for="{{ form.causa.id_for_label }}">Causa</label>
-      {{ form.causa }}
-      {% for error in form.causa.errors %}
-        <div class="error">{{ error }}</div>
-      {% endfor %}
-    </div>
+            <div class="campo">
+                <label>Fecha:</label>
+                {{ form.fecha }}
+                {% if form.fecha.errors %}<div class="error">{{ form.fecha.errors.0 }}</div>{% endif %}
+            </div>
 
-    <div class="campo {% if form.observaciones.errors %}con-error{% endif %}">
-      <label for="{{ form.observaciones.id_for_label }}">Observaciones (opcional)</label>
-      {{ form.observaciones }}
-      {% for error in form.observaciones.errors %}
-        <div class="error">{{ error }}</div>
-      {% endfor %}
-    </div>
+            <div class="campo">
+                <label>Cantidad de aves muertas:</label>
+                {{ form.cantidad }}
+                <div class="ayuda">Número entero, mayor a cero, y no mayor al total de aves vivas.</div>
+                {% if form.cantidad.errors %}<div class="error">{{ form.cantidad.errors.0 }}</div>{% endif %}
+            </div>
 
-    <div class="acciones">
-      <button type="submit" class="btn-guardar">Guardar</button>
-      <a class="btn-cancelar" href="{% url 'mortalidad_lista' %}">Cancelar</a>
-    </div>
-  </form>
+            <div class="campo">
+                <label>Causa:</label>
+                {{ form.causa }}
+                {% if form.causa.errors %}<div class="error">{{ form.causa.errors.0 }}</div>{% endif %}
+            </div>
 
+            <div class="campo">
+                <label>Observaciones (opcional):</label>
+                {{ form.observaciones }}
+                {% if form.observaciones.errors %}<div class="error">{{ form.observaciones.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="acciones">
+                <button type="submit" class="btn-guardar">Guardar</button>
+                <a href="{% url 'mortalidad_lista' %}" class="btn-cancelar">Cancelar</a>
+            </div>
+        </form>
+    </div>
 </div>
+
 </body>
 </html>

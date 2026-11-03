@@ -59,19 +59,28 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .mensaje {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    {% if messages %}
-    {% for message in messages %}
-        <div class="error" style="background-color: #d4edda; color: #155724;">
-            {{ message }}
-        </div>
-    {% endfor %}
-    {% endif %}
-
     <div class="login-container">
         <h1>🐔 Iniciar Sesión</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mensaje">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         {% if error %}
             <div class="error">
@@ -90,7 +99,7 @@
             <button type="submit">Iniciar Sesión</button>
 
             <div style="text-align: center; margin-top: 10px; font-size: 13px;">
-                <a href="{% url 'accounts:recuperar' %}">¿Olvidaste tu contraseña BRO?</a>
+                <a href="{% url 'accounts:recuperar' %}">¿Olvidaste tu contraseña?</a>
             </div>
 
             <div style="text-align: center; margin-top: 20px; font-size: 14px;">

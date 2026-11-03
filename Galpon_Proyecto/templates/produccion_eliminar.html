@@ -2,35 +2,210 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Eliminar Registro - Galpón Proyecto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Producción - Galpón Proyecto</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 40px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
-        h1 { color: #dc3545; }
-        .datos { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: left; }
-        button { padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; }
-        button:hover { background: #c82333; }
-        .cancelar { display: inline-block; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; }
-        .cancelar:hover { background: #5a6268; }
+        :root {
+            --sol: #F7C948;
+            --naranja: #F29E4C;
+            --naranja-fuerte: #E8892B;
+            --tinta: #3B2412;
+            --suave: #7A5A3A;
+            --fondo: #FFF6E3;
+            --tarjeta: #FFEEDB;
+            --tarjeta-hover: #FFE3C2;
+            --borde: #F0C48A;
+            --cresta: #C0392B;
+            --cresta-claro: #FBE3DF;
+            --exito-claro: #FFF1C2;
+            --radio: 14px;
+            --sombra: 0 10px 28px rgba(150, 90, 30, 0.15);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            color: var(--tinta);
+            line-height: 1.5;
+            background: linear-gradient(180deg, var(--sol) 0, var(--naranja) 220px, var(--fondo) 220px);
+            background-attachment: scroll;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: var(--tarjeta);
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+            box-shadow: var(--sombra);
+            padding: 36px;
+        }
+        h1 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 20px 0 8px;
+            color: var(--tinta);
+        }
+        h1::after {
+            content: "";
+            display: block;
+            width: 70px; height: 4px;
+            margin: 14px auto 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--sol), var(--naranja-fuerte));
+        }
+        h3 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            margin: 36px 0 6px;
+            font-size: 1.2rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        h3::before {
+            content: ""; width: 5px; height: 20px;
+            border-radius: 99px; background: var(--naranja-fuerte);
+        }
+        p { color: var(--suave); }
+
+        .mensaje-error, .mensaje-exito {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 16px 0;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border-left: 5px solid;
+        }
+        .mensaje-error { background: var(--cresta-claro); color: #7A1F14; border-color: var(--cresta); }
+        .mensaje-exito { background: var(--exito-claro); color: #6B4A00; border-color: var(--naranja-fuerte); }
+
+        form {
+            margin: 24px 0 8px;
+            padding: 24px;
+            background: #FFFAF2;
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+        }
+        label { display: block; margin-top: 16px; font-weight: 700; font-size: 0.9rem; color: var(--tinta); }
+        label:first-of-type { margin-top: 0; }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 11px 14px;
+            margin-top: 7px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--tinta);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        input:hover { border-color: var(--naranja); }
+        input:focus {
+            outline: none;
+            border-color: var(--naranja-fuerte);
+            box-shadow: 0 0 0 4px rgba(242, 158, 76, 0.25);
+        }
+        input::placeholder { color: #B79A7C; }
+
+        button, .btn {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 13px 22px;
+            background: linear-gradient(135deg, var(--sol), var(--naranja-fuerte));
+            color: var(--tinta);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.98rem;
+            font-weight: 700;
+            font-family: inherit;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(232, 137, 43, 0.35);
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+        form > button { width: 100%; }
+        button:hover, .btn:hover { filter: brightness(1.05); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(232, 137, 43, 0.45); }
+        .btn-peligro { background: linear-gradient(135deg, #E5604F, var(--cresta)); color: #fff; box-shadow: 0 6px 16px rgba(192, 57, 43, 0.35); }
+        .btn-gris { background: #FFFAF2; color: var(--tinta); border: 2px solid var(--borde); box-shadow: none; }
+        .acciones-form { display: flex; gap: 12px; flex-wrap: wrap; }
+        .acciones-form button, .acciones-form .btn { flex: 1 1 180px; }
+
+        .tabla-wrapper { overflow-x: auto; border: 2px solid var(--borde); border-radius: var(--radio); margin-top: 18px; background: #FFFAF2; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; min-width: 520px; }
+        th, td { padding: 13px 16px; border-bottom: 1px solid var(--borde); text-align: left; white-space: nowrap; }
+        th { background: var(--tarjeta-hover); font-size: .76rem; text-transform: uppercase; letter-spacing: .7px; color: var(--suave); }
+        tbody tr:hover { background: var(--tarjeta); }
+        tbody tr:last-child td { border-bottom: none; }
+        td:first-child { font-weight: 600; }
+
+        a.accion {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--tinta);
+            background: var(--exito-claro);
+            border: 1px solid var(--borde);
+            margin-right: 6px;
+            transition: all .18s ease;
+        }
+        a.accion:hover { background: var(--naranja); transform: translateY(-1px); }
+        a.accion.eliminar { color: #7A1F14; background: var(--cresta-claro); border-color: rgba(192, 57, 43, .3); }
+        a.accion.eliminar:hover { background: var(--cresta); color: #fff; }
+
+        .volver {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px;
+            background: #FFFAF2;
+            color: var(--tinta);
+            font-weight: 700; font-size: .9rem;
+            text-decoration: none;
+            border: 2px solid var(--borde);
+            border-radius: 20px;
+            transition: all .2s ease;
+        }
+        .volver:hover { background: var(--sol); border-color: var(--naranja); transform: translateY(-2px); }
+
+        .resumen { background: #FFFAF2; border: 2px solid var(--borde); border-radius: var(--radio); padding: 18px 22px; margin: 20px 0; }
+        .resumen p { margin: 4px 0; color: var(--tinta); }
+
+        .vacio { text-align: center; padding: 34px 16px !important; color: var(--suave); font-style: italic; white-space: normal; }
+
+        a:focus-visible, button:focus-visible { outline: 3px solid var(--naranja-fuerte); outline-offset: 3px; }
+        @media (max-width: 600px) {
+            body { padding: 20px 12px; }
+            .container { padding: 22px 16px; }
+            form { padding: 18px; }
+            h1 { font-size: 1.4rem; }
+            th, td { padding: 11px 12px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚠️ ¿Eliminar este registro?</h1>
+        <a class="volver" href="{% url 'registrar_produccion' %}">← Volver a producción</a>
+        <h1>🗑️ Eliminar Registro</h1>
 
-        <div class="datos">
+        <p style="text-align:center">¿Seguro que quieres eliminar este registro? Esta acción no se puede deshacer.</p>
+
+        <div class="resumen">
             <p><strong>Fecha:</strong> {{ registro.fecha }}</p>
             <p><strong>Huevos:</strong> {{ registro.cantidad_huevos }}</p>
-            <p><strong>Huevos rotos:</strong> {{ registro.cantidad_huevos_rotos }}</p>
+            <p><strong>Rotos:</strong> {{ registro.cantidad_huevos_rotos }}</p>
             <p><strong>Cubetas:</strong> {{ registro.cantidad_cubetas }}</p>
         </div>
-        <p>Esta acción no se puede deshacer.</p>
 
-        <form method="post" style="display:inline;">
+        <form method="post">
             {% csrf_token %}
-            <button type="submit">Sí, eliminar</button>
+            <div class="acciones-form">
+                <button type="submit" class="btn-peligro">Sí, eliminar</button>
+                <a class="btn btn-gris" href="{% url 'registrar_produccion' %}">Cancelar</a>
+            </div>
         </form>
-        <a class="cancelar" href="{% url 'registrar_produccion' %}">Cancelar</a>
     </div>
 </body>
 </html>
