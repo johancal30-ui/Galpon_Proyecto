@@ -439,24 +439,17 @@
             <span class="abrir">Ver reporte</span>
         </a>
         
+        <!-- Inventario -->
+        <a class="modulo modulo-inventario" href="{% url 'inventario' %}">
+            <span class="icono">📦</span>
+            <h2>Inventario</h2>
+            <p>Consulta las existencias de alimento y vacunas, controla el stock y agrega nuevos bultos.</p>
+            <span class="abrir">Administrar inventario</span>
+        </a>
         
     </nav>
 
     <!-- Sección de Reporte Anual (Oculta porque 'descargar_reporte_excel' no existe aún) -->
-    
-
-    
-    <!-- INVENTARIO -->
-    <a class="modulo modulo-inventario" href="{% url 'inventario' %}">
-        <span class="icono">📦</span>
-        <h2>Inventario</h2>
-        <p>Consulta las existencias de alimento y vacunas, controla el stock y agrega nuevos bultos.</p>
-        <span class="abrir">Administrar inventario</span>
-    </a>
-        </div>
-    </div>
-</div>
-    
     <section class="reporte">
         <div>
             <h2>📊 Reporte anual</h2>
@@ -465,7 +458,6 @@
         <a class="btn-excel" href="{% url 'descargar_reporte_excel' %}">Descargar reporte Excel</a>
     </section>
     
-    </div>
  <!-- NUEVO BANNER CON FILA DE POLLITOS -->
     <div class="banner-pollitos">
         <p class="banner-texto"> huevos para tu desayuno 🐣 </p>
@@ -544,6 +536,7 @@
                 <path d="M45 42 L40 55 L35 42" fill="#E8892B"/>
             </svg>
         </div>
+        </div>       <!-- cierra banner  -->
 
             <p class="proximamente">
         huevos a tu hogar, el desayuno  de mamá 
