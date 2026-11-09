@@ -1,27 +1,63 @@
 
 <style>
+    :root {
+        --amarillo: #F7C948;
+        --naranja: #F29E4C;
+        --naranja-fuerte: #E8892B;
+        --cafe: #3B2412;
+        --cafe-suave: #7A5A3A;
+        --crema: #FFF6E3;
+        --durazno: #FFEEDB;
+        --durazno-hover: #FFE3C2;
+        --borde: #F0C48A;
+        --rojo: #C0392B;
+    }
+
     .registro-alimento {
         min-height: 100vh;
-        padding: 40px 15px;
-        background: linear-gradient(135deg, #f4f8ed, #fffaf0);
+        padding: 25px 15px;
+        background: var(--crema);
+        color: var(--cafe);
     }
 
     .registro-card {
         max-width: 850px;
         margin: auto;
-        background: #ffffff;
-        border-radius: 25px;
+        background: #FFFAF2;
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 12px 35px rgba(55, 80, 45, 0.15);
-        border: 1px solid #e6eddc;
+        box-shadow: 0 8px 22px rgba(139, 84, 20, .13);
+        border: 2px solid var(--borde);
     }
-
+    
+    .contenedor-volver {
+    padding: 20px 24px 0;
+    text-align: left;
+    }
+    .btn-inicio {
+    display: inline-block;
+    padding: 8px 17px;
+    background: #FFFAF2;
+    color: #3B2412 !important;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none !important;
+    border: 1px solid #F0C48A;
+    border-radius: 25px;
+    transition: .25s ease;
+    }
+    
+    .btn-inicio:hover {
+    background: #F7C948;
+    color: #3B2412 !important;
+    transform: translateY(-2px);
+    }
     /* Encabezado */
     .registro-header {
         position: relative;
         padding: 45px 30px 55px;
         text-align: center;
-        background: linear-gradient(135deg, #dff1d4, #f8f3d9);
+        background: linear-gradient(135deg, var(--amarillo), var(--naranja));
         overflow: hidden;
     }
 
@@ -31,7 +67,7 @@
         font-size: 80px;
         left: 20px;
         top: 15px;
-        opacity: 0.25;
+        opacity: .25;
         transform: rotate(-15deg);
     }
 
@@ -41,7 +77,7 @@
         font-size: 90px;
         right: 20px;
         bottom: -15px;
-        opacity: 0.25;
+        opacity: .25;
         transform: rotate(10deg);
     }
 
@@ -53,41 +89,44 @@
 
     .registro-header h1 {
         margin: 10px 0 8px;
-        color: #d48337;
+        color: var(--cafe);
         font-weight: 800;
         font-size: 2.2rem;
     }
 
     .registro-header p {
         margin: 0;
-        color: #ecaf2b;
+        color: var(--cafe-suave);
         font-size: 1.05rem;
     }
 
     /* Contenido */
     .registro-body {
-        padding: 35px;
+        padding: 30px;
     }
 
     .mensaje {
-        border-radius: 15px;
+        border-radius: 12px;
         padding: 15px 18px;
         margin-bottom: 20px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--borde);
+        background: var(--durazno);
+        color: var(--cafe);
+        box-shadow: 0 4px 12px rgba(139, 84, 20, .07);
     }
 
     .campo-alimento {
-        background: #fbfdf9;
-        border: 2px solid #e3ecd9;
-        border-radius: 20px;
-        padding: 25px;
-        transition: all 0.3s ease;
+        background: var(--durazno);
+        border: 2px solid var(--borde);
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 15px;
+        transition: all .3s ease;
     }
 
     .campo-alimento:hover {
-        border-color: #8fba75;
-        box-shadow: 0 8px 20px rgba(70, 110, 60, 0.08);
+        border-color: var(--naranja);
+        box-shadow: 0 6px 16px rgba(139, 84, 20, .10);
         transform: translateY(-2px);
     }
 
@@ -97,7 +136,7 @@
     }
 
     .campo-alimento label {
-        color: #315a3a;
+        color: var(--cafe);
         font-weight: 700;
         font-size: 1.05rem;
         margin-bottom: 10px;
@@ -105,68 +144,113 @@
 
     .campo-alimento input {
         width: 100%;
-        padding: 14px 16px;
-        border: 2px solid #dce7d4;
-        border-radius: 12px;
+        box-sizing: border-box;
+        padding: 13px 15px;
+        border: 1px solid var(--borde);
+        border-radius: 10px;
         outline: none;
         font-size: 1rem;
-        transition: all 0.3s ease;
-        background: white;
+        transition: all .3s ease;
+        background: #FFFAF2;
+        color: var(--cafe);
     }
 
     .campo-alimento input:focus {
-        border-color: #64692d;
-        box-shadow: 0 0 0 4px rgba(104, 163, 87, 0.12);
+        border-color: var(--naranja-fuerte);
+        box-shadow: 0 0 0 4px rgba(242, 158, 76, .15);
     }
 
     .ayuda {
         margin-top: 10px;
-        color: #7b875e;
-        font-size: 0.9rem;
+        color: var(--cafe-suave);
+        font-size: .9rem;
     }
 
     .error-campo {
-        color: #c0392b;
+        color: var(--rojo);
         margin-top: 8px;
-        font-size: 0.9rem;
+        font-size: .9rem;
         font-weight: 600;
     }
 
-    /* Botón */
+    /* Botón confirmar */
     .btn-confirmar {
         width: 100%;
         border: none;
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 15px 20px;
-        margin-top: 25px;
-        background: linear-gradient(135deg, #388e5b, #276c43);
-        color: white;
+        margin-top: 15px;
+        background: linear-gradient(135deg, var(--amarillo), var(--naranja));
+        color: var(--cafe);
         font-size: 1.05rem;
         font-weight: 700;
         cursor: pointer;
-        box-shadow: 0 7px 18px rgba(39, 108, 67, 0.25);
-        transition: all 0.3s ease;
+        box-shadow: 0 5px 14px rgba(139, 84, 20, .15);
+        transition: all .3s ease;
     }
 
     .btn-confirmar:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(201, 218, 14, 0.35);
-        background: linear-gradient(135deg, #2f7f50, #205b39);
+        transform: translateY(-2px);
+        background: var(--naranja-fuerte);
+        color: white;
     }
 
     .btn-confirmar:active {
         transform: translateY(0);
     }
 
+    /* Historial */
+    .historial-consumos {
+        margin-top: 25px;
+        padding: 22px;
+        background: var(--durazno);
+        border: 2px solid var(--borde);
+        border-radius: 16px;
+    }
+
+    .historial-consumos h2 {
+        color: var(--cafe);
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+
+    .historial-consumos table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        background: #FFFAF2;
+        color: var(--cafe);
+    }
+
+    .historial-consumos th {
+        padding: 12px;
+        background: var(--amarillo);
+        color: var(--cafe);
+    }
+
+    .historial-consumos td {
+        padding: 12px;
+        border-bottom: 1px solid var(--borde);
+    }
+
+    .historial-consumos tbody tr:nth-child(even) {
+        background: var(--crema);
+    }
+
+    .historial-consumos tbody tr:hover {
+        background: var(--durazno-hover);
+    }
+
     /* Decoración inferior */
     .decoracion-granja {
         text-align: center;
-        margin-top: 28px;
+        margin-top: 25px;
         padding: 20px;
-        background: #f1f7eb;
+        background: var(--durazno);
+        border: 1px solid var(--borde);
         border-radius: 15px;
-        color: #54704e;
-        font-size: 0.95rem;
+        color: var(--cafe);
+        font-size: .95rem;
     }
 
     .animales {
@@ -188,7 +272,7 @@
     /* Celulares */
     @media (max-width: 576px) {
         .registro-alimento {
-            padding: 20px 10px;
+            padding: 15px 10px;
         }
 
         .registro-header {
@@ -204,25 +288,25 @@
         }
 
         .registro-body {
-            padding: 20px;
+            padding: 18px;
         }
 
         .campo-alimento {
-            padding: 20px;
+            padding: 18px;
         }
     }
 </style>
-<div class="mb-3">
-    <a href="{% url 'accounts:home' %}"
-       class="btn btn-outline-success rounded-pill">
-        🏠 Volver al inicio
-    </a>
-</div>
 
 <div class="registro-alimento">
 
     <div class="registro-card">
-
+        
+        <div>
+            <a href="{% url 'accounts:home' %}" class="btn-inicio">
+                🏠 Volver al inicio
+            </a>
+        
+        </div>
         <!-- ENCABEZADO -->
         <div class="registro-header">
 
