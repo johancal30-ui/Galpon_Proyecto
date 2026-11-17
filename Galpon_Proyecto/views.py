@@ -966,8 +966,9 @@ def descargar_reporte_excel(request):
     # Ajusta el nombre del modelo y el campo según lo que usó tu compañero:
     #   compra_bultos = por_mes(IngresoAlimento.objects, 'cantidad_bultos')
     #   consumo_bultos = por_mes(ConsumoAlimento.objects, 'cantidad_bultos')
-    compra_bultos = {}    # vacío = la columna sale en blanco
-    consumo_bultos = {}
+    # Bultos comprados y consumidos por mes
+    compra_bultos = por_mes(Alimento.objects, 'cantidad_bultos')
+    consumo_bultos = por_mes(RegistroConsumo.objects, 'bultos_consumidos')
  
     producciones = [(r.fecha, r.cantidad_huevos, r.cantidad_huevos_rotos, r.cantidad_cubetas)
                     for r in RegistroProduccion.objects.filter(fecha__year=anio).order_by('fecha')]
