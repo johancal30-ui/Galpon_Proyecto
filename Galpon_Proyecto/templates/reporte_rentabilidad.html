@@ -135,6 +135,10 @@
         }
         .btn-exportar:hover { background: var(--tinta); color: var(--fondo); }
 
+        /* Clases para los colores del texto de estado */
+        .texto-verde { color: var(--verde); }
+        .texto-rojo { color: var(--rojo); }
+
         @media (max-width: 768px) {
             .filtros-tarjeta { flex-direction: column; align-items: stretch; }
             .acciones-exportar { flex-direction: column; }
@@ -177,23 +181,23 @@
         <div class="resumen-grid">
             <div class="tarjeta-stat">
                 <h3>Total Insumos</h3>
-                <p class="numero negativo">-${{ total_insumos|floatformat:2 }}</p>
+                <p class="numero negativo">-${{ total_insumos }}</p>
             </div>
             <div class="tarjeta-stat">
                 <h3>Ingresos por Ventas</h3>
-                <p class="numero positivo">+${{ ingresos_ventas|floatformat:2 }}</p>
+                <p class="numero positivo">+${{ ingresos_ventas }}</p>
             </div>
             <div class="tarjeta-stat tarjeta-balance">
                 <h3>Margen Neto</h3>
                 <p class="numero {% if es_rentable %}positivo{% else %}negativo{% endif %}">
-                    ${{ margen|floatformat:2 }}
+                    ${{ margen }}
                 </p>
-                            <p style="margin-top: 10px; font-weight: 700;">
-                Estado: 
-                <span class="{% if es_rentable %}texto-verde{% else %}texto-rojo{% endif %}">
-                    {% if es_rentable %}Rentable{% else %}No Rentable{% endif %}
-                </span>
-            </p>
+                <p style="margin-top: 10px; font-weight: 700;">
+                    Estado: 
+                    <span class="{% if es_rentable %}texto-verde{% else %}texto-rojo{% endif %}">
+                        {% if es_rentable %}Rentable{% else %}No Rentable{% endif %}
+                    </span>
+                </p>
             </div>
         </div>
 
@@ -222,20 +226,20 @@
                     <tr>
                         <td><strong>Costo de Alimento</strong></td>
                         <td>Compra de bultos</td>
-                        <td style="color: var(--rojo);">-${{ costo_alimento|floatformat:2 }}</td>
+                        <td style="color: var(--rojo);">-${{ costo_alimento }}</td>
                     </tr>
                     <tr>
                         <td><strong>Gastos Operativos</strong></td>
                         <td>Servicios, transporte, etc.</td>
-                        <td style="color: var(--rojo);">-${{ costo_gastos|floatformat:2 }}</td>
+                        <td style="color: var(--rojo);">-${{ costo_gastos }}</td>
                     </tr>
                     <tr style="background: var(--fondo); font-weight: bold;">
                         <td colspan="2">TOTAL INSUMOS</td>
-                        <td style="color: var(--rojo);">-${{ total_insumos|floatformat:2 }}</td>
+                        <td style="color: var(--rojo);">-${{ total_insumos }}</td>
                     </tr>
                     <tr style="background: var(--fondo); font-weight: bold;">
                         <td colspan="2">TOTAL INGRESOS (VENTAS)</td>
-                        <td style="color: var(--verde);">+${{ ingresos_ventas|floatformat:2 }}</td>
+                        <td style="color: var(--verde);">+${{ ingresos_ventas }}</td>
                     </tr>
                 </tbody>
             </table>

@@ -247,7 +247,7 @@
                         <option value="{{ c.nombre }}" {% if c.nombre == venta.cliente %}selected{% endif %}>{{ c.nombre }}</option>
                     {% endfor %}
                 </select>
-                <a href="{% url 'registrar_cliente' %}" style="font-size:.85rem;font-weight:700;color:var(--naranja-fuerte)">+ Agregar cliente nuevo</a>
+                <a href="{% url 'registrar_cliente' %}?next_venta={{ venta.id }}" style="font-size:.85rem;font-weight:700;color:var(--naranja-fuerte)">+ Agregar cliente nuevo</a>
             </div>
 
             <div class="form-row">
@@ -259,6 +259,9 @@
             <div class="form-row">
                 <label>Precio por cubeta:</label>
                 <input type="text" name="precio_unitario" id="id_precio_unitario" class="form-control" value="{{ venta.precio_form }}">
+                <label for="precio_unitario">Precio por cubeta:</label>
+                <input type="text" id="precio_unitario" name="precio_unitario"
+                       value="{{ venta.precio_unitario|floatformat:0 }}" required>
             </div>
 
             <div class="acciones-form">

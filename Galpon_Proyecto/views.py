@@ -998,13 +998,12 @@ def reporte_rentabilidad(request):
                     fecha__range=[fecha_inicio, fecha_fin]
                 ).aggregate(total=Sum('costo_total'))['total'] or 0
                 
-                # 2. Costos de Gastos Operativos (Opcional, pero suma a la rentabilidad real)
+                # 2. Costos de Gastos Operativos
                 costo_gastos = GastoOperativo.objects.filter(
                     fecha__range=[fecha_inicio, fecha_fin]
                 ).aggregate(total=Sum('monto'))['total'] or 0
                 
-                # 3. Costos de Vacunación (Estimado, ya que no tienen un campo 'costo' en el modelo,
-                # le asignaremos un costo fijo simbólico por dosis o simplemente mostraremos las dosis)
+                # 3. Dosis de Vacunas
                 dosis_vacunas = RegistroVacunacion.objects.filter(
                     fecha_aplicacion__range=[fecha_inicio, fecha_fin]
                 ).aggregate(total=Sum('gallinas_vacunadas'))['total'] or 0
@@ -1025,15 +1024,15 @@ def reporte_rentabilidad(request):
                 margen = ingresos_ventas - total_insumos
                 es_rentable = margen >= 0
 
-                # Actualizamos el contexto con los resultados
+                # Actualizamos el contexto con los resultados y formateamos los números
                 context.update({
-                    'costo_alimento': costo_alimento,
-                    'costo_gastos': costo_gastos,
+                    'costo_alimento': f"{int(costo_alimento):,}".replace(",", "."),
+                    'costo_gastos': f"{int(costo_gastos):,}".replace(",", "."),
                     'dosis_vacunas': dosis_vacunas,
-                    'total_insumos': total_insumos,
-                    'ingresos_ventas': ingresos_ventas,
+                    'total_insumos': f"{int(total_insumos):,}".replace(",", "."),
+                    'ingresos_ventas': f"{int(ingresos_ventas):,}".replace(",", "."),
                     'produccion_huevos': produccion_huevos,
-                    'margen': margen,
+                    'margen': f"{int(margen):,}".replace(",", "."),
                     'es_rentable': es_rentable,
                     'fecha_inicio': fecha_inicio_str,
                     'fecha_fin': fecha_fin_str,
