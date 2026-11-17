@@ -2,47 +2,199 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Eliminar Alimento - Galpón Proyecto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Ingreso</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .page { max-width: 600px; margin: auto; }
-        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
-        .masthead { background: #dc3545; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-        .masthead h1 { margin: 0; }
-        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-        .info p { margin: 5px 0; }
-        .btn { display: inline-block; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; margin-right: 10px; }
-        .btn:hover { background: #c82333; }
-        .btn-cancelar { background: #6c757d; }
-        .btn-cancelar:hover { background: #5a6268; }
+        /* Importar una fuente bonita y redondeada */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #f5c26b 0%, #fbe8c8 35%, #fcf5eb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 5vh;
+        }
+
+        .card {
+            background-color: #fef8f0;
+            border: 1px solid #f7d9b5;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(230, 150, 50, 0.1);
+            width: 100%;
+            max-width: 650px;
+            padding: 30px;
+            position: relative;
+        }
+
+        /* Botón de volver estilo pastilla */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            background-color: #fffaf3;
+            border: 1px solid #e8c8a0;
+            color: #4a3b2c;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: #f5e6d3;
+        }
+
+        /* Título centrado con línea naranja */
+        .header-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            color: #3e2c1c;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 800;
+        }
+
+        .header-title .icon {
+            font-size: 30px;
+        }
+
+        .divider {
+            height: 3px;
+            width: 50px;
+            background-color: #f0942f;
+            margin: 12px auto 0 auto;
+            border-radius: 2px;
+        }
+
+        /* Texto de advertencia */
+        .warning-text {
+            text-align: center;
+            color: #7a6a5a;
+            font-size: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* Caja de detalles */
+        .details-box {
+            background-color: #ffffff;
+            border: 1px solid #f0c898;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .details-box p {
+            margin: 8px 0;
+            color: #4a3b2c;
+            font-size: 15px;
+        }
+
+        .details-box strong {
+            color: #2b1f14;
+            font-weight: 700;
+        }
+
+        /* Contenedor de los botones */
+        .actions-box {
+            background-color: #fffaf3;
+            border: 1px solid #f7d9b5;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Estilos generales de botones */
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Botón rojo de eliminar */
+        .btn-danger {
+            background-color: #d64f4f;
+            color: white;
+            box-shadow: 0 4px 10px rgba(214, 79, 79, 0.2);
+        }
+
+        .btn-danger:hover {
+            background-color: #c44343;
+            transform: translateY(-1px);
+        }
+
+        /* Botón blanco de cancelar */
+        .btn-cancel {
+            background-color: #ffffff;
+            color: #4a3b2c;
+            border: 1px solid #d4bca5;
+        }
+
+        .btn-cancel:hover {
+            background-color: #fdfaf6;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
-    <div class="page">
-        <a class="volver" href="{% url 'registrar_alimento' %}">← Volver a alimento</a>
 
-        <div class="masthead">
-            <h1>🗑️ Eliminar Ingreso</h1>
+    <div class="card">
+        <!-- Botón superior -->
+        <a href="{% url 'registrar_alimento' %}" class="back-button">
+            ← Volver a gastos
+        </a>
+
+        <!-- Título -->
+        <div class="header-title">
+            <h1>
+                <span class="icon">🗑️</span> Eliminar Ingreso
+            </h1>
+            <div class="divider"></div>
         </div>
 
-        <div class="content">
-            <p>¿Estás seguro de que quieres eliminar este ingreso? Esta acción no se puede deshacer.</p>
+        <p class="warning-text">¿Estás seguro de que quieres eliminar este ingreso? Esta acción no se puede deshacer.</p>
 
-            <div class="info">
-                <p><strong>Fecha:</strong> {{ alimento.fecha }}</p>
-                <p><strong>Tipo:</strong> {{ alimento.get_tipo_display }}</p>
-                <p><strong>Cantidad:</strong> {{ alimento.cantidad_bultos }} bultos</p>
-                <p><strong>Costo total:</strong> ${{ alimento.costo_total }}</p>
-                <p><strong>Proveedor:</strong> {{ alimento.proveedor }}</p>
+        <!-- Detalles del Registro -->
+        <div class="details-box">
+            <p><strong>Fecha:</strong> {{ alimento.fecha|date:"d \d\e F \d\e Y" }}</p>
+            <p><strong>Tipo:</strong> {{ alimento.get_tipo_display }}</p>
+            <p><strong>Cantidad:</strong> {{ alimento.cantidad_bultos }} bultos</p>
+            <!-- Formato del costo arreglado -->
+            <p><strong>Costo total:</strong> ${{ alimento.costo_total|floatformat:"0" }}</p>
+            <p><strong>Proveedor:</strong> {{ alimento.proveedor }}</p>
+        </div>
+
+        <!-- Botones -->
+        <form method="POST">
+            {% csrf_token %}
+            <div class="actions-box">
+                <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                <a href="{% url 'registrar_alimento' %}" class="btn btn-cancel">Cancelar</a>
             </div>
-
-            <form method="post">
-                {% csrf_token %}
-                <button class="btn" type="submit">Sí, eliminar</button>
-                <a class="btn btn-cancelar" href="{% url 'registrar_alimento' %}">Cancelar</a>
-            </form>
-        </div>
+        </form>
     </div>
+
 </body>
 </html>
