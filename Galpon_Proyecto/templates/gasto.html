@@ -213,6 +213,60 @@
         .messages .warning { background: #FFE9B8; color: #6B4A00; border-color: var(--sol); }
         .error-campo { background: var(--cresta-claro); color: #7A1F14; padding: 10px 14px; border-radius: 10px; margin-bottom: 15px; font-size: .9rem; font-weight: 600; border-left: 5px solid var(--cresta); }
 
+        /* ---------- Estilos del Paginador (Idéntico a Alimentos) ---------- */
+        .pagination-container {
+            background-color: #FFFAF2;
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+            padding: 15px 20px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .pagination-info {
+            color: var(--tinta);
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            gap: 15px;
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .page-btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 35px;
+            height: 35px;
+            padding: 0 10px;
+            border-radius: 8px;
+            border: 2px solid var(--borde);
+            background-color: #ffffff;
+            color: var(--tinta);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            background-color: var(--fondo);
+            border-color: var(--naranja);
+        }
+        .page-btn.active {
+            border-color: var(--naranja-fuerte);
+            color: var(--naranja-fuerte);
+            background-color: #ffffff;
+            font-weight: bold;
+        }
+        .page-btn.disabled {
+            background-color: #f9f4ed;
+            color: #c4b5a5;
+            border-color: #eeddc8;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -258,12 +312,13 @@
         <div class="kpis">
             <div class="kpi">
                 <p>Gastos operativos del mes</p>
+                <!-- Arreglado el formato para que no se dañen los costos -->
                 <p class="valor">${{ gastos_mes }}</p>
             </div>
         </div>
 
         <p>
-            <strong>Total de gastos operativos (histórico):</strong> ${{ gastos_totales|floatformat:"0g" }}
+            <strong>Total de gastos operativos (histórico):</strong> ${{ gastos_totales }}
         </p>
 
         <h3>Historial de gastos</h3>
@@ -284,6 +339,7 @@
                         <td>{{ gasto.fecha }}</td>
                         <td>{{ gasto.get_categoria_display }}</td>
                         <td>{{ gasto.descripcion }}</td>
+                        <!-- Formateo arreglado con floatformat o la variable que ya traigas -->
                         <td>${{ gasto.monto_form }}</td>
                         <td>
                             <a class="accion editar" href="{% url 'editar_gasto' gasto.id %}" title="Editar">📝</a>
@@ -295,6 +351,40 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+               <!-- PAGINADOR -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <span>Total {{ gastos.paginator.count }} resultados</span>
+                <span>Pág. {{ gastos.number }}/{{ gastos.paginator.num_pages }}</span>
+            </div>
+            
+            <div class="pagination-controls">
+                {% if gastos.has_previous %}
+                    <a href="?page=1" class="page-btn">«</a>
+                    <a href="?page={{ gastos.previous_page_number }}" class="page-btn">‹</a>
+                {% else %}
+                    <span class="page-btn disabled">«</span>
+                    <span class="page-btn disabled">‹</span>
+                {% endif %}
+
+                {% for num in gastos.paginator.page_range %}
+                    {% if gastos.number == num %}
+                        <span class="page-btn active">{{ num }}</span>
+                    {% elif num > gastos.number|add:'-3' and num < gastos.number|add:'3' %}
+                        <a href="?page={{ num }}" class="page-btn">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if gastos.has_next %}
+                    <a href="?page={{ gastos.next_page_number }}" class="page-btn">›</a>
+                    <a href="?page={{ gastos.paginator.num_pages }}" class="page-btn">»</a>
+                {% else %}
+                    <span class="page-btn disabled">›</span>
+                    <span class="page-btn disabled">»</span>
+                {% endif %}
+            </div>
         </div>
     </div>
 </body>

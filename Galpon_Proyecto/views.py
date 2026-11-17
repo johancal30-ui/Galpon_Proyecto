@@ -829,6 +829,15 @@ def agregar_bultos(request):
 
 
 # GASTOS OPERATIVOS ANDRES
+
+def formato_numero(valor):
+    if valor is None:
+        return "0"
+    try:
+        return "{:,.0f}".format(float(valor)).replace(",", ".")
+    except (ValueError, TypeError):
+        return "0"
+
 @login_required
 def registrar_gasto(request):
     form = GastoOperativoForm()
@@ -843,15 +852,15 @@ def registrar_gasto(request):
 
         if not categoria:
             error_manual = "Debes seleccionar una categoría."
-
         elif not descripcion:
             error_manual = "La descripción es obligatoria."
-
         elif not monto:
             error_manual = "El monto es obligatorio."
         else:
             try:
-                monto_float = float(monto)
+                # AQUI ESTA LA MAGIA: Limpiamos los puntos de miles antes de convertir a número
+                monto_limpio = str(monto).replace('.', '').replace(',', '.')
+                monto_float = float(monto_limpio)
                 if monto_float <= 0:
                     error_manual = "El monto debe ser mayor a cero."
             except (ValueError, TypeError):
@@ -865,7 +874,8 @@ def registrar_gasto(request):
                 registrado_por=request.user,
             )
             gasto.save()
-            messages.success(request, f'Gasto registrado. Monto: ${gasto.monto}')
+            monto_bonito = formato_numero(gasto.monto)
+            messages.success(request, f'Gasto registrado. Monto: ${monto_bonito}')
             return redirect('registrar_gasto')
 
     hoy = date.today()
@@ -894,26 +904,29 @@ def registrar_gasto(request):
     else:
         costo_por_cubeta = 0
 
-    gastos = GastoOperativo.objects.all()
-
-    gastos_mes = f"{int(gastos_mes):,}".replace(",", ".")
-    gastos_totales = f"{int(gastos_totales):,}".replace(",", ".")
+    # --- PAGINACIÓN ---
+    gastos_list = GastoOperativo.objects.all().order_by('-fecha')
+    paginator = Paginator(gastos_list, 5)
+    page_number = request.GET.get('page')
+    gastos = paginator.get_page(page_number)
 
     for gasto in gastos:
-        gasto.monto_form = f"{int(gasto.monto):,}".replace(",", ".")    
+        gasto.monto_form = formato_numero(gasto.monto)    
+
+    gastos_mes_form = formato_numero(gastos_mes)
+    gastos_totales_form = formato_numero(gastos_totales)
 
     return render(request, 'gasto.html', {
         'form': form,
         'gastos': gastos,
         'error_manual': error_manual,
-        'gastos_mes': gastos_mes,
-        'gastos_totales': gastos_totales,
+        'gastos_mes': gastos_mes_form,
+        'gastos_totales': gastos_totales_form,
         'costo_alimento_mes': costo_alimento_mes,
         'cubetas_producidas': cubetas_producidas,
         'costo_total_mes': costo_total_mes,
         'costo_por_cubeta': costo_por_cubeta,
     })
-
 
 @login_required
 def editar_gasto(request, pk):
