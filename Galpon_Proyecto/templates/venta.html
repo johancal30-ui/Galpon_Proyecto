@@ -140,20 +140,20 @@
         tbody tr:last-child td { border-bottom: none; }
         td:first-child { font-weight: 600; }
 
-        a.accion {
+                a.accion {
             display: inline-block;
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 99px;
-            font-size: .8rem;
-            font-weight: 700;
+            font-size: 1.1rem; /* Letra más grande para el emoji */
             text-decoration: none;
             color: var(--tinta);
             background: var(--exito-claro);
             border: 1px solid var(--borde);
             margin-right: 6px;
             transition: all .18s ease;
+            line-height: 1;
         }
-        a.accion:hover { background: var(--naranja); transform: translateY(-1px); }
+        a.accion:hover { background: var(--naranja); transform: translateY(-2px); }
         a.accion.eliminar { color: #7A1F14; background: var(--cresta-claro); border-color: rgba(192, 57, 43, .3); }
         a.accion.eliminar:hover { background: var(--cresta); color: #fff; }
 
@@ -294,9 +294,9 @@
                         <td>${{ venta.precio_form }}</td>
                         <td>${{ venta.total_form }}</td>
                         <td>
-                            <a class="accion" href="{% url 'editar_venta' venta.id %}">Editar</a>
+                            <a class="accion editar" href="{% url 'editar_venta' venta.id %}" title="Editar">📝</a>
                             {% if user.is_superuser %}
-                                <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}">Eliminar</a>
+                                <a class="accion eliminar" href="{% url 'eliminar_venta' venta.id %}" title="Eliminar">🗑️</a>
                             {% endif %}
                         </td>
                     </tr>

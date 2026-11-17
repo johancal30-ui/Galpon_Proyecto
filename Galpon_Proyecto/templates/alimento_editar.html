@@ -2,63 +2,179 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Alimento - Galpón Proyecto</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .page { max-width: 700px; margin: auto; }
-        .volver { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
-        .masthead { background: #007bff; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-        .masthead h1 { margin: 0; }
-        .content { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .form-row { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; text-decoration: none; margin-right: 10px; }
-        .btn:hover { background: #0056b3; }
-        .btn-cancelar { background: #6c757d; }
-        .btn-cancelar:hover { background: #5a6268; }
-        .error-campo { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; border-left: 4px solid #dc3545; }
+        :root {
+            --sol: #F7C948;
+            --naranja: #F29E4C;
+            --naranja-fuerte: #E8892B;
+            --tinta: #3B2412;
+            --suave: #7A5A3A;
+            --fondo: #FFF6E3;
+            --tarjeta: #FFEEDB;
+            --borde: #F0C48A;
+            --cresta: #C0392B;
+            --radio: 14px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            color: var(--tinta);
+            line-height: 1.5;
+            background: linear-gradient(180deg, var(--sol) 0, var(--naranja) 220px, var(--fondo) 220px);
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: var(--tarjeta);
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+            box-shadow: 0 10px 28px rgba(150, 90, 30, 0.15);
+            padding: 36px;
+        }
+        h1 {
+            font-family: Rockwell, "Roboto Slab", Georgia, serif;
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 20px 0 8px;
+            color: var(--tinta);
+        }
+        h1::after {
+            content: "";
+            display: block;
+            width: 70px; height: 4px;
+            margin: 14px auto 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--sol), var(--naranja-fuerte));
+        }
+        form {
+            margin: 24px 0 8px;
+            padding: 24px;
+            background: #FFFAF2;
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+        }
+        label { display: block; margin-top: 16px; font-weight: 700; font-size: 0.9rem; color: var(--tinta); }
+        label:first-of-type { margin-top: 0; }
+        
+        /* Estilo para los inputs generados por Django */
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 11px 14px;
+            margin-top: 7px;
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--tinta);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--naranja-fuerte);
+            box-shadow: 0 0 0 4px rgba(242, 158, 76, 0.25);
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 13px 22px;
+            background: linear-gradient(135deg, var(--sol), var(--naranja-fuerte));
+            color: var(--tinta);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.98rem;
+            font-weight: 700;
+            font-family: inherit;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(232, 137, 43, 0.35);
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+        .btn:hover { filter: brightness(1.05); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(232, 137, 43, 0.45); }
+        
+        .btn-gris { background: #FFFAF2; color: var(--tinta); border: 2px solid var(--borde); box-shadow: none; }
+        .btn-gris:hover { background: var(--fondo); }
+        
+        .acciones-form { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+        .acciones-form button, .acciones-form .btn { flex: 1 1 180px; margin-top: 0; }
+
+        .volver {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px;
+            background: #FFFAF2;
+            color: var(--tinta);
+            font-weight: 700; font-size: .9rem;
+            text-decoration: none;
+            border: 2px solid var(--borde);
+            border-radius: 20px;
+            transition: all .2s ease;
+        }
+        .volver:hover { background: var(--sol); border-color: var(--naranja); transform: translateY(-2px); }
+
+        .error-campo { 
+            background: #FBE3DF; color: #7A1F14; padding: 12px 16px; 
+            border-radius: 10px; margin-bottom: 20px; font-size: 0.92rem; 
+            font-weight: 600; border-left: 5px solid var(--cresta); 
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 20px 12px; }
+            .container { padding: 22px 16px; }
+            form { padding: 18px; }
+            h1 { font-size: 1.4rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="page">
+    <div class="container">
         <a class="volver" href="{% url 'registrar_alimento' %}">← Volver a alimento</a>
 
-        <div class="masthead">
+        <div class="encabezado">
             <h1>✏️ Editar Ingreso de Alimento</h1>
         </div>
 
-        <div class="content">
+        <form method="post">
+            {% csrf_token %}
+
             {% if error_manual %}
-                <div class="error-campo">{{ error_manual }}</div>
+                <div class="error-campo">
+                    {{ error_manual }}
+                </div>
             {% endif %}
 
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-row">
-                    <label>Tipo de alimento:</label>
-                    {{ form.tipo }}
-                </div>
-                <div class="form-row">
-                    <label>Cantidad de bultos:</label>
-                    {{ form.cantidad_bultos }}
-                </div>
-                <div class="form-row">
-                    <label>Kilos por bulto:</label>
-                    {{ form.kilos_por_bulto }}
-                </div>
-                <div class="form-row">
-                    <label>Costo unitario:</label>
-                    {{ form.costo_unitario }}
-                </div>
-                <div class="form-row">
-                    <label>Proveedor:</label>
-                    {{ form.proveedor }}
-                </div>
+            <div class="form-row">
+                <label for="{{ form.tipo.id_for_label }}">Tipo de alimento:</label>
+                {{ form.tipo }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.cantidad_bultos.id_for_label }}">Cantidad de bultos:</label>
+                {{ form.cantidad_bultos }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.kilos_por_bulto.id_for_label }}">Kilos por bulto:</label>
+                {{ form.kilos_por_bulto }}
+            </div>
+            <div class="form-row">
+                <label for="id_costo_unitario">Costo unitario:</label>
+                <input type="text" name="costo_unitario" id="id_costo_unitario" class="form-control" value="{{ alimento.costo_form }}">
+            </div>
+            <div class="form-row">
+                <label for="{{ form.proveedor.id_for_label }}">Proveedor:</label>
+                {{ form.proveedor }}
+            </div>
+
+            <div class="acciones-form">
                 <button class="btn" type="submit">Guardar cambios</button>
-                <a class="btn btn-cancelar" href="{% url 'registrar_alimento' %}">Cancelar</a>
-            </form>
-        </div>
+                <a class="btn btn-gris" href="{% url 'registrar_alimento' %}">Cancelar</a>
+            </div>
+        </form>
     </div>
 </body>
 </html>

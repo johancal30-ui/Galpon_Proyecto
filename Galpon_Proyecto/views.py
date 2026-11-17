@@ -21,6 +21,8 @@ from .forms import RegistroVacunacionForm
 
 from datetime import datetime
 from django.db.models import Sum
+from django.core.paginator import Paginator
+
 # PRODUCCIÓN (JOHAN)
 def registrar_produccion(request):
     if request.method == 'POST':
@@ -493,6 +495,15 @@ def eliminar_venta(request, pk):
 
 #(ALIMENTO ANDRRES)
 
+def formato_cop(valor):
+    """Formatea un número como moneda colombiana: 200000 -> $200.000"""
+    if valor is None:
+        return "$0"
+    try:
+        return "${:,.0f}".format(float(valor)).replace(",", ".")
+    except (ValueError, TypeError):
+        return "$0"
+
 @login_required
 def registrar_alimento(request):
     form = AlimentoForm()
@@ -511,7 +522,7 @@ def registrar_alimento(request):
         if not tipo:
             error_manual = "Debes seleccionar un tipo de alimento."
 
-        # Validar cantidad
+                # Validar cantidad
         elif not cantidad:
             error_manual = "La cantidad de bultos es obligatoria."
         else:
@@ -522,25 +533,29 @@ def registrar_alimento(request):
             except (ValueError, TypeError):
                 error_manual = "La cantidad debe ser un número entero."
 
-        # Validar kilos por bulto
+        # Validar kilos por bulto (CORREGIDO PARA FORMATO COLOMBIA)
         if error_manual is None:
             if not kilos:
                 error_manual = "Los kilos por bulto son obligatorios."
             else:
                 try:
-                    kilos_float = float(kilos)
+                    # Limpiamos el string: quitamos puntos de miles y cambiamos coma por punto decimal
+                    kilos_limpio = str(kilos).replace('.', '').replace(',', '.')
+                    kilos_float = float(kilos_limpio)
                     if kilos_float <= 0:
                         error_manual = "Los kilos por bulto deben ser mayores a cero."
                 except (ValueError, TypeError):
                     error_manual = "Los kilos deben ser un número válido."
 
-        # Validar costo unitario
+        # Validar costo unitario (CORREGIDO PARA FORMATO COLOMBIA)
         if error_manual is None:
             if not costo:
                 error_manual = "El costo unitario es obligatorio."
             else:
                 try:
-                    costo_float = float(costo)
+                    # Limpiamos el string: quitamos puntos de miles y cambiamos coma por punto decimal
+                    costo_limpio = str(costo).replace('.', '').replace(',', '.')
+                    costo_float = float(costo_limpio)
                     if costo_float <= 0:
                         error_manual = "El costo debe ser mayor a cero."
                 except (ValueError, TypeError):
@@ -581,10 +596,15 @@ def registrar_alimento(request):
                 'proveedor': proveedor_ultimo,
             })
 
-    # Historial completo
-    historial = Alimento.objects.all()
+    # Historial paginado (5 por página)
+    historial_qs = Alimento.objects.all().order_by('-fecha', '-id')
+    paginator = Paginator(historial_qs, 5)
+    historial = paginator.get_page(request.GET.get('page'))
+    rango_paginas = paginator.get_elided_page_range(
+        historial.number, on_each_side=1, on_ends=1
+    )
 
-    # Cálculo del total invertido por período
+        # Cálculo del total invertido por período
     total_invertido = None
     fecha_desde = request.GET.get('fecha_desde', '').strip()
     fecha_hasta = request.GET.get('fecha_hasta', '').strip()
@@ -600,19 +620,30 @@ def registrar_alimento(request):
             total_invertido = None
 
     if total_invertido is not None:
-        total_invertido = f"{int(total_invertido):,}".replace(",", ".")
-    
+        total_invertido = formato_cop(total_invertido)
+
+    # Para conservar el filtro de fechas al cambiar de página
+    filtros = ''
+    if fecha_desde:
+        filtros += f'&fecha_desde={fecha_desde}'
+    if fecha_hasta:
+        filtros += f'&fecha_hasta={fecha_hasta}'
+
+    # Formatear costos solo de los registros de la página actual
     for a in historial:
-        a.costo_unit_form = f"{int(a.costo_unitario):,}".replace(",", ".")
-        a.costo_total_form = f"{int(a.costo_total):,}".replace(",", ".")
-        
+        a.costo_unit_form = formato_cop(a.costo_unitario)
+        a.costo_total_form = formato_cop(a.costo_total)
+
     for s in stock_por_tipo:
-        s['costo_total_form'] = f"{int(s['costo_total']):,}".replace(",", ".")
+        s['costo_total_form'] = formato_cop(s['costo_total'])
 
     return render(request, 'alimento.html', {
         'form': form,
         'stock_por_tipo': stock_por_tipo,
         'historial': historial,
+        'rango_paginas': rango_paginas,
+        'total_registros': paginator.count,
+        'filtros': filtros,
         'error_manual': error_manual,
         'total_invertido': total_invertido,
         'fecha_desde': fecha_desde,
@@ -676,6 +707,8 @@ def editar_alimento(request, pk):
             alimento.save()
             messages.success(request, 'Ingreso actualizado correctamente.')
             return redirect('registrar_alimento')
+            
+    alimento.costo_form = f"{int(alimento.costo_unitario):,}".replace(",", ".")
 
     return render(request, 'alimento_editar.html', {
         'form': form,

@@ -33,7 +33,7 @@
             background-attachment: scroll;
         }
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: auto;
             background: var(--tarjeta);
             border: 2px solid var(--borde);
@@ -132,25 +132,31 @@
         .acciones-form { display: flex; gap: 12px; flex-wrap: wrap; }
         .acciones-form button, .acciones-form .btn { flex: 1 1 180px; }
 
-        .tabla-wrapper { overflow-x: auto; border: 2px solid var(--borde); border-radius: var(--radio); margin-top: 18px; background: #FFFAF2; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; min-width: 520px; }
-        th, td { padding: 13px 16px; border-bottom: 1px solid var(--borde); text-align: left; white-space: nowrap; }
-        th { background: var(--tarjeta-hover); font-size: .76rem; text-transform: uppercase; letter-spacing: .7px; color: var(--suave); }
+        /* ---------- Tabla del historial ---------- */
+        .tabla-wrapper { border: 2px solid var(--borde); border-radius: var(--radio); margin-top: 18px; background: #FFFAF2; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: fixed; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid var(--borde); text-align: left; vertical-align: middle; }
+        th { background: var(--tarjeta-hover); font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--suave); }
         tbody tr:hover { background: var(--tarjeta); }
         tbody tr:last-child td { border-bottom: none; }
         td:first-child { font-weight: 600; }
+        td.col-proveedor { word-break: break-word; }
+        .acciones { display: flex; gap: 6px; }
 
         a.accion {
-            display: inline-block;
-            padding: 6px 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 32px;
+            padding: 0;
             border-radius: 99px;
-            font-size: .8rem;
+            font-size: .85rem;
             font-weight: 700;
             text-decoration: none;
             color: var(--tinta);
             background: var(--exito-claro);
             border: 1px solid var(--borde);
-            margin-right: 6px;
             transition: all .18s ease;
         }
         a.accion:hover { background: var(--naranja); transform: translateY(-1px); }
@@ -173,15 +179,17 @@
         .resumen { background: #FFFAF2; border: 2px solid var(--borde); border-radius: var(--radio); padding: 18px 22px; margin: 20px 0; }
         .resumen p { margin: 4px 0; color: var(--tinta); }
 
-        .vacio { text-align: center; padding: 34px 16px !important; color: var(--suave); font-style: italic; white-space: normal; }
+        .vacio { text-align: center; padding: 34px 16px !important; color: var(--suave); font-style: italic; }
 
         a:focus-visible, button:focus-visible { outline: 3px solid var(--naranja-fuerte); outline-offset: 3px; }
-        @media (max-width: 600px) {
+        @media (max-width: 760px) {
             body { padding: 20px 12px; }
             .container { padding: 22px 16px; }
             form { padding: 18px; }
             h1 { font-size: 1.4rem; }
-            th, td { padding: 11px 12px; }
+            th, td { padding: 8px 6px; }
+            .tabla-wrapper { overflow-x: auto; }
+            table { min-width: 700px; }
         }
         /* ---------- Ventas ---------- */
         input, select, textarea {
@@ -232,6 +240,47 @@
         .total-box p { margin: 0; color: var(--tinta); }
         .total-box .monto { font-size: 1.4rem; font-weight: 800; font-family: Rockwell, "Roboto Slab", Georgia, serif; }
         .total-box .rango { margin-top: 4px; font-size: .85rem; color: var(--suave); }
+
+        /* ---------- Paginación ---------- */
+        .paginacion-caja {
+            margin-top: 18px;
+            padding: 14px 18px;
+            background: #FFFAF2;
+            border: 2px solid var(--borde);
+            border-radius: var(--radio);
+        }
+        .paginacion-info {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            font-size: .88rem;
+            color: var(--suave);
+            font-weight: 600;
+        }
+        .paginacion {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .paginacion a, .pag-item {
+            min-width: 36px;
+            padding: 7px 10px;
+            text-align: center;
+            border: 2px solid var(--borde);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--tinta);
+            font-weight: 700;
+            font-size: .9rem;
+            text-decoration: none;
+            transition: all .18s ease;
+        }
+        .paginacion a:hover { background: var(--sol); border-color: var(--naranja); }
+        .pag-item.activa { border-color: var(--naranja-fuerte); color: var(--naranja-fuerte); }
+        .pag-item.desactivado { opacity: .4; cursor: not-allowed; }
+        .pag-puntos { color: var(--suave); padding: 0 4px; }
     </style>
 </head>
 <body>
@@ -289,7 +338,7 @@
                         <h4>⚠️ {{ item.tipo }}</h4>
                         <p><strong>Bultos:</strong> {{ item.total_bultos }}</p>
                         <p><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
-                        <p><strong>Costo total:</strong> ${{ item.costo_total|floatformat:0 }}</p>
+                        <p><strong>Costo total:</strong> ${{ item.costo_total_form }} COP</p>
                         <p class="alerta">¡Stock bajo! Reabastecer pronto.</p>
                     </div>
                 {% else %}
@@ -297,7 +346,7 @@
                         <h4>{{ item.tipo }}</h4>
                         <p><strong>Bultos:</strong> {{ item.total_bultos }}</p>
                         <p><strong>Proveedor:</strong> {{ item.proveedor|default:"Sin registrar" }}</p>
-                        <p><strong>Costo total:</strong> ${{ item.costo_total_form }}</p>
+                        <p><strong>Costo total:</strong> ${{ item.costo_total_form }} COP</p>
                     </div>
                 {% endif %}
             {% empty %}
@@ -325,7 +374,7 @@
                 <div class="total-box">
                     <p>
                         <strong>Total invertido:</strong>
-                        <span class="monto">${{ total_invertido }}</span>
+                        <span class="monto">${{ total_invertido }} COP</span>
                     </p>
                     {% if fecha_desde and fecha_hasta %}
                         <p class="rango">Período: {{ fecha_desde }} al {{ fecha_hasta }}</p>
@@ -334,17 +383,27 @@
             {% endif %}
         </div>
 
-        <h3>Historial de ingresos</h3>
+        <h3 id="historial">Historial de ingresos</h3>
         <div class="tabla-wrapper">
             <table>
+                <colgroup>
+                    <col style="width: 12%;">
+                    <col style="width: 12%;">
+                    <col style="width: 8%;">
+                    <col style="width: 10%;">
+                    <col style="width: 13%;">
+                    <col style="width: 14%;">
+                    <col style="width: 17%;">
+                    <col style="width: 14%;">
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Fecha</th>
                         <th>Tipo</th>
                         <th>Bultos</th>
                         <th>Kilos/bulto</th>
-                        <th>Costo unit.</th>
-                        <th>Costo total</th>
+                        <th>Costo unit. (COP)</th>
+                        <th>Costo total (COP)</th>
                         <th>Proveedor</th>
                         <th>Acciones</th>
                     </tr>
@@ -352,18 +411,18 @@
                 <tbody>
                     {% for item in historial %}
                     <tr>
-                        <td>{{ item.fecha }}</td>
+                        <td>{{ item.fecha|date:"d/m/Y" }}</td>
                         <td>{{ item.get_tipo_display }}</td>
                         <td>{{ item.cantidad_bultos }}</td>
                         <td>{{ item.kilos_por_bulto }}</td>
                         <td>${{ item.costo_unit_form }}</td>
                         <td>${{ item.costo_total_form }}</td>
-                        <td>{{ item.proveedor }}</td>
+                        <td class="col-proveedor">{{ item.proveedor }}</td>
                         <td>
-                            <a class="accion" href="{% url 'editar_alimento' item.id %}">Editar</a>
-                            {% if user.is_superuser %}
-                                <a class="accion eliminar" href="{% url 'eliminar_alimento' item.id %}">Eliminar</a>
-                            {% endif %}
+                            <div class="acciones">
+                                <a class="accion editar" href="{% url 'editar_alimento' item.id %}" title="Editar">📝</a>
+                                <a class="accion eliminar" href="{% url 'eliminar_alimento' item.id %}" title="Eliminar">🗑️</a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
@@ -372,6 +431,43 @@
                 </tbody>
             </table>
         </div>
+
+        {% if total_registros %}
+        <div class="paginacion-caja">
+            <div class="paginacion-info">
+                <span>Total {{ total_registros }} resultados</span>
+                <span>Pág. {{ historial.number }}/{{ historial.paginator.num_pages }}</span>
+            </div>
+
+            <div class="paginacion">
+                {% if historial.has_previous %}
+                    <a href="?page=1{{ filtros }}#historial" title="Primera">&laquo;</a>
+                    <a href="?page={{ historial.previous_page_number }}{{ filtros }}#historial" title="Anterior">&lsaquo;</a>
+                {% else %}
+                    <span class="pag-item desactivado">&laquo;</span>
+                    <span class="pag-item desactivado">&lsaquo;</span>
+                {% endif %}
+
+                {% for p in rango_paginas %}
+                    {% if p == historial.paginator.ELLIPSIS %}
+                        <span class="pag-puntos">&hellip;</span>
+                    {% elif p == historial.number %}
+                        <span class="pag-item activa">{{ p }}</span>
+                    {% else %}
+                        <a href="?page={{ p }}{{ filtros }}#historial">{{ p }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if historial.has_next %}
+                    <a href="?page={{ historial.next_page_number }}{{ filtros }}#historial" title="Siguiente">&rsaquo;</a>
+                    <a href="?page={{ historial.paginator.num_pages }}{{ filtros }}#historial" title="Última">&raquo;</a>
+                {% else %}
+                    <span class="pag-item desactivado">&rsaquo;</span>
+                    <span class="pag-item desactivado">&raquo;</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
