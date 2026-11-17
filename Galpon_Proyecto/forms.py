@@ -6,23 +6,24 @@ from .models import Venta, Alimento, Inventario, GastoOperativo
 from .models import RegistroVacunacion
 
 
+
 class RegistroConsumoForm(forms.ModelForm):
     class Meta:
         model = RegistroConsumo
-        fields = ['poblacion_gallinas', 'bultos_consumidos', 'kilos_por_bulto', 'stock_disponible']
+        fields = ['poblacion_gallinas', 'bultos_consumidos']
         widgets = {
-            'poblacion_gallinas': forms.NumberInput(attrs={'class': 'form-control'}),
-            'bultos_consumidos': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'kilos_por_bulto': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'stock_disponible': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'poblacion_gallinas': forms.NumberInput(attrs={
+                'class': 'form-control'
+            }),
+            'bultos_consumidos': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01'
+            }),
         }
         labels = {
             'poblacion_gallinas': 'Población de gallinas',
-            'bultos_consumidos': 'Bultos consumidos',
-            'kilos_por_bulto': 'Kilos por bulto',
-            'stock_disponible': 'Stock disponible (bultos)',
+            'bultos_consumidos': 'Bultos de alimento gastados hoy',
         }
-
 
 class RegistroMortalidadForm(forms.ModelForm):
     class Meta:
@@ -126,21 +127,75 @@ class AlimentoForm(forms.ModelForm):
             'proveedor': 'Proveedor',
         }
 
-
 class InventarioForm(forms.ModelForm):
+
+    stock_actual = forms.IntegerField(
+        min_value=0,
+        required=True,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '1',
+            'min': '0',
+            'placeholder': 'Ingrese una cantidad'
+        })
+    )
+
+    stock_minimo = forms.IntegerField(
+        min_value=0,
+        required=True,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '1',
+            'min': '0',
+            'placeholder': 'Ingrese una cantidad'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.is_bound and not self.instance.pk:
+            self.fields['stock_actual'].initial = None
+            self.fields['stock_minimo'].initial = None
+
     class Meta:
         model = Inventario
         fields = ['tipo', 'stock_actual', 'stock_minimo']
+
         widgets = {
-            'tipo': forms.Select(attrs={'class': 'form-control'}),
-            'stock_actual': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
-            'stock_minimo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'tipo': forms.Select(attrs={
+                'class': 'form-control'
+            }),
         }
+
         labels = {
             'tipo': 'Tipo de insumo',
             'stock_actual': 'Stock actual',
             'stock_minimo': 'Límite mínimo',
         }
+
+
+
+class AgregarBultosForm(forms.Form):
+    tipo = forms.ChoiceField(
+        choices=Inventario.TIPOS_INSUMO,
+        label='Tipo de insumo',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    cantidad = forms.DecimalField(
+        label='Cantidad de bultos que ingresan',
+        min_value=0.01,
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.01',
+            'min': '0.01',
+            'placeholder': 'Ej. 10'
+        })
+    )
+
 
 
 class GastoOperativoForm(forms.ModelForm):
