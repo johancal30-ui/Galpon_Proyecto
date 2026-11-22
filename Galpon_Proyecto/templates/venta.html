@@ -255,12 +255,7 @@
             <label for="fecha">Fecha:</label>
             <input type="date" id="fecha" name="fecha" value="{{ hoy|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}">
 
-            <div class="form-row">
-                <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
-                {{ form.cliente }}
-                <a href="{% url 'registrar_cliente' %}?next_venta={{ venta.id }}" style="font-size:.85rem;font-weight:700;color:var(--naranja-fuerte)">+ Agregar cliente nuevo</a>
-            
-            </div>
+            {% include 'cliente_combo.html' with cliente_inicial_id='' %}
             <div class="form-row">
                 <label for="{{ form.cantidad_cubetas.id_for_label }}">Cantidad de cubetas:</label>
                 {{ form.cantidad_cubetas }}
@@ -272,7 +267,7 @@
             <button class="btn" type="submit">Registrar venta</button>
         </form>
 
-        <h3>Ventas registradas</h3>
+        <h3 id="ventas-registradas">Ventas registradas</h3>
         <div class="tabla-wrapper">
             <table>
                 <thead>
@@ -308,6 +303,9 @@
                 </tbody>
             </table>
         </div>
+
+        {% include 'paginacion.html' with pagina=ventas rango=rango_paginas ancla='ventas-registradas' %}
     </div>
+
 </body>
 </html>

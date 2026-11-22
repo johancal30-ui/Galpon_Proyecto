@@ -215,7 +215,7 @@
             <button type="submit">Guardar registro</button>
         </form>
 
-        <h3>Registros existentes</h3>
+        <h3 id="registros-produccion">Registros existentes</h3>
         <div class="tabla-wrapper">
             <table>
                 <thead>
@@ -247,6 +247,8 @@
                 </tbody>
             </table>
         </div>
+
+        {% include 'paginacion.html' with pagina=registros rango=rango_paginas ancla='registros-produccion' %}
     </div>
 </body>
 </html>

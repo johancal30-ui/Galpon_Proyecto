@@ -11,7 +11,8 @@ from django.db import transaction#creado por johan para descargar reporte excel:
 from datetime import date
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST
 from .reportes import construir_reporte
 # creado por johan para CLIENTESS
 from .models import Cliente
@@ -67,10 +68,15 @@ def registrar_produccion(request):
                 except (ValueError, TypeError):
                     messages.error(request, "La cantidad debe ser un número entero mayor a cero")
 
-    registros = RegistroProduccion.objects.all()
+    registros_qs = RegistroProduccion.objects.order_by('-fecha', '-id')
+    paginator = Paginator(registros_qs, 5)
+    registros = paginator.get_page(request.GET.get('page'))
+    rango_paginas = paginator.get_elided_page_range(registros.number, on_each_side=1, on_ends=1)
+
     return render(request, 'produccion.html', {
         'registros': registros,
-        'hoy': timezone.localdate(),                                 
+        'rango_paginas': rango_paginas,
+        'hoy': timezone.localdate(),
     })
 
 
@@ -286,7 +292,8 @@ def registrar_venta(request):
     if request.method == 'POST':
         form = VentaForm(request.POST)
 
-        cliente = request.POST.get('cliente', '').strip()
+        cliente_id = request.POST.get('cliente', '').strip()
+        cliente_obj = Cliente.objects.filter(pk=cliente_id).first() if cliente_id.isdigit() else None
         cantidad = request.POST.get('cantidad_cubetas', '')
         precio = request.POST.get('precio_unitario', '')
         fecha_texto = request.POST.get('fecha','').strip()
@@ -296,8 +303,8 @@ def registrar_venta(request):
         fecha_venta = None
 
         # Validar cliente
-        if not cliente:
-            error_manual = "El nombre del cliente es obligatorio."
+        if cliente_obj is None:
+            error_manual = "Debes seleccionar un cliente de la lista."
 
         # Validar cantidad
         elif not cantidad:
@@ -353,7 +360,7 @@ def registrar_venta(request):
         # Si todo está bien, guardar
         if error_manual is None:
             venta = Venta(
-                cliente=cliente,
+                cliente=cliente_obj,
                 cantidad_cubetas=cantidad_int,
                 precio_unitario=precio_float,
                 cantidad_huevos=cantidad_int * 30,
@@ -378,7 +385,10 @@ def registrar_venta(request):
         total=Sum('total')
     )['total'] or 0
 
-    ventas = Venta.objects.all()
+    ventas_qs = Venta.objects.select_related('cliente').order_by('-fecha', '-id')
+    paginator = Paginator(ventas_qs, 5)
+    ventas = paginator.get_page(request.GET.get('page'))
+    rango_paginas = paginator.get_elided_page_range(ventas.number, on_each_side=1, on_ends=1)
 
     ingresos_hoy = f"{int(ingresos_hoy):,}".replace(",", ".")
     for v in ventas:
@@ -391,6 +401,9 @@ def registrar_venta(request):
         'error_manual': error_manual,
         'stock_disponible': stock_disponible,
         'ingresos_hoy': ingresos_hoy,
+        'hoy': timezone.localdate(),
+        'clientes': Cliente.objects.all(),
+        'rango_paginas': rango_paginas,
     })
 
 @login_required
@@ -399,7 +412,8 @@ def editar_venta(request, pk):
     error_manual = None
 
     if request.method == 'POST':
-        cliente = request.POST.get('cliente', '').strip()
+        cliente_id = request.POST.get('cliente', '').strip()
+        cliente_obj = Cliente.objects.filter(pk=cliente_id).first() if cliente_id.isdigit() else None
         cantidad = request.POST.get('cantidad_cubetas', '')
         precio = request.POST.get('precio_unitario', '')
         fecha_texto = request.POST.get('fecha', '').strip()
@@ -409,8 +423,8 @@ def editar_venta(request, pk):
         fecha_venta = None
 
         #validar cliente
-        if not cliente:
-            error_manual = "El nombre del cliente es obligatorio."
+        if cliente_obj is None:
+            error_manual = "Debes seleccionar un cliente de la lista."
 
         #validar cantidad
         if error_manual is None:
@@ -458,7 +472,7 @@ def editar_venta(request, pk):
 
         # Guardar cambios
         if error_manual is None:
-            venta.cliente = cliente
+            venta.cliente = cliente_obj
             venta.cantidad_cubetas = cantidad_int
             venta.precio_unitario = precio_float
             venta.cantidad_huevos = cantidad_int * 30
@@ -1005,8 +1019,8 @@ def descargar_reporte_excel(request):
  
     producciones = [(r.fecha, r.cantidad_huevos, r.cantidad_huevos_rotos, r.cantidad_cubetas)
                     for r in RegistroProduccion.objects.filter(fecha__year=anio).order_by('fecha')]
-    ventas = [(v.fecha, v.cliente, v.cantidad_cubetas, float(v.precio_unitario), float(v.total))
-              for v in Venta.objects.filter(fecha__year=anio).order_by('fecha')]
+    ventas = [(v.fecha, v.cliente.nombre, v.cantidad_cubetas, float(v.precio_unitario), float(v.total))
+              for v in Venta.objects.filter(fecha__year=anio).select_related('cliente').order_by('fecha')]
     gastos = [(g.fecha, g.get_categoria_display(), g.descripcion, float(g.monto))
               for g in GastoOperativo.objects.filter(fecha__year=anio).order_by('fecha')]
  
@@ -1042,6 +1056,26 @@ def registrar_cliente(request):
         'clientes': Cliente.objects.all(),
         'error_manual': error_manual,
     })
+
+@login_required
+@require_POST
+def crear_cliente_rapido(request):
+    nombre = request.POST.get('nombre', '').strip()
+    telefono = request.POST.get('telefono', '').strip()
+
+    if not nombre:
+        return JsonResponse({'ok': False, 'error': 'El nombre del cliente es obligatorio.'}, status=400)
+    if len(nombre) > 100:
+        return JsonResponse({'ok': False, 'error': 'El nombre no puede pasar de 100 caracteres.'}, status=400)
+    if len(telefono) > 20:
+        return JsonResponse({'ok': False, 'error': 'El teléfono no puede pasar de 20 caracteres.'}, status=400)
+
+    existente = Cliente.objects.filter(nombre__iexact=nombre).first()
+    if existente:
+        return JsonResponse({'ok': True, 'id': existente.id, 'nombre': existente.nombre, 'ya_existia': True})
+
+    cliente = Cliente.objects.create(nombre=nombre, telefono=telefono)
+    return JsonResponse({'ok': True, 'id': cliente.id, 'nombre': cliente.nombre, 'ya_existia': False})
 
 # VACUNACIÓN (JEFFRY - HU-005)
 @login_required
