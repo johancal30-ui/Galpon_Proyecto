@@ -214,6 +214,7 @@
         .error-campo { background: var(--cresta-claro); color: #7A1F14; padding: 10px 14px; border-radius: 10px; margin-bottom: 15px; font-size: .9rem; font-weight: 600; border-left: 5px solid var(--cresta); }
 
     </style>
+{% include "includes/accessibility.html" %}
 </head>
 <body>
     <div class="container">
@@ -236,6 +237,13 @@
             <div class="kpi">
                 <p>Stock disponible</p>
                 <p class="valor">{{ stock_disponible }} cubetas</p>
+                <ul>
+                    {% for clasificacion, cubetas in stock_por_clasificacion %}
+                        {% if cubetas or clasificacion != 'Sin clasificar' %}
+                            <li>{{ clasificacion }}: {{ cubetas }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
             </div>
             <div class="kpi ingresos">
                 <p>Ingresos de hoy</p>
@@ -247,30 +255,31 @@
         <form method="post">
             {% csrf_token %}
 
-            {% if error_manual %}
-                <div class="error-campo">
-                    {{ error_manual }}
-                </div>
+            {% if form.non_field_errors %}
+                <div class="error-campo">{{ form.non_field_errors }}</div>
             {% endif %}
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" name="fecha" value="{{ hoy|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}">
+            {% for campo in form %}
+                <div class="form-row">
+                    {{ campo.label_tag }}
+                    {{ campo }}
+                    {% if campo.errors %}<div class="error-campo">{{ campo.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
 
-            <div class="form-row">
-                <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
-                {{ form.cliente }}
-            </div>
-            <div class="form-row">
-                <label for="{{ form.cantidad_cubetas.id_for_label }}">Cantidad de cubetas:</label>
-                {{ form.cantidad_cubetas }}
-            </div>
-            <div class="form-row">
-                <label for="{{ form.precio_unitario.id_for_label }}">Precio por cubeta:</label>
-                {{ form.precio_unitario }}
-            </div>
             <button class="btn" type="submit">Registrar venta</button>
         </form>
 
         <h3>Ventas registradas</h3>
+        <form method="get">
+            <label for="filtro_clasificacion">Filtrar por clasificación</label>
+            <select id="filtro_clasificacion" name="clasificacion">
+                <option value="">Todas las clasificaciones</option>
+                {% for valor, etiqueta in filtros_clasificacion %}
+                    <option value="{{ valor }}"{% if filtro_clasificacion == valor %} selected{% endif %}>{{ etiqueta }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn" type="submit">Filtrar ventas</button>
+        </form>
         <div class="tabla-wrapper">
             <table>
                 <thead>
@@ -279,6 +288,7 @@
                         <th>Cliente</th>
                         <th>Huevos</th>
                         <th>Cubetas</th>
+                        <th>Clasificación</th>
                         <th>Precio unit.</th>
                         <th>Total</th>
                         <th>Acciones</th>
@@ -291,6 +301,7 @@
                         <td>{{ venta.cliente }}</td>
                         <td>{{ venta.cantidad_huevos }}</td>
                         <td>{{ venta.cantidad_cubetas }}</td>
+                        <td>{{ venta.get_clasificacion_display|default:'Sin clasificar' }}</td>
                         <td>${{ venta.precio_form }}</td>
                         <td>${{ venta.total_form }}</td>
                         <td>
@@ -301,7 +312,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="7" class="vacio">No hay ventas registradas todavía.</td></tr>
+                    <tr><td colspan="8" class="vacio">No hay ventas registradas todavía.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
