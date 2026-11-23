@@ -284,7 +284,7 @@
                 <tbody>
                     {% for venta in ventas %}
                     <tr>
-                        <td>{{ venta.fecha }}</td>
+                        <td>{{ venta.fecha|date:"d/m/Y" }}</td>
                         <td>{{ venta.cliente }}</td>
                         <td>{{ venta.cantidad_huevos }}</td>
                         <td>{{ venta.cantidad_cubetas }}</td>

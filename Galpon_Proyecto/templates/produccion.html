@@ -230,7 +230,7 @@
                 <tbody>
                     {% for registro in registros %}
                     <tr>
-                        <td>{{ registro.fecha }}</td>
+                        <td>{{ registro.fecha|date:"d/m/Y" }}</td>
                         <td>{{ registro.cantidad_huevos }}</td>
                         <td>{{ registro.cantidad_huevos_rotos }}</td>
                         <td>{{ registro.cantidad_cubetas }}</td>

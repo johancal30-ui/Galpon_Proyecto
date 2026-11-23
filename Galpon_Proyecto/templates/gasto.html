@@ -336,7 +336,7 @@
                 <tbody>
                     {% for gasto in gastos %}
                     <tr>
-                        <td>{{ gasto.fecha }}</td>
+                        <td>{{ gasto.fecha|date:"d/m/Y" }}</td>
                         <td>{{ gasto.get_categoria_display }}</td>
                         <td>{{ gasto.descripcion }}</td>
                         <!-- Formateo arreglado con floatformat o la variable que ya traigas -->
