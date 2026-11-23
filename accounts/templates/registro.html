@@ -1,112 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Registro de Usuario - Galpón Proyecto</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .registro-container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            width: 400px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        .helptext {
-            display: block;
-            color: #888;
-            font-size: 12px;
-            margin-top: -15px;
-            margin-bottom: 20px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .link-login {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Usuario - Galpón Proyecto</title>
+<style>
+:root { --amarillo:#f8c444; --naranja:#f0a050; --fuerte:#e8892b; --crema:#fff8e8; --durazno:#feeedd; --borde:#f5cfa8; --cafe:#3a2210; --suave:#7a5f4a; }
+* { box-sizing:border-box; }
+body { margin:0; min-height:100vh; padding:32px 20px; display:flex; justify-content:center; align-items:center; font-family:"Segoe UI",system-ui,Arial,sans-serif; color:var(--cafe);
+  background:radial-gradient(circle at 12% 18%,rgba(248,196,68,.45),transparent 38%),radial-gradient(circle at 88% 85%,rgba(240,160,80,.35),transparent 40%),var(--crema); }
+.wrap { display:flex; width:100%; max-width:1000px; border-radius:24px; overflow:hidden; background:var(--durazno); border:2px solid var(--borde); box-shadow:0 24px 60px rgba(120,70,20,.25); }
+
+/* Panel izquierdo */
+.izq { flex:1; padding:48px 40px 0; display:flex; flex-direction:column; position:relative; overflow:hidden; background:linear-gradient(135deg,var(--amarillo),var(--naranja)); }
+.izq::before { content:""; position:absolute; width:240px; height:240px; top:-80px; right:-70px; border:2px solid rgba(255,255,255,.4); border-radius:50%; background:rgba(255,255,255,.12); }
+.izq > * { position:relative; }
+.marca { width:fit-content; margin-bottom:24px; padding:7px 16px; font-size:13px; font-weight:700; background:rgba(255,248,232,.55); border:1.5px solid rgba(58,34,16,.25); border-radius:999px; }
+.izq h2 { margin:0 0 14px; font:800 38px/1.1 "Courier New",monospace; }
+.izq p { margin:0 0 20px; max-width:340px; font-size:16px; line-height:1.5; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chips span { padding:6px 13px; font-size:13px; font-weight:700; background:var(--durazno); border:1.5px solid var(--borde); border-radius:999px; }
+.izq svg { width:100%; max-width:300px; margin:auto auto 0; display:block; }
+
+/* Panel derecho */
+.der { flex:1.1; padding:44px 52px; display:flex; flex-direction:column; justify-content:center; }
+.icono { width:68px; height:68px; margin-bottom:14px; display:flex; align-items:center; justify-content:center; font-size:36px; background:#fff; border:2px solid var(--borde); border-radius:50%; box-shadow:0 6px 14px rgba(240,160,80,.25); }
+h1 { margin:0 0 6px; font:800 32px "Courier New",monospace; }
+.sub { margin:0 0 24px; color:var(--suave); }
+.grupo { margin-bottom:18px; }
+label { display:block; margin-bottom:7px; font:700 16px Georgia,serif; }
+.campo { position:relative; }
+.campo span { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px; }
+input { width:100%; padding:14px 16px 14px 46px; font:16px inherit; color:var(--cafe); background:#fff; border:1.5px solid var(--borde); border-radius:12px; transition:.2s; }
+input:focus { outline:none; border-color:var(--fuerte); box-shadow:0 0 0 4px rgba(240,160,80,.3); }
+.helptext { display:block; margin-top:6px; font-size:12px; line-height:1.4; color:var(--suave); }
+.helptext ul { margin:0; padding-left:18px; }
+button { width:100%; margin-top:4px; padding:16px; font:700 17px inherit; color:var(--crema); background:var(--cafe); border:2px solid var(--cafe); border-radius:12px; cursor:pointer; transition:.2s; }
+button:hover { background:var(--fuerte); border-color:var(--fuerte); color:#fff; box-shadow:0 8px 18px rgba(232,137,43,.4); }
+a { color:var(--fuerte); font-weight:700; text-decoration:none; }
+a:hover { color:var(--cafe); text-decoration:underline; }
+.link-login { margin-top:22px; padding-top:20px; text-align:center; color:var(--suave); border-top:1.5px dashed var(--borde); }
+.error { margin-bottom:20px; padding:12px 16px; font-size:14px; background:#fde4dc; color:#a63a1a; border-left:4px solid #a63a1a; border-radius:12px; }
+.error p { margin:2px 0; }
+
+@media (max-width:860px) { .wrap { flex-direction:column; max-width:480px; } .izq { padding:32px 28px 0; } .izq h2 { font-size:28px; } .izq svg { max-width:220px; } .der { padding:36px 28px; } h1 { font-size:28px; } }
+</style>
 </head>
 <body>
-    <div class="registro-container">
-        <h1>📝 Crear Cuenta</h1>
+<div class="wrap">
 
-        {% if form.errors %}
-            <div class="error">
-                {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <form method="post">
-            {% csrf_token %}
-            <label for="id_username">Usuario:</label>
-            {{ form.username }}
-            <span class="helptext">{{ form.username.help_text }}</span>
-
-            <label for="id_password1">Contraseña:</label>
-            {{ form.password1 }}
-            <span class="helptext">{{ form.password1.help_text }}</span>
-
-            <label for="id_password2">Confirmar contraseña:</label>
-            {{ form.password2 }}
-
-            <button type="submit">Registrarse</button>
-        </form>
-
-        <div class="link-login">
-            ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión aquí</a>
-        </div>
+  <section class="izq">
+    <div class="marca">🐔 Galpón Proyecto</div>
+    <h2>Únete al galpón</h2>
+    <p>Crea tu cuenta y empieza a llevar el control completo de tu granja.</p>
+    <div class="chips">
+      <span>📦 Producción</span><span>🐥 Mortalidad</span><span>💰 Ventas</span>
+      <span>📝 Consumo</span><span>🌽 Alimento</span><span>💰 Gastos</span>
+      <span>💉 Vacunación</span><span>📊 Reportes</span><span>📦 Inventario</span>
     </div>
+    <svg viewBox="0 0 400 250" aria-hidden="true">
+      <ellipse cx="200" cy="238" rx="150" ry="12" fill="rgba(120,60,10,.25)"/>
+      <ellipse cx="90" cy="215" rx="20" ry="24" fill="#f6e6cc"/><ellipse cx="122" cy="224" rx="15" ry="19" fill="#efd7b2"/>
+      <g stroke="#e0662a" stroke-width="6" stroke-linecap="round"><path d="M185 195v35m30-35v35m-45 0h30m0 0h30"/></g>
+      <path d="M95 120C80 90 85 60 112 55c6 30 18 50 28 70z" fill="#fff8e8"/>
+      <ellipse cx="205" cy="150" rx="100" ry="68" fill="#fff"/>
+      <path d="M150 140c10-30 65-25 90 0-15 35-65 40-90 0z" fill="#f0e2c8"/>
+      <circle cx="285" cy="95" r="36" fill="#fff"/>
+      <g fill="#d94a3a"><circle cx="270" cy="55" r="11"/><circle cx="288" cy="50" r="12"/><circle cx="305" cy="57" r="10"/><ellipse cx="312" cy="116" rx="6" ry="11"/></g>
+      <path d="M318 92l28 8-28 8z" fill="#f0883a"/><circle cx="296" cy="88" r="4.5" fill="#2a1608"/>
+    </svg>
+  </section>
+
+  <section class="der">
+    <div class="icono">📝</div>
+    <h1>Crear Cuenta</h1>
+    <p class="sub">Llena los datos para registrarte.</p>
+
+    {% if form.errors %}
+      <div class="error">
+        {% for field, errors in form.errors.items %}{% for error in errors %}<p>{{ error }}</p>{% endfor %}{% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="grupo">
+        <label for="id_username">Usuario</label>
+        <div class="campo"><span>👤</span>{{ form.username }}</div>
+        <span class="helptext">{{ form.username.help_text }}</span>
+      </div>
+
+      <div class="grupo">
+        <label for="id_password1">Contraseña</label>
+        <div class="campo"><span>🔒</span>{{ form.password1 }}</div>
+        <span class="helptext">{{ form.password1.help_text|safe }}</span>
+      </div>
+
+      <div class="grupo">
+        <label for="id_password2">Confirmar contraseña</label>
+        <div class="campo"><span>🔑</span>{{ form.password2 }}</div>
+      </div>
+
+      <button type="submit">Registrarse</button>
+    </form>
+
+    <div class="link-login">¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión aquí</a></div>
+  </section>
+
+</div>
 </body>
 </html>

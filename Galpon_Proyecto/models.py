@@ -111,7 +111,7 @@ class RegistroMortalidad(models.Model):
 # VENTA DE HUEVOS Y CUBETAS (ANDRÉS)
 class Venta(models.Model):
     fecha = models.DateField(default=timezone.localdate)
-    cliente = models.CharField(max_length=150)
+    cliente = models.ForeignKey('Cliente', on_delete=models.PROTECT, related_name='ventas')
     cantidad_huevos = models.PositiveIntegerField()
     cantidad_cubetas = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, help_text="Precio por cubeta")

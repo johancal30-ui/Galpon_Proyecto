@@ -1,0 +1,80 @@
+{# Barra de paginación reutilizable. Variables que recibe: pagina (la página actual), rango (los números a mostrar) y ancla (id de la tabla a la que volver) #}
+<style>
+    /* ---------- Paginación ---------- */
+    .paginacion-caja {
+        margin-top: 18px;
+        padding: 14px 18px;
+        background: #FFFAF2;
+        border: 2px solid var(--borde);
+        border-radius: var(--radio);
+    }
+    .paginacion-info {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+        font-size: .88rem;
+        color: var(--suave);
+        font-weight: 600;
+    }
+    .paginacion {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .paginacion a, .pag-item {
+        min-width: 36px;
+        padding: 7px 10px;
+        text-align: center;
+        border: 2px solid var(--borde);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--tinta);
+        font-weight: 700;
+        font-size: .9rem;
+        text-decoration: none;
+        transition: all .18s ease;
+    }
+    .paginacion a:hover { background: var(--sol); border-color: var(--naranja); }
+    .pag-item.activa { border-color: var(--naranja-fuerte); color: var(--naranja-fuerte); }
+    .pag-item.desactivado { opacity: .4; cursor: not-allowed; }
+    .pag-puntos { color: var(--suave); padding: 0 4px; }
+</style>
+
+{% if pagina.paginator.count %}
+<div class="paginacion-caja">
+    <div class="paginacion-info">
+        <span>Total {{ pagina.paginator.count }} resultados</span>
+        <span>Pág. {{ pagina.number }}/{{ pagina.paginator.num_pages }}</span>
+    </div>
+
+    <div class="paginacion">
+        {% if pagina.has_previous %}
+            <a href="?page=1{{ filtros }}#{{ ancla }}" title="Primera">&laquo;</a>
+            <a href="?page={{ pagina.previous_page_number }}{{ filtros }}#{{ ancla }}" title="Anterior">&lsaquo;</a>
+        {% else %}
+            <span class="pag-item desactivado">&laquo;</span>
+            <span class="pag-item desactivado">&lsaquo;</span>
+        {% endif %}
+
+        {% for p in rango %}
+            {% if p == pagina.paginator.ELLIPSIS %}
+                <span class="pag-puntos">&hellip;</span>
+            {% elif p == pagina.number %}
+                <span class="pag-item activa">{{ p }}</span>
+            {% else %}
+                <a href="?page={{ p }}{{ filtros }}#{{ ancla }}">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagina.has_next %}
+            <a href="?page={{ pagina.next_page_number }}{{ filtros }}#{{ ancla }}" title="Siguiente">&rsaquo;</a>
+            <a href="?page={{ pagina.paginator.num_pages }}{{ filtros }}#{{ ancla }}" title="Última">&raquo;</a>
+        {% else %}
+            <span class="pag-item desactivado">&rsaquo;</span>
+            <span class="pag-item desactivado">&raquo;</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

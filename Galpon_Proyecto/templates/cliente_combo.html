@@ -1,0 +1,169 @@
+{# Caja de cliente con búsqueda. Se incluye en venta.html y en venta_editar.html #}
+<style>
+    /* ---------- Cliente con búsqueda ---------- */
+    .combo { position: relative; }
+    .combo-lista { display: none; position: absolute; z-index: 20; left: 0; right: 0; top: 100%; margin: 4px 0 0; padding: 6px; list-style: none; max-height: 220px; overflow-y: auto; background: #fff; border: 2px solid var(--borde); border-radius: 10px; box-shadow: var(--sombra); }
+    .combo-lista li { padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: .93rem; }
+    .combo-lista li:hover { background: var(--tarjeta-hover); }
+    .combo-lista li.combo-nuevo { font-weight: 700; color: var(--naranja-fuerte); border-top: 1px solid var(--borde); margin-top: 4px; }
+    .nuevo-cliente { margin-top: 10px; padding: 14px; background: var(--exito-claro); border: 2px dashed var(--borde); border-radius: 10px; }
+    .nuevo-cliente[hidden] { display: none; }
+    .combo-msg { margin: 8px 0 0; font-size: .85rem; font-weight: 600; color: var(--suave); }
+</style>
+
+<div class="form-row">
+    <label for="cliente_buscar">Cliente:</label>
+    <div class="combo" id="combo-cliente" data-url-crear="{% url 'crear_cliente_rapido' %}">
+        <input type="text" id="cliente_buscar" placeholder="Escribe para buscar un cliente..." autocomplete="off">
+        <!-- Este campo oculto es el que viaja al servidor: lleva el id del cliente elegido -->
+        <input type="hidden" name="cliente" id="cliente_id" value="{{ request.POST.cliente|default:cliente_inicial_id|default:'' }}">
+        <ul class="combo-lista" id="combo_lista"></ul>
+    </div>
+
+    <div class="nuevo-cliente" id="nuevo_cliente" hidden>
+        <label for="nuevo_nombre">Nombre del cliente nuevo:</label>
+        <input type="text" id="nuevo_nombre" maxlength="100">
+        <label for="nuevo_telefono">Teléfono (opcional):</label>
+        <input type="text" id="nuevo_telefono" maxlength="20" placeholder="Ej: 3001234567">
+        <div class="acciones-form">
+            <button type="button" class="btn" id="btn_guardar_cliente">Guardar cliente</button>
+            <button type="button" class="btn btn-gris" id="btn_cancelar_cliente">Cancelar</button>
+        </div>
+    </div>
+    <p class="combo-msg" id="combo_msg"></p>
+
+    <!-- Lista oculta: solo sirve para pasarle los clientes al JavaScript -->
+    <ul id="combo_datos" hidden>
+        {% for c in clientes %}<li data-id="{{ c.id }}">{{ c.nombre }}</li>{% endfor %}
+    </ul>
+</div>
+
+<script>
+(function () {
+    // 1. Tomamos los elementos de la página que vamos a necesitar
+    const combo = document.getElementById('combo-cliente');
+    const buscar = document.getElementById('cliente_buscar');       // caja donde se escribe
+    const idOculto = document.getElementById('cliente_id');         // aquí queda el id que viaja al servidor
+    const lista = document.getElementById('combo_lista');           // lista desplegable
+    const panel = document.getElementById('nuevo_cliente');         // mini formulario de cliente nuevo
+    const nombreNuevo = document.getElementById('nuevo_nombre');
+    const telefonoNuevo = document.getElementById('nuevo_telefono');
+    const btnGuardar = document.getElementById('btn_guardar_cliente');
+    const btnCancelar = document.getElementById('btn_cancelar_cliente');
+    const mensaje = document.getElementById('combo_msg');
+    const urlCrear = combo.dataset.urlCrear;                        // dirección de la vista crear_cliente_rapido
+
+    // 2. Leemos los clientes que Django dejó en la lista oculta
+    let clientes = Array.from(document.querySelectorAll('#combo_datos li')).map(function (li) {
+        return { id: li.dataset.id, nombre: li.textContent.trim() };
+    });
+
+    // Para comparar sin importar mayúsculas ni tildes ("doña" = "DONA")
+    function normalizar(texto) {
+        return texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
+    // Elegir un cliente: se muestra su nombre y se guarda su id en el campo oculto
+    function seleccionar(cliente) {
+        buscar.value = cliente.nombre;
+        idOculto.value = cliente.id;
+        lista.style.display = 'none';
+        panel.hidden = true;
+        mensaje.textContent = '';
+    }
+
+    // Abrir el mini formulario para registrar un cliente nuevo
+    function abrirPanel() {
+        nombreNuevo.value = buscar.value.trim();
+        telefonoNuevo.value = '';
+        panel.hidden = false;
+        lista.style.display = 'none';
+        mensaje.textContent = '';
+        telefonoNuevo.focus();
+    }
+
+    // Dibujar la lista según lo que se haya escrito
+    function mostrarLista() {
+        const texto = buscar.value.trim();
+        const t = normalizar(texto);
+        lista.innerHTML = '';
+
+        clientes
+            .filter(function (c) { return normalizar(c.nombre).includes(t); })
+            .forEach(function (c) {
+                const li = document.createElement('li');
+                li.textContent = c.nombre;
+                li.addEventListener('mousedown', function (e) { e.preventDefault(); seleccionar(c); });
+                lista.appendChild(li);
+            });
+
+        // Si lo escrito no coincide exacto con ningún cliente, ofrecer agregarlo
+        const hayExacto = clientes.some(function (c) { return normalizar(c.nombre) === t; });
+        if (texto && !hayExacto) {
+            const li = document.createElement('li');
+            li.className = 'combo-nuevo';
+            li.textContent = '+ Agregar «' + texto + '» como cliente nuevo';
+            li.addEventListener('mousedown', function (e) { e.preventDefault(); abrirPanel(); });
+            lista.appendChild(li);
+        }
+
+        lista.style.display = lista.children.length ? 'block' : 'none';
+    }
+
+    // 3. Qué pasa cuando el usuario escribe, entra o sale de la caja
+    buscar.addEventListener('input', function () {
+        const t = normalizar(buscar.value.trim());
+        const exacto = clientes.find(function (c) { return normalizar(c.nombre) === t; });
+        idOculto.value = exacto ? exacto.id : '';
+        panel.hidden = true;
+        mensaje.textContent = '';
+        mostrarLista();
+    });
+    buscar.addEventListener('focus', mostrarLista);
+    buscar.addEventListener('blur', function () { lista.style.display = 'none'; });
+
+    btnCancelar.addEventListener('click', function () { panel.hidden = true; });
+
+    // 4. Guardar el cliente nuevo sin recargar la página
+    btnGuardar.addEventListener('click', async function () {
+        const datos = new FormData();
+        datos.append('nombre', nombreNuevo.value);
+        datos.append('telefono', telefonoNuevo.value);
+        datos.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        try {
+            const resp = await fetch(urlCrear, { method: 'POST', body: datos });
+            const data = await resp.json();
+
+            if (!data.ok) {
+                mensaje.textContent = data.error;
+                return;
+            }
+            if (!clientes.some(function (c) { return String(c.id) === String(data.id); })) {
+                clientes.push({ id: data.id, nombre: data.nombre });
+            }
+            seleccionar({ id: data.id, nombre: data.nombre });
+            mensaje.textContent = data.ya_existia
+                ? 'Ese cliente ya existía, quedó seleccionado.'
+                : 'Cliente guardado y seleccionado.';
+        } catch (error) {
+            mensaje.textContent = 'No se pudo guardar el cliente. Intenta de nuevo.';
+        }
+    });
+
+    // 5. Mostrar el cliente que ya viene elegido (al editar una venta, o si la página recargó por un error)
+    if (idOculto.value) {
+        const elegido = clientes.find(function (c) { return String(c.id) === idOculto.value; });
+        if (elegido) { buscar.value = elegido.nombre; }
+    }
+
+    // 6. No dejar enviar el formulario si no hay un cliente elegido
+    combo.closest('form').addEventListener('submit', function (e) {
+        if (!idOculto.value) {
+            e.preventDefault();
+            mensaje.textContent = 'Selecciona un cliente de la lista o agrégalo como nuevo.';
+            buscar.focus();
+        }
+    });
+})();
+</script>
