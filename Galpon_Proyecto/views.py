@@ -1,3 +1,5 @@
+from copy import copy
+from django.forms import Select
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test 
@@ -22,114 +24,69 @@ from .forms import RegistroVacunacionForm
 
 from datetime import datetime
 from django.db.models import Sum
+from .forms import RegistroProduccionForm
+from .models import HUEVOS_POR_CUBETA
+from .stock_huevos import bloquear_stock_huevos, clasificacion_sin_stock, stock_huevos
 from django.core.paginator import Paginator
 
-# PRODUCCIÓN (JOHAN)
+
 def registrar_produccion(request):
-    if request.method == 'POST':
-        huevos = request.POST.get('cantidad_huevos')
-        cubetas = request.POST.get('cantidad_cubetas')
-        rotos = request.POST.get('cantidad_huevos_rotos') or '0'
-        fecha_texto = request.POST.get('fecha')                      
-
-        if not huevos or not cubetas or not fecha_texto:             #fecha_texto
-            messages.error(request, "Por favor, complete todos los campos.")
-        else:
-            # convertir y validar la fecha
-            try:
-                fecha = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
-            except ValueError:
-                fecha = None
-
-            if fecha is None:                                        #
-                messages.error(request, "La fecha no es válida")
-            elif fecha > timezone.localdate():                       
-                messages.error(request, "La fecha no puede ser futura")
-            else:
-                try:
-                    huevos = int(huevos)
-                    cubetas = int(cubetas)
-                    rotos = int(rotos)
-                    if huevos <= 0 or cubetas <= 0:
-                        messages.error(request, "La cantidad debe ser un número entero mayor a cero")
-                    elif rotos < 0:
-                        messages.error(request, "Los huevos rotos deben ser un número entero mayor o igual a cero")
-                    elif rotos > huevos:
-                        messages.error(request, "Los huevos rotos no pueden superar el total recolectado")
-                    else:
-                        RegistroProduccion.objects.create(
-                            fecha=fecha,                             
-                            cantidad_huevos=huevos,
-                            cantidad_huevos_rotos=rotos,
-                            cantidad_cubetas=cubetas
-                        )
-                        messages.success(request, "Registro guardado exitosamente")
-                        return redirect('registrar_produccion')
-                except (ValueError, TypeError):
-                    messages.error(request, "La cantidad debe ser un número entero mayor a cero")
-
-    registros_qs = RegistroProduccion.objects.order_by('-fecha', '-id')
-    paginator = Paginator(registros_qs, 5)
-    registros = paginator.get_page(request.GET.get('page'))
-    rango_paginas = paginator.get_elided_page_range(registros.number, on_each_side=1, on_ends=1)
-
-    return render(request, 'produccion.html', {
-        'registros': registros,
-        'rango_paginas': rango_paginas,
-        'hoy': timezone.localdate(),
-    })
+    return guardar_produccion(request)
 
 
 def editar_produccion(request, pk):
-    registro = get_object_or_404(RegistroProduccion, pk=pk)
+    return guardar_produccion(request, pk)
+
+
+def guardar_produccion(request, pk=None):
     if request.method == 'POST':
-        huevos = request.POST.get('cantidad_huevos')
-        cubetas = request.POST.get('cantidad_cubetas')
-        rotos = request.POST.get('cantidad_huevos_rotos') or '0'
-        fecha_texto = request.POST.get('fecha')                      
-
-        # convertir y validar la fecha
-        try:
-            fecha = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
-        except (ValueError, TypeError):
-            fecha = None
-
-        if fecha is None:                                            
-            messages.error(request, "La fecha no es válida")
-        elif fecha > timezone.localdate():                          
-            messages.error(request, "La fecha no puede ser futura")
-        else:
-            try:
-                huevos = int(huevos)
-                cubetas = int(cubetas)
-                rotos = int(rotos)
-                if huevos <= 0 or cubetas <= 0:
-                    messages.error(request, "La cantidad debe ser un número entero mayor a cero")
-                elif rotos < 0:
-                    messages.error(request, "Los huevos rotos deben ser un número entero mayor o igual a cero")
-                elif rotos > huevos:
-                    messages.error(request, "Los huevos rotos no pueden superar el total recolectado")
-                else:
-                    registro.fecha = fecha                           # NUEVO
-                    registro.cantidad_huevos = huevos
-                    registro.cantidad_huevos_rotos = rotos
-                    registro.cantidad_cubetas = cubetas
-                    registro.save()
-                    messages.success(request, "Registro actualizado exitosamente")
+        with transaction.atomic():
+            bloquear_stock_huevos()
+            anterior = get_object_or_404(RegistroProduccion, pk=pk) if pk is not None else None
+            # ModelForm actualiza su instancia al validar.
+            form = RegistroProduccionForm(request.POST, instance=copy(anterior))
+            if form.is_valid():
+                nuevo = form.save(commit=False)
+                faltante = clasificacion_sin_stock(anterior, nuevo)
+                if faltante is None:
+                    nuevo.save()
+                    messages.success(request, 'Registro actualizado exitosamente' if pk else 'Registro guardado exitosamente')
                     return redirect('registrar_produccion')
-            except (ValueError, TypeError):
-                messages.error(request, "La cantidad debe ser un número entero mayor a cero")
+                form.add_error(None, error_reduccion_stock(faltante))
+    else:
+        instancia = get_object_or_404(RegistroProduccion, pk=pk) if pk is not None else None
+        inicial = {'fecha': timezone.localdate()} if instancia is None else None
+        form = RegistroProduccionForm(instance=instancia, initial=inicial)
 
-    return render(request, 'produccion_editar.html', {'registro': registro})
+    contexto = {'form': form}
+    if pk is not None:
+        return render(request, 'produccion_editar.html', contexto)
+    contexto['registros'] = RegistroProduccion.objects.all()
+    return render(request, 'produccion.html', contexto)
+
+
+def error_reduccion_stock(clasificacion):
+    etiqueta = clasificacion or 'Sin clasificar'
+    return f'El cambio dejaría sin respaldo ventas de cubetas de la clasificación {etiqueta}.'
+
+
 def eliminar_produccion(request, pk):
     registro = get_object_or_404(RegistroProduccion, pk=pk)
 
     if request.method == 'POST':
-        registro.delete()
-        messages.success(request, "Registro eliminado exitosamente")
-        return redirect('registrar_produccion')
+        with transaction.atomic():
+            bloquear_stock_huevos()
+            registro = get_object_or_404(RegistroProduccion, pk=pk)
+            faltante = clasificacion_sin_stock(registro, None)
+            if faltante is None:
+                registro.delete()
+                messages.success(request, 'Registro eliminado exitosamente')
+                return redirect('registrar_produccion')
+            messages.error(request, error_reduccion_stock(faltante))
+            return redirect('registrar_produccion')
 
     return render(request, 'produccion_eliminar.html', {'registro': registro})
+
 
 # CONSUMO DIARIO (JHON)
 
@@ -249,7 +206,7 @@ def mortalidad_registrar(request):
             messages.success(request, 'Registro de mortalidad guardado correctamente.')
             return redirect('mortalidad_lista')
     else:
-        form = RegistroMortalidadForm()
+        form = RegistroMortalidadForm(initial={'fecha': timezone.localdate()})
 
     return render(request, 'registrar.html', {'form': form})
 
@@ -286,224 +243,97 @@ def mortalidad_editar(request, pk):
 
 @login_required
 def registrar_venta(request):
-    form = VentaForm()
-    error_manual = None
-
+    hoy = timezone.localdate()
+    form = VentaForm(initial={'fecha': hoy})
     if request.method == 'POST':
-        form = VentaForm(request.POST)
+        with transaction.atomic():
+            bloquear_stock_huevos()
+            form = VentaForm(request.POST)
+            if guardar_venta(form, request.user):
+                messages.success(request, f'Venta registrada. Total: ${form.instance.total}')
+                return redirect('registrar_venta')
 
-        cliente_id = request.POST.get('cliente', '').strip()
-        cliente_obj = Cliente.objects.filter(pk=cliente_id).first() if cliente_id.isdigit() else None
-        cantidad = request.POST.get('cantidad_cubetas', '')
-        precio = request.POST.get('precio_unitario', '')
-        fecha_texto = request.POST.get('fecha','').strip()
-
-        cantidad_int = None
-        precio_float = None
-        fecha_venta = None
-
-        # Validar cliente
-        if cliente_obj is None:
-            error_manual = "Debes seleccionar un cliente de la lista."
-
-        # Validar cantidad
-        elif not cantidad:
-            error_manual = "La cantidad de cubetas es obligatoria."
-        else:
-            try:
-                cantidad_int = int(cantidad)
-                if cantidad_int <= 0:
-                    error_manual = "La cantidad debe ser mayor a cero."
-            except (ValueError, TypeError):
-                error_manual = "La cantidad debe ser un número entero."
-    
-        # Validar precio
-        if error_manual is None:
-            if not precio:
-                error_manual = "El precio por cubeta es obligatorio."
-            else:
-                try:
-                    precio_limpio = str(precio).replace(".", "").replace(",", ".")
-                    precio_float = float(precio_limpio)
-                    if precio_float <= 0:
-                        error_manual = "El precio debe ser mayor a cero."
-                except (ValueError, TypeError):
-                    error_manual = "El precio debe ser un número válido."
-
-        # Validar fecha
-        if error_manual is None:
-            if not fecha_texto:
-                error_manual = "La fecha de la venta es obligatoria."
-            else: 
-                try:
-                    fecha_venta = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
-                    if fecha_venta > timezone.localdate():
-                        error_manual = "La fecha de la venta no puede ser futura."
-                except ValueError:
-                    error_manual = "La fecha de la venta no es válida."
-
-        # Verificar stock disponible
-        if error_manual is None:
-            total_producido = RegistroProduccion.objects.aggregate(
-                total=Sum('cantidad_cubetas')
-            )['total'] or 0
-
-            total_vendido = Venta.objects.aggregate(
-                total=Sum('cantidad_cubetas')
-            )['total'] or 0
-
-            stock_disponible = total_producido - total_vendido
-
-            if cantidad_int > stock_disponible:
-                error_manual = f"Stock insuficiente. Solo hay {stock_disponible} cubetas disponibles."
-
-        # Si todo está bien, guardar
-        if error_manual is None:
-            venta = Venta(
-                cliente=cliente_obj,
-                cantidad_cubetas=cantidad_int,
-                precio_unitario=precio_float,
-                cantidad_huevos=cantidad_int * 30,
-                total=cantidad_int * precio_float,
-                fecha=fecha_venta,
-                registrado_por=request.user,
-            )
-            venta.save()
-            messages.success(request, f'Venta registrada. Total: ${venta.total}')
-            return redirect('registrar_venta')
-
-    total_producido = RegistroProduccion.objects.aggregate(
-        total=Sum('cantidad_cubetas')
-    )['total'] or 0
-    total_vendido = Venta.objects.aggregate(
-        total=Sum('cantidad_cubetas')
-    )['total'] or 0
-    stock_disponible = total_producido - total_vendido
-
-    hoy = timezone.now().date()
-    ingresos_hoy = Venta.objects.filter(fecha=hoy).aggregate(
-        total=Sum('total')
-    )['total'] or 0
-
-    ventas_qs = Venta.objects.select_related('cliente').order_by('-fecha', '-id')
-    paginator = Paginator(ventas_qs, 5)
-    ventas = paginator.get_page(request.GET.get('page'))
-    rango_paginas = paginator.get_elided_page_range(ventas.number, on_each_side=1, on_ends=1)
-
-    ingresos_hoy = f"{int(ingresos_hoy):,}".replace(",", ".")
-    for v in ventas:
-        v.total_form = f"{int(v.total):,}".replace(",", ".")
-        v.precio_form = f"{int(v.precio_unitario):,}".replace(",", ".")
+    existencias = stock_huevos()
+    stock_por_clasificacion = [
+        (clasificacion or 'Sin clasificar', max(huevos // HUEVOS_POR_CUBETA, 0))
+        for clasificacion, huevos in existencias.items()
+    ]
+    ingresos_hoy = Venta.objects.filter(fecha=hoy).aggregate(total=Sum('total'))['total'] or 0
+    filtros_clasificacion = form.fields['clasificacion'].choices[1:]
+    filtro = request.GET.get('clasificacion', '')
+    ventas = Venta.objects.order_by('-fecha', '-pk')
+    if filtro in dict(filtros_clasificacion):
+        ventas = ventas.filter(clasificacion='' if filtro == 'sin_clasificar' else filtro)
+    for venta in ventas:
+        venta.total_form = f"{int(venta.total):,}".replace(",", ".")
+        venta.precio_form = f"{int(venta.precio_unitario):,}".replace(",", ".")
 
     return render(request, 'venta.html', {
         'form': form,
+        'hoy': hoy,
         'ventas': ventas,
-        'error_manual': error_manual,
-        'stock_disponible': stock_disponible,
-        'ingresos_hoy': ingresos_hoy,
-        'hoy': timezone.localdate(),
-        'clientes': Cliente.objects.all(),
-        'rango_paginas': rango_paginas,
+        'stock_disponible': sum(cubetas for _, cubetas in stock_por_clasificacion),
+        'stock_por_clasificacion': stock_por_clasificacion,
+        'filtros_clasificacion': filtros_clasificacion,
+        'filtro_clasificacion': filtro,
+        'ingresos_hoy': f"{int(ingresos_hoy):,}".replace(",", "."),
     })
+
+
+def guardar_venta(form, usuario):
+    if not form.is_valid():
+        return False
+
+    venta = form.save(commit=False)
+    huevos_disponibles = stock_huevos(excluir_venta=venta.pk)[venta.clasificacion]
+    cubetas_disponibles = max(huevos_disponibles // HUEVOS_POR_CUBETA, 0)
+    if venta.cantidad_cubetas > cubetas_disponibles:
+        etiqueta = venta.get_clasificacion_display() or 'Sin clasificar'
+        form.add_error('cantidad_cubetas', f'Solo hay {cubetas_disponibles} cubetas disponibles de la clasificación {etiqueta}.')
+        return False
+
+    venta.cantidad_huevos = venta.cantidad_cubetas * HUEVOS_POR_CUBETA
+    if venta.pk is None:
+        venta.registrado_por = usuario
+    venta.save()
+    return True
+
 
 @login_required
 def editar_venta(request, pk):
-    venta = get_object_or_404(Venta, id=pk)
-    error_manual = None
-
     if request.method == 'POST':
-        cliente_id = request.POST.get('cliente', '').strip()
-        cliente_obj = Cliente.objects.filter(pk=cliente_id).first() if cliente_id.isdigit() else None
-        cantidad = request.POST.get('cantidad_cubetas', '')
-        precio = request.POST.get('precio_unitario', '')
-        fecha_texto = request.POST.get('fecha', '').strip()
+        with transaction.atomic():
+            bloquear_stock_huevos()
+            venta = get_object_or_404(Venta, pk=pk)
+            form = VentaForm(request.POST, instance=venta)
+            if guardar_venta(form, request.user):
+                messages.success(request, 'Venta actualizada correctamente.')
+                return redirect('registrar_venta')
+    else:
+        venta = get_object_or_404(Venta, pk=pk)
+        form = VentaForm(instance=venta)
 
-        cantidad_int = None
-        precio_float = None
-        fecha_venta = None
+    clientes = list(Cliente.objects.values_list('nombre', flat=True).distinct())
+    cliente_actual = form['cliente'].value()
+    if cliente_actual and cliente_actual not in clientes:
+        clientes.append(cliente_actual)
+    form.fields['cliente'].widget = Select(choices=[('', 'Selecciona un cliente'), *((nombre, nombre) for nombre in clientes)])
 
-        #validar cliente
-        if cliente_obj is None:
-            error_manual = "Debes seleccionar un cliente de la lista."
+    return render(request, 'venta_editar.html', {'form': form, 'venta': venta})
 
-        #validar cantidad
-        if error_manual is None:
-            try:
-                cantidad_int = int(cantidad)
-                if cantidad_int <= 0:
-                    error_manual = "La cantidad debe ser mayor a cero."
-            except (ValueError, TypeError):
-                error_manual = "La cantidad debe ser un número entero."
-
-        #Validar precio
-        if error_manual is None:
-            try:
-                precio_limpio = str(precio).replace(".", "").replace(",", ".")
-                precio_float = float(precio_limpio)
-                if precio_float <= 0:
-                    error_manual = "El precio debe ser mayor a cero."
-            except (ValueError, TypeError):
-                error_manual = "El precio debe ser un número válido."
-
-        # fecha
-        if error_manual is None:
-            if not fecha_texto:
-                error_manual = "La fecha de la venta es obligatoria."
-            else:
-                try:
-                    fecha_venta = datetime.strptime(fecha_texto, '%Y-%m-%d').date()
-                    if fecha_venta > timezone.localdate():
-                        error_manual = "La fecha de la venta no puede ser futura."
-                except ValueError:
-                    error_manual = "La fecha de la venta no es válida."
-
-        # Verificar stock 
-        if error_manual is None:
-            total_producido = RegistroProduccion.objects.aggregate(
-                total=Sum('cantidad_cubetas')
-            )['total'] or 0
-            total_vendido = Venta.objects.exclude(id=venta.id).aggregate(
-                total=Sum('cantidad_cubetas')
-            )['total'] or 0
-            stock_disponible = total_producido - total_vendido
-
-            if cantidad_int > stock_disponible:
-                error_manual = f"Stock insuficiente. Solo hay {stock_disponible} cubetas disponibles."
-
-        # Guardar cambios
-        if error_manual is None:
-            venta.cliente = cliente_obj
-            venta.cantidad_cubetas = cantidad_int
-            venta.precio_unitario = precio_float
-            venta.cantidad_huevos = cantidad_int * 30
-            venta.total = cantidad_int * precio_float
-            venta.fecha = fecha_venta
-            venta.save()
-            messages.success(request, 'Venta actualizada correctamente.')
-            return redirect('registrar_venta')
-
-    # Este bloque se ejecuta si es GET 
-    clientes = Cliente.objects.all()
-
-    return render(request, 'venta_editar.html', {
-        'venta': venta,
-        'clientes': Cliente.objects.all(),
-        'hoy': timezone.localdate(),
-        'error_manual': error_manual,
-        'clientes':clientes,
-    })
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
-        venta.delete()
+        with transaction.atomic():
+            bloquear_stock_huevos()
+            get_object_or_404(Venta, pk=pk).delete()
         messages.success(request, 'Venta eliminada.')
         return redirect('registrar_venta')
 
     venta.total_form = f"{int(venta.total):,}".replace(",", ".")
-
     return render(request, 'venta_eliminar.html', {'venta': venta})
 
 
@@ -590,7 +420,10 @@ def registrar_alimento(request):
                 registrado_por=request.user,
             )
             alimento.save()
-            messages.success(request, f'Ingreso registrado. Costo total: ${alimento.costo_total}')
+            
+            # 👇 AQUÍ ESTÁ EL CAMBIO: Usamos formato_cop en lugar de imprimir el float directo
+            messages.success(request, f'Ingreso registrado. Costo total: {formato_cop(alimento.costo_total)}')
+            
             return redirect('registrar_alimento')
 
     # Calcular el stock por tipo (suma de todos los registros)
@@ -1137,7 +970,7 @@ def vacunacion_registrar(request):
             messages.success(request, 'Registro de vacunación guardado exitosamente.')
             return redirect('vacunacion_lista')
     else:
-        form = RegistroVacunacionForm()
+        form = RegistroVacunacionForm(initial={'fecha_aplicacion': timezone.localdate()})
 
     return render(request, 'vacunacion_registrar.html', {'form': form})
 

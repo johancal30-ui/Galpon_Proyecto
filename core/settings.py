@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     #MIAS
     'accounts',
     'Galpon_Proyecto',
-    'tailwind',
+    
 ]
 
 MIDDLEWARE = [
@@ -60,7 +60,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'Galpon_Proyecto' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -1,49 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iniciar Sesión - Galpón Proyecto</title>
-<style>
-:root { --amarillo:#f8c444; --naranja:#f0a050; --fuerte:#e8892b; --crema:#fff8e8; --durazno:#feeedd; --borde:#f5cfa8; --cafe:#3a2210; --suave:#7a5f4a; }
-* { box-sizing:border-box; }
-body { margin:0; min-height:100vh; padding:32px 20px; display:flex; justify-content:center; align-items:center; font-family:"Segoe UI",system-ui,Arial,sans-serif; color:var(--cafe);
-  background:radial-gradient(circle at 12% 18%,rgba(248,196,68,.45),transparent 38%),radial-gradient(circle at 88% 85%,rgba(240,160,80,.35),transparent 40%),var(--crema); }
-.wrap { display:flex; width:100%; max-width:1000px; border-radius:24px; overflow:hidden; background:var(--durazno); border:2px solid var(--borde); box-shadow:0 24px 60px rgba(120,70,20,.25); }
-
-/* Panel izquierdo */
-.izq { flex:1.05; padding:48px 40px 0; display:flex; flex-direction:column; position:relative; overflow:hidden; background:linear-gradient(135deg,var(--amarillo),var(--naranja)); }
-.izq::before { content:""; position:absolute; width:240px; height:240px; top:-80px; right:-70px; border:2px solid rgba(255,255,255,.4); border-radius:50%; background:rgba(255,255,255,.12); }
-.izq > * { position:relative; }
-.marca { width:fit-content; margin-bottom:24px; padding:7px 16px; font-size:13px; font-weight:700; background:rgba(255,248,232,.55); border:1.5px solid rgba(58,34,16,.25); border-radius:999px; }
-.izq h2 { margin:0 0 14px; font:800 38px/1.1 "Courier New",monospace; }
-.izq p { margin:0 0 20px; max-width:340px; font-size:16px; line-height:1.5; }
-.chips { display:flex; flex-wrap:wrap; gap:8px; }
-.chips span { padding:6px 13px; font-size:13px; font-weight:700; background:var(--durazno); border:1.5px solid var(--borde); border-radius:999px; }
-.izq svg { width:100%; max-width:330px; margin:auto auto 0; display:block; }
-
-/* Panel derecho */
-.der { flex:1; padding:56px 52px; display:flex; flex-direction:column; justify-content:center; }
-.icono { width:76px; height:76px; margin-bottom:18px; display:flex; align-items:center; justify-content:center; font-size:40px; background:#fff; border:2px solid var(--borde); border-radius:50%; box-shadow:0 6px 14px rgba(240,160,80,.25); }
-h1 { margin:0 0 8px; font:800 34px "Courier New",monospace; }
-.sub { margin:0 0 28px; color:var(--suave); }
-label { display:block; margin-bottom:8px; font:700 16px Georgia,serif; }
-.campo { position:relative; margin-bottom:22px; }
-.campo span { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px; }
-input { width:100%; padding:15px 16px 15px 46px; font:16px inherit; color:var(--cafe); background:#fff; border:1.5px solid var(--borde); border-radius:12px; transition:.2s; }
-input:focus { outline:none; border-color:var(--fuerte); box-shadow:0 0 0 4px rgba(240,160,80,.3); }
-button { width:100%; padding:16px; font:700 17px inherit; color:var(--crema); background:var(--cafe); border:2px solid var(--cafe); border-radius:12px; cursor:pointer; transition:.2s; }
-button:hover { background:var(--fuerte); border-color:var(--fuerte); color:#fff; box-shadow:0 8px 18px rgba(232,137,43,.4); }
-a { color:var(--fuerte); font-weight:700; text-decoration:none; }
-a:hover { color:var(--cafe); text-decoration:underline; }
-.enlaces { margin-top:18px; text-align:center; font-size:14px; }
-.registro { margin-top:24px; padding-top:22px; text-align:center; color:var(--suave); border-top:1.5px dashed var(--borde); }
-.error, .mensaje { margin-bottom:22px; padding:13px 16px; font-size:14px; border-radius:12px; border-left:4px solid; }
-.error { background:#fde4dc; color:#a63a1a; border-color:#a63a1a; }
-.mensaje { background:#fff3c9; color:#6b4a0a; border-color:var(--fuerte); }
-
-@media (max-width:860px) { .wrap { flex-direction:column; max-width:480px; } .izq { padding:32px 28px 0; } .izq h2 { font-size:28px; } .izq svg { max-width:230px; } .der { padding:36px 28px; } h1 { font-size:28px; } }
-</style>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión - Galpón Proyecto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .mensaje {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% include "includes/accessibility.html" %}
 </head>
 <body>
 <div class="wrap">

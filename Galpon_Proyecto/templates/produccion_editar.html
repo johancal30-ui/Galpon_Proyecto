@@ -88,7 +88,7 @@
         }
         label { display: block; margin-top: 16px; font-weight: 700; font-size: 0.9rem; color: var(--tinta); }
         label:first-of-type { margin-top: 0; }
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 11px 14px;
             margin-top: 7px;
@@ -184,6 +184,7 @@
             th, td { padding: 11px 12px; }
         }
     </style>
+{% include "includes/accessibility.html" %}
 </head>
 <body>
     <div class="container">
@@ -200,17 +201,19 @@
 
         <form method="post">
             {% csrf_token %}
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" name="fecha" value="{{ registro.fecha|date:'Y-m-d' }}">
 
-            <label for="cantidad_huevos">Cantidad de huevos recolectados:</label>
-            <input type="text" inputmode="numeric" id="cantidad_huevos" name="cantidad_huevos" value="{{ registro.cantidad_huevos }}">
-
-            <label for="cantidad_huevos_rotos">Cantidad de huevos rotos:</label>
-            <input type="text" inputmode="numeric" id="cantidad_huevos_rotos" name="cantidad_huevos_rotos" value="{{ registro.cantidad_huevos_rotos }}">
-
-            <label for="cantidad_cubetas">Número de cubetas armadas:</label>
-            <input type="text" inputmode="numeric" id="cantidad_cubetas" name="cantidad_cubetas" value="{{ registro.cantidad_cubetas }}">
+            {% if form.non_field_errors %}
+                <div class="mensaje-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for campo in form %}
+                {% if campo.name == 'unidad_clasificacion' %}
+                    <h3>Clasificación por tamaño</h3>
+                    <p>Usa cubetas para los paquetes de 30 o huevos individuales para contar unidades sueltas.</p>
+                {% endif %}
+                {{ campo.label_tag }}
+                {{ campo }}
+                {% if campo.errors %}<div class="mensaje-error">{{ campo.errors }}</div>{% endif %}
+            {% endfor %}
 
             <div class="acciones-form">
                 <button type="submit">Guardar cambios</button>

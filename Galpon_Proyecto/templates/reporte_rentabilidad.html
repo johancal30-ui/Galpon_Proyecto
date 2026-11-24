@@ -104,10 +104,19 @@
             margin: 0 0 10px 0; font-size: 0.95rem; color: var(--suave); text-transform: uppercase;
         }
         .tarjeta-stat .numero { font-size: 2rem; font-weight: 800; margin: 0; color: var(--tinta); }
-        .numero.negativo { color: var(--rojo); }
-        .numero.positivo { color: var(--verde); }
+        
+        /* CLASES PARA EL COLOR DEL TEXTO (ARREGLA EL ERROR) */
+        .numero.negativo, .texto-perdida { color: var(--rojo); }
+        .numero.positivo, .texto-rentable { color: var(--verde); }
         
         .tarjeta-balance { background: var(--tarjeta); border-color: var(--naranja-fuerte); }
+        
+        .mensaje-rentabilidad {
+            margin-top: 10px; 
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
 
         /* Tabla de Desglose */
         .tabla-contenedor {
@@ -189,14 +198,12 @@
             </div>
             <div class="tarjeta-stat tarjeta-balance">
                 <h3>Margen Neto</h3>
+                <!-- AQUI ESTA EL ARREGLO -->
                 <p class="numero {% if es_rentable %}positivo{% else %}negativo{% endif %}">
                     ${{ margen }}
                 </p>
-                <p style="margin-top: 10px; font-weight: 700;">
-                    Estado: 
-                    <span class="{% if es_rentable %}texto-verde{% else %}texto-rojo{% endif %}">
-                        {% if es_rentable %}Rentable{% else %}No Rentable{% endif %}
-                    </span>
+                <p class="mensaje-rentabilidad {% if es_rentable %}texto-rentable{% else %}texto-perdida{% endif %}">
+                    {% if es_rentable %}✅ RENTABLE{% else %}❌ PÉRDIDAS{% endif %}
                 </p>
             </div>
         </div>

@@ -3,6 +3,25 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+HUEVOS_POR_CUBETA = 30
+
+
+class ClasificacionHuevo(models.TextChoices):
+    A = 'A', 'A'
+    AA = 'AA', 'AA'
+    AAA = 'AAA', 'AAA'
+    JUMBO = 'Jumbo', 'Jumbo'
+
+
+CAMPOS_CLASIFICACION = {
+    clasificacion: f'huevos_{clasificacion.lower()}'
+    for clasificacion in ClasificacionHuevo
+}
+
+
+class ControlStockHuevos(models.Model):
+    """Fila compartida para serializar movimientos de producción y ventas."""
+
 # REGISTRO DE PRODUCCIÓN (JOHAN)
 
 class RegistroProduccion(models.Model):
@@ -10,11 +29,22 @@ class RegistroProduccion(models.Model):
     cantidad_huevos = models.PositiveIntegerField()
     cantidad_cubetas = models.PositiveIntegerField()
     cantidad_huevos_rotos = models.PositiveIntegerField(default=0)
+    huevos_a = models.PositiveIntegerField('A', default=0, blank=True)
+    huevos_aa = models.PositiveIntegerField('AA', default=0, blank=True)
+    huevos_aaa = models.PositiveIntegerField('AAA', default=0, blank=True)
+    huevos_jumbo = models.PositiveIntegerField('Jumbo', default=0, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-fecha']
+
+    @property
+    def cubetas_y_sobrantes(self):
+        return [
+            divmod(getattr(self, campo), HUEVOS_POR_CUBETA)
+            for campo in CAMPOS_CLASIFICACION.values()
+        ]
 
     def __str__(self):
         return f"Registro {self.fecha} - {self.cantidad_huevos} huevos / {self.cantidad_cubetas} cubetas"
@@ -114,6 +144,9 @@ class Venta(models.Model):
     cliente = models.ForeignKey('Cliente', on_delete=models.PROTECT, related_name='ventas')
     cantidad_huevos = models.PositiveIntegerField()
     cantidad_cubetas = models.PositiveIntegerField()
+    clasificacion = models.CharField(
+        max_length=5, choices=ClasificacionHuevo.choices, blank=True, default='',
+    )
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, help_text="Precio por cubeta")
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)

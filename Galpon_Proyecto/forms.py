@@ -1,9 +1,77 @@
+import re
+
 from django import forms
 from django.utils import timezone
-from .models import RegistroConsumo
-from .models import RegistroMortalidad
-from .models import Venta, Alimento, Inventario, GastoOperativo
-from .models import RegistroVacunacion
+from .models import (
+    CAMPOS_CLASIFICACION, HUEVOS_POR_CUBETA, Alimento, ClasificacionHuevo, GastoOperativo, Inventario,
+    RegistroConsumo, RegistroMortalidad, RegistroProduccion, RegistroVacunacion, Venta,
+)
+
+
+class FechaRegistroForm(forms.ModelForm):
+    fecha = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['fecha'].widget.attrs['max'] = timezone.localdate().isoformat()
+
+    def clean_fecha(self):
+        fecha = self.cleaned_data['fecha']
+        if fecha > timezone.localdate():
+            raise forms.ValidationError('La fecha no puede ser futura.')
+        return fecha
+
+
+class RegistroProduccionForm(FechaRegistroForm):
+    cantidad_huevos = forms.IntegerField(min_value=1, label='Cantidad de huevos recolectados')
+    cantidad_huevos_rotos = forms.IntegerField(min_value=0, required=False, label='Cantidad de huevos rotos')
+    cantidad_cubetas = forms.IntegerField(min_value=0, label='Número de cubetas armadas')
+    unidad_clasificacion = forms.ChoiceField(
+        label='Unidad de la clasificación', required=False,
+        choices=[('cubetas', 'Cubetas de 30 huevos'), ('huevos', 'Huevos individuales')],
+        initial='cubetas',
+    )
+
+    class Meta:
+        model = RegistroProduccion
+        fields = (
+            'fecha', 'cantidad_huevos', 'cantidad_huevos_rotos', 'cantidad_cubetas',
+            'unidad_clasificacion', *CAMPOS_CLASIFICACION.values(),
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and not self.is_bound:
+            campos = CAMPOS_CLASIFICACION.values()
+            if any(self.initial[campo] % HUEVOS_POR_CUBETA for campo in campos):
+                self.initial['unidad_clasificacion'] = 'huevos'
+            else:
+                for campo in campos:
+                    self.initial[campo] //= HUEVOS_POR_CUBETA
+
+    def clean(self):
+        datos = super().clean()
+        campos = ('cantidad_huevos_rotos', *CAMPOS_CLASIFICACION.values())
+        for campo in campos:
+            if campo in datos and datos[campo] is None:
+                datos[campo] = 0
+
+        total = datos.get('cantidad_huevos')
+        rotos = datos.get('cantidad_huevos_rotos')
+        if datos.get('unidad_clasificacion') == 'cubetas':
+            campos = CAMPOS_CLASIFICACION.values()
+            cubetas = datos.get('cantidad_cubetas')
+            if cubetas is not None and sum(datos.get(campo, 0) for campo in campos) > cubetas:
+                self.add_error('unidad_clasificacion', 'Las cubetas clasificadas no pueden superar las cubetas armadas.')
+            for campo in campos:
+                if campo in datos:
+                    datos[campo] *= HUEVOS_POR_CUBETA
+        if total is not None and rotos is not None:
+            if rotos > total:
+                self.add_error('cantidad_huevos_rotos', 'Los huevos rotos no pueden superar el total recolectado.')
+            elif sum(datos.get(campo, 0) for campo in CAMPOS_CLASIFICACION.values()) > total - rotos:
+                self.add_error(None, 'Los huevos clasificados no pueden superar los huevos recolectados menos los rotos.')
+        return datos
 
 
 
@@ -25,12 +93,21 @@ class RegistroConsumoForm(forms.ModelForm):
             'bultos_consumidos': 'Bultos de alimento gastados hoy',
         }
 
-class RegistroMortalidadForm(forms.ModelForm):
+class FormularioConLote(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.is_bound and 'lote' not in self.initial:
+            lotes = list(self.fields['lote'].queryset.values_list('pk', flat=True)[:2])
+            if len(lotes) == 1:
+                self.initial['lote'] = lotes[0]
+
+
+class RegistroMortalidadForm(FormularioConLote):
     class Meta:
         model = RegistroMortalidad
         fields = ['lote', 'fecha', 'cantidad', 'causa', 'observaciones']
         widgets = {
-            'fecha': forms.DateInput(attrs={'type': 'date'}),
+            'fecha': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
             'observaciones': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Opcional'}),
         }
         labels = {
@@ -44,45 +121,83 @@ class RegistroMortalidadForm(forms.ModelForm):
             'cantidad': 'Número entero, mayor a cero, y no mayor al total de aves vivas del lote.',
         }
 
-    # ✅ CRITERIO 3
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')
-
-        if cantidad is None:
-            raise forms.ValidationError("La cantidad es obligatoria.")
-
-        if cantidad <= 0:
-            raise forms.ValidationError(
-                "La cantidad debe ser un número entero mayor a cero."
-            )
-
-        # ✅ CRITERIO 4
         lote = self.cleaned_data.get('lote')
-        if lote and cantidad > lote.aves_vivas:
+
+        if cantidad is None or cantidad <= 0:
             raise forms.ValidationError(
-                "La cantidad de muertes no puede ser mayor al total de aves vivas del lote."
+                "La cantidad debe ser mayor a cero."
             )
+
+        if lote:
+            disponibles = lote.aves_vivas
+
+            # Al editar, devolver temporalmente al cálculo
+            # las muertes del registro actual.
+            if self.instance.pk and self.instance.lote_id == lote.pk:
+                disponibles += self.instance.cantidad
+
+            if cantidad > disponibles:
+                raise forms.ValidationError(
+                    f"No puedes registrar más de "
+                    f"{max(0, disponibles)} muertes en este lote."
+                )
 
         return cantidad
 
-    # ✅ CRITERIO 6
     def clean_fecha(self):
         fecha = self.cleaned_data.get('fecha')
+        lote = self.cleaned_data.get('lote')
 
-        if fecha and fecha > timezone.now().date():
-            raise forms.ValidationError("No se puede registrar una fecha futura.")
+        if fecha and fecha > timezone.localdate():
+            raise forms.ValidationError(
+                "No se puede registrar una fecha futura."
+            )
+
+        if fecha and lote and fecha < lote.fecha_ingreso:
+            raise forms.ValidationError(
+                "La fecha no puede ser anterior al ingreso del lote."
+            )
 
         return fecha
 
 
-class VentaForm(forms.ModelForm):
+
+class PrecioCubetaField(forms.DecimalField):
+    def to_python(self, value):
+        if isinstance(value, str):
+            value = value.strip()
+            if re.fullmatch(r'[0-9]{1,3}(?:\.[0-9]{3})+(?:,[0-9]{1,2})?', value):
+                value = value.replace('.', '')
+            if re.fullmatch(r'[0-9]+,[0-9]{1,2}', value):
+                value = value.replace(',', '.')
+        return super().to_python(value)
+
+
+class VentaForm(FechaRegistroForm):
+    clasificacion = forms.ChoiceField(
+        label='Clasificación',
+        choices=[('', 'Selecciona una clasificación'), *ClasificacionHuevo.choices, ('sin_clasificar', 'Sin clasificar')],
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and not self.instance.clasificacion:
+            self.initial['clasificacion'] = 'sin_clasificar'
+
+    def clean_clasificacion(self):
+        clasificacion = self.cleaned_data['clasificacion']
+        return '' if clasificacion == 'sin_clasificar' else clasificacion
+
     class Meta:
         model = Venta
-        fields = ['cliente', 'cantidad_cubetas', 'precio_unitario']
+        fields = ['fecha', 'cliente', 'clasificacion', 'cantidad_cubetas', 'precio_unitario']
         widgets = {
             'cantidad_cubetas': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
-            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01'}),
+            'precio_unitario': forms.TextInput(attrs={'class': 'form-control', 'inputmode': 'decimal'}),
         }
+        field_classes = {'precio_unitario': PrecioCubetaField}
         labels = {
             'cliente': 'Cliente',
             'cantidad_cubetas': 'Cantidad de cubetas',
@@ -217,18 +332,18 @@ class GastoOperativoForm(forms.ModelForm):
 
 # ... (tus otros forms) ...
 
-class RegistroVacunacionForm(forms.ModelForm):
+class RegistroVacunacionForm(FormularioConLote):
     class Meta:
         model = RegistroVacunacion
         fields = ['lote', 'fecha_aplicacion', 'vacuna', 'gallinas_vacunadas', 'requiere_refuerzo', 'dias_para_refuerzo']
         widgets = {
-            'fecha_aplicacion': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_aplicacion': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
         }
 
     # ✅ CRITERIO 4: Validar fecha futura y cantidad
     def clean_fecha_aplicacion(self):
         fecha = self.cleaned_data.get('fecha_aplicacion')
-        if fecha and fecha > timezone.now().date():
+        if fecha and fecha > timezone.localdate():
             raise forms.ValidationError("No se puede registrar una fecha futura.")
         return fecha
 
